@@ -2,12 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>KOY CALENDAR</title>
+    <meta name="description" content="Your page. Your rules. KOY is a customizable calendar and life-page builder." />
+    <meta property="og:title" content="KOY CALENDAR" />
+    <meta property="og:description" content="Your page. Your rules." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'><rect width='1200' height='630' fill='%23000'/><text x='600' y='370' font-family='monospace' font-size='280' font-weight='900' fill='%2300ff88' text-anchor='middle'>KOY</text><text x='600' y='460' font-family='monospace' font-size='40' fill='%23888' text-anchor='middle'>YOUR PAGE - YOUR RULES</text></svg>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="KOY CALENDAR" />
+    <meta name="twitter:description" content="Your page. Your rules." />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23000'/><text x='4' y='24' font-family='monospace' font-size='22' font-weight='900' fill='%2300ff88'>K</text></svg>" />
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { background: #000; overflow-x: hidden; }
+      html, body { background: #000; overflow-x: hidden; }
+      body { width: 100%; max-width: 100vw; }
+      @keyframes koySlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+      @keyframes koyFadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
   </head>
   <body>
