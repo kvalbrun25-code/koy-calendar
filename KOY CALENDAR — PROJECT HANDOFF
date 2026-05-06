@@ -1,9 +1,12 @@
+
+---
+
 # KOY CALENDAR — PROJECT HANDOFF DOC
 
 **Purpose:** Bring any new developer or future Claude instance up to speed on Koy in 10 minutes. Also serves as a safety backup if the current architect chat hits its limit.
 
-**Last updated:** May 6, 2026
-**Status:** Sprint 2 in progress (PR #2 active — calendar editing)
+**Last updated:** May 6, 2026 (updated mid-Sprint 2 — PR #2 active, PR #3 active, editor self-expression seed added to Sprint 5)
+**Status:** Sprint 2 in progress (PR #2 active — calendar editing, PR #3 active — image upload)
 
 ---
 
@@ -19,7 +22,10 @@ Koy is a customizable page builder where the same product serves wildly differen
 
 - **Khalid (founder, GitHub: kvalbrun25-code):** Non-coder. Architect/strategy lives in his Claude.ai chat. Token-conscious, lean communication, calls his Claude "Claudisson"/"Claudesson."
 - **The architect (Claude.ai chat, this instance):** Spec writing, strategic decisions, troubleshooting, design calls. Does NOT write production code directly.
-- **The implementor(s) (Claude Code on the web):** Reads specs, writes code, commits to feature branches, opens PRs. Currently 1 active; Khalid is considering adding a second.
+- **The implementors (Claude Code on the web):** Two parallel devs as of mid-Sprint 2.
+  - **Dev A:** Calendar editing track (PR #2 — chunks 6 + 7). Branch: `claude/sprint-2-pr-2-calendar-editability`.
+  - **Dev B:** Image upload track (PR #3 — chunk 8). Branch: `claude/sprint-2-pr-3-chunk-8-rETAk`.
+  - Two-dev maximum. Three+ creates merge conflicts faster than features ship.
 - **GPT (separate tool):** Marketing only. Not involved in product or engineering decisions.
 
 **Division of labor:** Architect specs → Implementor builds → Khalid tests → merge to main → Vercel auto-deploys.
@@ -37,8 +43,8 @@ Mobile single-column re-render. Public shareable URLs at `/u/{handle}`. Header c
 10 chunks across 4 PRs. Status:
 
 - **PR #1 (chunks 4 + 5 + 2 + 3): SHIPPED ✅** — Branding (green K favicon and OG image, SVG-only per Khalid's call), YouTube embed fix, login/logout control, account settings page.
-- **PR #2 (chunks 6 + 7): IN PROGRESS** — Editable calendar with bottom-sheet date editor (chunk 6), freeform mini-canvas per cell (chunk 7). Currently at sub-step 6a. Khalid is doing per-sub-step pause-and-test cadence (NOT yolo mode).
-- **PR #3 (chunk 8): NOT STARTED** — Image upload via Supabase Storage. Requires Khalid to manually create `user-uploads` bucket in Supabase Dashboard with public read enabled.
+- **PR #2 (chunks 6 + 7): IN PROGRESS — Dev A** — Editable calendar with bottom-sheet date editor (chunk 6), freeform mini-canvas per cell (chunk 7). Currently completed sub-steps 6a (state plumbing), 6b (upsert/delete helpers), 6c (CellEditor component with 12-emoji palette + label + collapsible P&L/count + journal + Save/Delete with confirmation). Spec deviation: desktop uses centered modal instead of anchored popover (viewport-edge clipping). Next: 6c.5 (per-cell color picker — rainbow calendar capability), 6d (cell visual rendering replaces mock heat-map), then 7a-7e (freeform mini-canvas).
+- **PR #3 (chunk 8): IN PROGRESS — Dev B** — Image upload via Supabase Storage. Bucket created with 25MB limit + MIME restrictions. Storage helper, file picker, add-block flow rewire, alt text rendering. Spec deviation: `b.content` stays as bare string with sibling `b.alt` field instead of nested object (cleaner diff, no migration on existing image blocks).
 - **PR #4 (chunk 9): NOT STARTED** — Tenor GIF integration. Requires Khalid to get free Tenor API key from `developers.google.com/tenor` and add `VITE_TENOR_API_KEY` to Vercel env vars.
 - **Chunk 10:** Final verification only (anonymous viewer can see uploaded images).
 
@@ -158,9 +164,10 @@ event_data (jsonb), device, shareable (bool default true), created_at
 **calendar_entries** — NEW in Sprint 2, replaces trading_days
 ```
 id, user_id (FK profiles), day, emoji, label, numeric_value, count_value,
-journal, mood, freeform_blocks (jsonb), created_at, updated_at
+journal, mood, color, freeform_blocks (jsonb), created_at, updated_at
 unique(user_id, day)
 ```
+- `color` column added in Sprint 2 PR #2 (rainbow calendar capability — per-cell background color override)
 - `freeform_blocks` format: `[{type: 'text'|'emoji'|'sticker', content, x: 0-100, y: 0-100, fontSize?, color?}, ...]`
 - Coordinates are percentages (cell-size independent)
 - Hard cap: 20 elements per cell, client-enforced
@@ -230,6 +237,12 @@ These are decisions that have been made but might come up again:
 | Marketplace what transfers | Skeleton only, not content/embeds/personal data | Architect strategy session |
 | Marketplace contests | Free entry, winners get featured-creator status (not paid prizes — sweepstakes law risk) | Architect strategy session |
 | Multi-month time machine | Real page snapshots, user-nameable months, opt-in P&L | Sprint 3 spec |
+| CellEditor desktop UI | Centered modal not anchored popover (viewport-edge clipping risk) | Sprint 2 PR #2, sub-step 6c |
+| Per-cell color | Single `color` column (background only), 12 swatches + "custom" hex picker for arbitrary colors | Sprint 2 PR #2, sub-step 6c.5 |
+| Image block storage shape | `b.content` stays bare URL string + sibling `b.alt` field (not nested object) | Sprint 2 PR #3, chunk 8 |
+| Editor self-expression timing | Seed editor expression in Sprint 5 alongside package architecture, not Sprint 10. Identity signal is constitutive to product, not additive | Architect strategy session, May 6 2026 |
+| Editor wrap economy timing | Theme/cursor marketplace deferred until after page marketplace ships (Sprint 6+) | Architect strategy session, May 6 2026 |
+| NSFW content | Deferred 12+ months post-launch; major regulatory implications, separate sister-platform if pursued | Architect strategy session, May 6 2026 |
 
 ---
 
@@ -238,14 +251,33 @@ These are decisions that have been made but might come up again:
 Khalid wants these in the order shown after Sprint 2 + 3 ship:
 
 1. **Package architecture** (Sprint 4) — `packages` table, `user_packages` join table, package-gated features and blocks. Build the *capability* without committing to a specific vertical. ~$25.99 hybrid pricing (one-time for templates/content, recurring features tied to active subscription).
-2. **First package** (Sprint 5) — chosen by data after 90 days of real users. Could be tattoo, hair, working parents, podcasters — whichever persona shows up most.
+2. **Editor Self-Expression Seed + First Package** (Sprint 5) — bundled because they amplify each other. The editor seed is constitutive to Koy's identity differentiation (per architect strategy session May 6 2026):
+   - **Editor Self-Expression Seed scope:**
+     - `profiles.editor_theme` text column, default `'koy_default'`
+     - `profiles.editor_panel_opacity` numeric 0.5-1.0, default 1.0
+     - `profiles.custom_cursor_url` text, nullable
+     - **4 themes shipped:** `koy_default` (current), `sticky_note` (yellow legal-pad, marker font), `terminal` (Bloomberg-meets-MySpace literally — black panel, monospace, green text), `[WILD CHOICE TBD]` (Y2K is architect's rec — frosted blue glass, gradient bars, animated hover sparkles, screenshots well on social)
+     - Account settings: theme picker, opacity slider, cursor uploader (32-128px PNG/SVG, 50KB max)
+     - CSS variables drive theme switching, no rebuild required
+     - Cursor: editor only, NOT public page (deferred)
+     - Mobile: opacity + theme work; cursor desktop-only (touch has no cursor)
+   - **First Package scope:** chosen by data after 90 days of real users. Could be tattoo, hair, working parents, podcasters — whichever persona shows up most.
 3. **Marketplace v1** (Sprint 6) — Stripe Connect integration, designer payouts, "Use this layout" purchase flow on every public page, $8.99 floor, 15% take.
 4. **Custom domains** (Sprint 7) — Pro-tier upsell, vercel.app/u/handle → yourname.com.
 5. **Discovery feeds** (Sprint 8) — algorithmic + curated, "Pages you might like" / "Trending layouts" / "Top this week."
 6. **Contest mechanics** (Sprint 9) — bi-weekly free contests, winners featured in marketplace.
-7. **Months archive — phase 2** — per-month shareable URLs (`/u/handle/october-2026`).
-8. **OAuth providers** — Google + Apple sign-in.
-9. **Email verification** — turn on before public launch.
+7. **Editor Wrap Economy expansion** (Sprint 10+) — when page marketplace exists and is mature enough to support the second one:
+   - Theme marketplace ($4.99 floor, 15% take rate)
+   - Cursor packs ($1.99 each, 3-cursor minimum bundles)
+   - Sound effect packs (hover/click sounds bundled with themes)
+   - Animated chrome (theme animations beyond the wild-theme baseline)
+   - Custom user-created themes (currently only Koy-shipped themes selectable; this opens it up)
+   - Featured Wrap of the Week, contest winner reserved slot
+   - Per-page cursor application (cursor follows visitor on public page, not just owner in editor)
+8. **Months archive — phase 2** — per-month shareable URLs (`/u/handle/october-2026`).
+9. **OAuth providers** — Google + Apple sign-in.
+10. **Email verification** — turn on before public launch.
+11. **NSFW content layer** — deferred 12+ months post-launch. Major regulatory implications: app stores (Apple/Google) reject, Stripe won't process, hosting providers have content policies. Path most platforms take: launch SFW only, build separate adult-content sister platform later if demand. Don't try to be both at once.
 
 ---
 
@@ -321,6 +353,10 @@ If you're a fresh Claude instance reading this because the previous architect ch
 - Don't reframe Koy as a productivity tool, Linktree alternative, or Notion competitor. None of those are accurate.
 - Don't recommend going viral via paid ads — Koy's growth model is page-as-marketing organic loop, not paid acquisition.
 - Don't suggest payment integrations before Sprint 6 (Stripe Connect for marketplace). Premium subscription Stripe is fine earlier as a separate concern.
+- Don't push the editor self-expression seed earlier than Sprint 5. It needs the package architecture work to land first so themes have rails to live on. Don't push it later than Sprint 5 either — it's a constitutive identity feature, not a polish item.
+- Don't build the editor wrap economy (theme/cursor marketplace) before the page marketplace exists. Two marketplaces can't ship simultaneously without confusion.
+- Don't recommend NSFW features. Major regulatory implications, deferred 12+ months minimum, separate sister-platform if pursued at all.
+- Don't add user-created custom themes during the seed phase. Sprint 5 ships ONLY Koy-curated themes; user uploads come in Sprint 10+.
 
 ---
 
