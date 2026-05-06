@@ -123,9 +123,21 @@ create policy "Users delete own files"
     and auth.uid()::text = (storage.foldername(name))[1]
   );
 
+-- ------------------------------------------------------------
+-- G. PER-CELL COLOR (Sprint 2 PR2 addition)
+-- ------------------------------------------------------------
+-- Optional cell background color override. NULL = use default heatmap
+-- or persona-driven coloring. When set, this hex string overrides the
+-- cell background. Already-running databases get this column added
+-- via the same idempotent statement.
+
+alter table public.calendar_entries add column if not exists color text;
+
 -- ============================================================
 -- DONE. Verify with:
 --   select count(*) from calendar_entries;
 --   select count(*) from trading_days;
 -- The two counts should match (data was copied over).
+--   \d calendar_entries
+-- Should show the new "color" column.
 -- ============================================================
