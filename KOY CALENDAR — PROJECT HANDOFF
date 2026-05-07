@@ -1,12 +1,9 @@
-
----
-
 # KOY CALENDAR — PROJECT HANDOFF DOC
 
 **Purpose:** Bring any new developer or future Claude instance up to speed on Koy in 10 minutes. Also serves as a safety backup if the current architect chat hits its limit.
 
-**Last updated:** May 6, 2026 (updated mid-Sprint 2 — PR #2 active, PR #3 active, editor self-expression seed added to Sprint 5)
-**Status:** Sprint 2 in progress (PR #2 active — calendar editing, PR #3 active — image upload)
+**Last updated:** May 6, 2026 (mid-Sprint 2 — added pre-launch security checklist, state management refactor plan, file-split refactor plan)
+**Status:** Sprint 2 in progress (PR #2 active — calendar editing through chunk 7b, PR #3 active — image upload through 8c)
 
 ---
 
@@ -357,6 +354,132 @@ If you're a fresh Claude instance reading this because the previous architect ch
 - Don't build the editor wrap economy (theme/cursor marketplace) before the page marketplace exists. Two marketplaces can't ship simultaneously without confusion.
 - Don't recommend NSFW features. Major regulatory implications, deferred 12+ months minimum, separate sister-platform if pursued at all.
 - Don't add user-created custom themes during the seed phase. Sprint 5 ships ONLY Koy-curated themes; user uploads come in Sprint 10+.
+
+---
+
+## 15. PRE-LAUNCH SECURITY & PRIVACY CHECKLIST
+
+Items that MUST be addressed before public launch. Track against this list before announcing Koy publicly.
+
+### Authentication & Account Security
+- [ ] **Email verification turned ON** in Supabase Dashboard → Authentication → Settings. Currently OFF, allowing fake account creation. Spam risk at scale.
+- [ ] **Password reset flow tested end-to-end.** Supabase has it built-in but verify the "forgot password" link is wired to the auth modal and emails are deliverable.
+- [ ] **Account deletion exposed in Account Settings page.** Currently no UI to delete account. GDPR requirement if launching in EU; basic respect regardless. `cascade` deletes through pages/comments/calendar_entries; `set null` on user_events anonymizes data.
+- [ ] **OAuth providers wired** (Google + Apple) — currently email+password only. Sprint 9+ scope but flag for launch readiness.
+
+### Rate Limiting & Abuse Prevention
+- [ ] **Verify Supabase rate limits** are configured. Free tier has defaults; check Settings → API. Anon key is exposed in client bundle (normal for client apps), so rate limiting is the only defense against script abuse.
+- [ ] **Add rate limit on user_events writes** — even with the auth.uid() = user_id policy, an authenticated user can spam millions of events to inflate their own activity or pollute the AI-training-data table. Options: trigger limiting inserts per user per minute, OR Edge Function with rate limit. Critical before selling data to any AI buyer.
+- [ ] **Add rate limit on comments** — max 5 per user per minute. Currently no limit; comment-spam is the easiest abuse vector at launch scale.
+
+### Content Safety
+- [ ] **Comment moderation: report button.** Add "report this comment" → stores report → manual review queue (acceptable at first 1-5K users; automated tooling like Hive/Sightengine when reports exceed ~20/day).
+- [ ] **Comment moderation: simple word blocklist** for the worst content. Free, fast, blocks obvious abuse.
+- [ ] **DMCA takedown procedure documented.** Required to use Section 512 safe harbor protection. Email address (e.g., dmca@koy.app), response SLA, takedown form.
+- [ ] **Image upload moderation.** User-uploaded images are highest-risk content vector. NSFW/copyrighted/etc. Either manual review queue at v1 OR moderation API (Hive, Sightengine, Cloudflare). Budget $100-500/month at small scale.
+
+### Data Privacy
+- [ ] **Privacy Policy published.** Cannot legally collect user data without one. Cover what data is collected, how it's used (especially the user_events → AI training story), retention, deletion.
+- [ ] **Terms of Service published.** Cover acceptable use, IP ownership, content removal rights, account termination, liability limits.
+- [ ] **Cookie consent banner** if launching in EU/UK markets.
+- [ ] **Document the public-storage caveat.** User-uploaded images live at guessable URLs in `user-uploads` bucket (path: `{user_id}/{block_id}/{timestamp}-{filename}`). If user removes an image from a page, the URL still works for anyone who saved it. True of all public CDNs (Imgur, Cloudinary, etc.) but document in Privacy Policy.
+
+### Architectural Security
+- [ ] **CSRF concern flagged for OAuth migration.** Currently JWT in headers (not cookies), so CSRF mitigated. When OAuth lands (Sprint 9+), reassess if cookie-based auth is introduced.
+- [ ] **Audit log for sensitive changes** — currently no record when users change email, handle, password. Standard at scale; build before significant adoption.
+
+### Pre-Launch Sign-Off
+Cannot announce public launch until all critical items (email verification, Privacy Policy, ToS, account deletion, password reset, comment report button, rate limits) are complete. The "non-negotiable" items above are the minimum legal and ethical floor.
+
+---
+
+## 16. ARCHITECTURAL HEALTH & PLANNED REFACTORS
+
+Track these planned refactors so they don't get forgotten. None are urgent but all become problems if deferred indefinitely.
+
+### State Management Refactor (Target: Sprint 4)
+
+**Current:** App.jsx manages all state via useState at the top, drilled down through props. Pattern works at current scale but produces stale-closure bugs (the 6d color picker bug was this) and prop-drilling depth grows with every feature.
+
+**Trigger to act:** Sprint 4 (package architecture) adds `userPackages`, `editorTheme`, `editorOpacity`, `customCursorUrl` as new state. Prop drilling becomes unmanageable.
+
+**Plan:** Introduce single `useAppState()` hook with `useReducer` and React Context. Lightweight — no Redux, no Zustand. Just one Context provider at App root, hooks consume what they need.
+
+**Scope when done:**
+- One reducer in `src/hooks/useAppState.js`
+- Context provider wraps `<App />`
+- Components call `const { entries, upsertEntry } = useAppState()` instead of receiving props
+- Eliminates ~80% of current prop drilling
+- Fixes stale-closure bugs by design
+
+### File Split Refactor (Target: Sprint 3 or 4)
+
+**Current:** Single `src/App.jsx` file holds everything. Estimated 3,000+ lines. Manageable today but every sprint adds 2-3 components and the file is becoming a monolith.
+
+**Trigger to act:** When App.jsx hits ~5,000 lines OR when adding a feature requires touching more than 6 different sections of the file.
+
+**Planned split:**
+```
+src/
+  App.jsx                     — routes + top-level state only
+  Editor.jsx                  — editor mode logic
+  PublicPage.jsx              — read-only public view
+  Account.jsx                 — settings page
+  components/
+    CellEditor.jsx
+    ImgEdit.jsx
+    BSheet.jsx
+    Cal.jsx
+    [other extracted components]
+  lib/
+    supabase.js              — all DB calls
+    storage.js               — upload helpers
+    auth.js                  — auth helpers
+  hooks/
+    useIsMobile.js
+    useAppState.js           — central state if Context approach
+```
+
+### Repeated Logic Extraction (Ongoing)
+
+Watch for the "rule of three" — when a pattern appears in three different components, extract it into a shared utility. Current candidates being monitored:
+
+- **Mobile vs desktop render branches.** Each new feature has two render paths. Eventually need a `<ResponsiveContainer mobileSlot desktopSlot />` pattern or similar.
+- **Save state machines.** Yellow → green → red status dot transitions are needed for comments, pages, calendar entries, image uploads. If reimplemented per-feature, extract.
+- **Authentication checks.** "Is user logged in?" "Is user the page owner?" "Is user premium?" — should be 2-3 helper functions at most.
+
+### Code Health Status as of Mid-Sprint 2
+
+- **Dev review reports clean code:** correct React imports, no arrow-fn components where function declarations should be, proper export pattern
+- **Spec deviations are documented in commit messages** (good discipline)
+- **Two-dev parallel model is producing real velocity** without merge conflicts (so far)
+- **Bugs are being caught by Khalid's testing pass** before merge (the system is working)
+- **Decisions log in Section 8 is preventing re-litigation** of settled questions
+
+---
+
+## 17. QUICK STATUS REFERENCE FOR FRESH CLAUDE INSTANCES
+
+If you're a new Claude instance picking up this project, you need three things to be useful immediately:
+
+### 1. What ships next (the active sprint)
+
+Sprint 2 is mid-flight. Two PRs in parallel:
+
+- **PR #2 (Dev A):** Calendar editing. Through 7b (freeform canvas in flight). Needs bug fixes from Khalid's 6d testing before merge: (1) intermittent color change on edited cells, (2) emoji/color coexistence, (3) delete button workaround, (4) size control acts as zoom. Bug fixes ship as 6d.2 patch within PR #2.
+- **PR #3 (Dev B):** Image upload. Through 8c (file picker on add-block flow). Spec deviation: `b.content` stays as bare URL string + sibling `b.alt` field (cleaner than spec's nested object).
+
+### 2. What ships after Sprint 2 (next 3 sprints)
+
+- **Sprint 3:** Months archive rebuild + schema cleanup (`trading_days` HARD DROP) + Tattoo template (lean wedge, NOT booking SaaS)
+- **Sprint 4:** Package architecture + state management refactor + maybe file split refactor
+- **Sprint 5:** First package (chosen by data) + Editor Self-Expression Seed (4 themes, opacity, cursor)
+
+### 3. What's NEVER on the roadmap
+
+NSFW (12+ months minimum, separate sister platform if at all). Tattoo booking SaaS. Email/calendar/SMS integrations. Ad-based revenue. Paid acquisition. Anything that reframes Koy as a productivity tool.
+
+If a request comes in for any of the above, see Section 14 ("What Not To Do").
 
 ---
 
