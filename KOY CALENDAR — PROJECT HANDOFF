@@ -1,88 +1,56 @@
-# KOY CALENDAR — PROJECT HANDOFF DOC
-
-**Purpose:** Bring any new developer or future Claude instance up to speed on Koy in 10 minutes. Also serves as a safety backup if the current architect chat hits its limit.
-
-**Last updated:** May 6, 2026 (mid-Sprint 2 — added pre-launch security checklist, state management refactor plan, file-split refactor plan)
-**Status:** Sprint 2 in progress (PR #2 active — calendar editing through chunk 7b, PR #3 active — image upload through 8c)
-
+KOY CALENDAR — PROJECT HANDOFF DOC
+Purpose: Bring any new developer or future Claude instance up to speed on Koy in 10 minutes. Also serves as a safety backup if the current architect chat hits its limit.
+Last updated: May 7, 2026 (mid-Sprint 2 — added Modern UX Discipline principle, Claude Design workflow for Sprint 2.5)
+Status: Sprint 2 in progress (PR #2 awaiting Khalid's 6d.2 testing + Dev A's 7c, PR #3 awaiting Khalid's anonymous-image test)
 ---
-
-## 1. WHAT KOY IS (the 30-second version)
-
+1. WHAT KOY IS (the 30-second version)
 Koy is a customizable page builder where the same product serves wildly different audiences (traders, tattoo artists, working parents, teens, podcasters, etc.) via persona-tuned templates and blocks. Users get a public URL at `/u/{handle}` that becomes their personal corner of the internet. The vision includes a marketplace where users can buy/sell page layouts (skeleton-only, $8.99 floor, 15% take rate) and a "package" model ($25.99 vertical bundles like Tattoo Package, Hair Stylist Package) that get built reactively based on observed user behavior, not predicted.
-
-**It is NOT:** a productivity tool, a Linktree clone, a calendar app, a Notion competitor. It IS: self-expression with a creator economy underneath.
-
+It is NOT: a productivity tool, a Linktree clone, a calendar app, a Notion competitor. It IS: self-expression with a creator economy underneath.
 ---
-
-## 2. WHO IS WHO
-
-- **Khalid (founder, GitHub: kvalbrun25-code):** Non-coder. Architect/strategy lives in his Claude.ai chat. Token-conscious, lean communication, calls his Claude "Claudisson"/"Claudesson."
-- **The architect (Claude.ai chat, this instance):** Spec writing, strategic decisions, troubleshooting, design calls. Does NOT write production code directly.
-- **The implementors (Claude Code on the web):** Two parallel devs as of mid-Sprint 2.
-  - **Dev A:** Calendar editing track (PR #2 — chunks 6 + 7). Branch: `claude/sprint-2-pr-2-calendar-editability`.
-  - **Dev B:** Image upload track (PR #3 — chunk 8). Branch: `claude/sprint-2-pr-3-chunk-8-rETAk`.
-  - Two-dev maximum. Three+ creates merge conflicts faster than features ship.
-- **GPT (separate tool):** Marketing only. Not involved in product or engineering decisions.
-
-**Division of labor:** Architect specs → Implementor builds → Khalid tests → merge to main → Vercel auto-deploys.
-
+2. WHO IS WHO
+Khalid (founder, GitHub: kvalbrun25-code): Non-coder. Architect/strategy lives in his Claude.ai chat. Token-conscious, lean communication, calls his Claude "Claudisson"/"Claudesson."
+The architect (Claude.ai chat, this instance): Spec writing, strategic decisions, troubleshooting, design calls. Does NOT write production code directly.
+The implementors (Claude Code on the web): Two parallel devs as of mid-Sprint 2.
+Dev A: Calendar editing track (PR #2 — chunks 6 + 7). Branch: `claude/sprint-2-pr-2-calendar-editability`.
+Dev B: Image upload track (PR #3 — chunk 8). Branch: `claude/sprint-2-pr-3-chunk-8-rETAk`.
+Two-dev maximum. Three+ creates merge conflicts faster than features ship.
+GPT (separate tool): Marketing only. Not involved in product or engineering decisions.
+Division of labor: Architect specs → Implementor builds → Khalid tests → merge to main → Vercel auto-deploys.
 ---
-
-## 3. WHERE WE ARE TODAY
-
-### Sprint 1 — SHIPPED ✅ (merged to main)
-
+3. WHERE WE ARE TODAY
+Sprint 1 — SHIPPED ✅ (merged to main)
 Mobile single-column re-render. Public shareable URLs at `/u/{handle}`. Header collapse on mobile (`← ● KOY ⋯` + bottom sheet). SQL hardening (user_events insert policy, one-active-page-per-user constraint, updated_at triggers, missing DELETE policies, comment visibility mirroring). Handle-claim onboarding step. Real share URL.
-
-### Sprint 2 — IN PROGRESS 🟡
-
+Sprint 2 — IN PROGRESS 🟡
 10 chunks across 4 PRs. Status:
-
-- **PR #1 (chunks 4 + 5 + 2 + 3): SHIPPED ✅** — Branding (green K favicon and OG image, SVG-only per Khalid's call), YouTube embed fix, login/logout control, account settings page.
-- **PR #2 (chunks 6 + 7): IN PROGRESS — Dev A** — Editable calendar with bottom-sheet date editor (chunk 6), freeform mini-canvas per cell (chunk 7). Currently completed sub-steps 6a (state plumbing), 6b (upsert/delete helpers), 6c (CellEditor component with 12-emoji palette + label + collapsible P&L/count + journal + Save/Delete with confirmation). Spec deviation: desktop uses centered modal instead of anchored popover (viewport-edge clipping). Next: 6c.5 (per-cell color picker — rainbow calendar capability), 6d (cell visual rendering replaces mock heat-map), then 7a-7e (freeform mini-canvas).
-- **PR #3 (chunk 8): IN PROGRESS — Dev B** — Image upload via Supabase Storage. Bucket created with 25MB limit + MIME restrictions. Storage helper, file picker, add-block flow rewire, alt text rendering. Spec deviation: `b.content` stays as bare string with sibling `b.alt` field instead of nested object (cleaner diff, no migration on existing image blocks).
-- **PR #4 (chunk 9): NOT STARTED** — Tenor GIF integration. Requires Khalid to get free Tenor API key from `developers.google.com/tenor` and add `VITE_TENOR_API_KEY` to Vercel env vars.
-- **Chunk 10:** Final verification only (anonymous viewer can see uploaded images).
-
-### Sprint 3 and beyond — SPECCED, NOT BUILT
-
-- Months archive rebuild (real page snapshots instead of fake P&L data, user-nameable months, opt-in P&L aggregation, optional per-month shareable URLs).
-- Schema rename `trading_days` → `calendar_entries` HARD-DROP (Sprint 2 added new table; Sprint 3 drops old).
-- Tattoo Pro template (lean wedge, NOT full booking SaaS).
-- Marketplace v1 (templates_marketplace table, purchase flow, Stripe Connect, designer payouts).
-- Package architecture (Sprint 4+ — see section 9).
-
+PR #1 (chunks 4 + 5 + 2 + 3): SHIPPED ✅ — Branding (green K favicon and OG image, SVG-only per Khalid's call), YouTube embed fix, login/logout control, account settings page.
+PR #2 (chunks 6 + 7): IN PROGRESS — Dev A — Editable calendar with bottom-sheet date editor (chunk 6), freeform mini-canvas per cell (chunk 7). Currently completed sub-steps 6a (state plumbing), 6b (upsert/delete helpers), 6c (CellEditor component with 12-emoji palette + label + collapsible P&L/count + journal + Save/Delete with confirmation). Spec deviation: desktop uses centered modal instead of anchored popover (viewport-edge clipping). Next: 6c.5 (per-cell color picker — rainbow calendar capability), 6d (cell visual rendering replaces mock heat-map), then 7a-7e (freeform mini-canvas).
+PR #3 (chunk 8): IN PROGRESS — Dev B — Image upload via Supabase Storage. Bucket created with 25MB limit + MIME restrictions. Storage helper, file picker, add-block flow rewire, alt text rendering. Spec deviation: `b.content` stays as bare string with sibling `b.alt` field instead of nested object (cleaner diff, no migration on existing image blocks).
+PR #4 (chunk 9): NOT STARTED — Tenor GIF integration. Requires Khalid to get free Tenor API key from `developers.google.com/tenor` and add `VITE_TENOR_API_KEY` to Vercel env vars.
+Chunk 10: Final verification only (anonymous viewer can see uploaded images).
+Sprint 3 and beyond — SPECCED, NOT BUILT
+Months archive rebuild (real page snapshots instead of fake P&L data, user-nameable months, opt-in P&L aggregation, optional per-month shareable URLs).
+Schema rename `trading_days` → `calendar_entries` HARD-DROP (Sprint 2 added new table; Sprint 3 drops old).
+Tattoo Pro template (lean wedge, NOT full booking SaaS).
+Marketplace v1 (templates_marketplace table, purchase flow, Stripe Connect, designer payouts).
+Package architecture (Sprint 4+ — see section 9).
 ---
-
-## 4. STACK & INFRASTRUCTURE
-
-| Layer | Tool | Notes |
-|---|---|---|
-| Frontend | React + Vite | Single-file `src/App.jsx`, will eventually split |
-| Backend | Supabase (Postgres + Auth + Storage + RLS) | Free tier currently |
-| Hosting | Vercel | Auto-deploys `main` branch in ~60s |
-| Repo | github.com/kvalbrun25-code/koy-calendar | Private |
-| Live URL | https://koy-calendar-ecek.vercel.app | Real domain TBD pre-launch |
-
-### Critical environment variables
-
-- `VITE_SUPABASE_URL` (set, in Vercel)
-- `VITE_SUPABASE_ANON_KEY` (set, in Vercel)
-- `VITE_TENOR_API_KEY` (NOT YET SET — required before PR #4)
-
-### Supabase setup that needs Khalid's hand
-
-- Storage bucket `user-uploads` must be created in Dashboard before PR #3. Public read ON, authenticated write only. RLS policies are in `sprint-2-migration.sql`.
-
+4. STACK & INFRASTRUCTURE
+Layer	Tool	Notes
+Frontend	React + Vite	Single-file `src/App.jsx`, will eventually split
+Backend	Supabase (Postgres + Auth + Storage + RLS)	Free tier currently
+Hosting	Vercel	Auto-deploys `main` branch in ~60s
+Repo	github.com/kvalbrun25-code/koy-calendar	Private
+Live URL	https://koy-calendar-ecek.vercel.app	Real domain TBD pre-launch
+Critical environment variables
+`VITE_SUPABASE_URL` (set, in Vercel)
+`VITE_SUPABASE_ANON_KEY` (set, in Vercel)
+`VITE_TENOR_API_KEY` (NOT YET SET — required before PR #4)
+Supabase setup that needs Khalid's hand
+Storage bucket `user-uploads` must be created in Dashboard before PR #3. Public read ON, authenticated write only. RLS policies are in `sprint-2-migration.sql`.
 ---
-
-## 5. NON-NEGOTIABLE CODING CONVENTIONS
-
+5. NON-NEGOTIABLE CODING CONVENTIONS
 These have bitten the project before. Violating them costs hours.
-
-### React imports
-
+React imports
 ```js
 // CORRECT
 import { useState, useEffect } from "react"
@@ -93,332 +61,262 @@ export default App
 import React, { useState } from "react"
 export default function App() { ... }
 ```
-
 The artifact renderer breaks on the wrong pattern. ALWAYS named imports from "react", ALWAYS function declarations, ALWAYS `export default App` on its own line at file bottom.
-
-### File structure
-
-- `src/App.jsx` — main app (single file, large, will refactor later)
-- `src/main.jsx` — entry point with `<BrowserRouter>` wrapping `<App />`
-- `public/` — static assets (favicon.svg, og-image.svg)
-- `index.html` — root HTML, contains OG meta tags
-
-### No new dependencies without justification
-
+File structure
+`src/App.jsx` — main app (single file, large, will refactor later)
+`src/main.jsx` — entry point with `<BrowserRouter>` wrapping `<App />`
+`public/` — static assets (favicon.svg, og-image.svg)
+`index.html` — root HTML, contains OG meta tags
+No new dependencies without justification
 Stack is React + Vite + Supabase + react-router-dom. Don't add UI libraries (Material UI, Chakra, etc.), animation libraries (Framer Motion, etc.), or CSS frameworks (Tailwind isn't installed). Plain CSS and inline styles are the convention.
-
-### Commit conventions
-
-- One logical change per commit
-- Format: `Sprint N (X/Y): {short description}`
-- Push after every commit (stream timeout protection)
-- Branch naming: `claude/sprint-{N}-pr-{P}-{theme}` e.g. `claude/sprint-2-pr-2-calendar-editing`
-
-### Stream timeout discipline
-
+Commit conventions
+One logical change per commit
+Format: `Sprint N (X/Y): {short description}`
+Push after every commit (stream timeout protection)
+Branch naming: `claude/sprint-{N}-pr-{P}-{theme}` e.g. `claude/sprint-2-pr-2-calendar-editing`
+Stream timeout discipline
 Claude Code on the web has a known stream idle timeout bug. Mitigation:
-
-- Commit and push after every sub-step
-- Don't batch 10 changes into one massive response
-- If a chunk is taking long, pause and ask Khalid for "go" between sub-steps
-- If you hit "API Error: Stream idle timeout - partial response received": commit what you have if you can, tell Khalid which sub-step you stopped at, wait for restart instruction
-
+Commit and push after every sub-step
+Don't batch 10 changes into one massive response
+If a chunk is taking long, pause and ask Khalid for "go" between sub-steps
+If you hit "API Error: Stream idle timeout - partial response received": commit what you have if you can, tell Khalid which sub-step you stopped at, wait for restart instruction
 ---
-
-## 6. DATA MODEL (current state of production)
-
-### Tables
-
-**profiles** — one per user, auto-created on signup
+6. DATA MODEL (current state of production)
+Tables
+profiles — one per user, auto-created on signup
 ```
 id (uuid, FK to auth.users), handle (unique), display_name, bio,
 is_premium (bool), data_sharing (bool), created_at, updated_at
 ```
-
-**pages** — saved page layouts, multiple per user, only one active
+pages — saved page layouts, multiple per user, only one active
 ```
 id, user_id (FK profiles), name, is_active (bool), page_settings (jsonb),
 blocks (jsonb), created_at, updated_at
 ```
-- UNIQUE constraint: only one `is_active=true` per `user_id` (Sprint 1 migration)
-
-**comments** — Discord-style comments on active pages
+UNIQUE constraint: only one `is_active=true` per `user_id` (Sprint 1 migration)
+comments — Discord-style comments on active pages
 ```
 id, page_id (FK pages), author_id (FK profiles), author_name,
 author_avatar (default ⭐), message, created_at
 ```
-
-**user_events** — the "money table" for AI training data licensing
+user_events — the "money table" for AI training data licensing
 ```
 id (bigint), user_id (FK profiles, nullable for guests), event_type,
 event_data (jsonb), device, shareable (bool default true), created_at
 ```
-- INSERT policy: `auth.uid() = user_id OR user_id IS NULL` (Sprint 1)
-
-**trading_days** — LEGACY, will be dropped in Sprint 3
-- Kept for backwards compat during Sprint 2
-
-**calendar_entries** — NEW in Sprint 2, replaces trading_days
+INSERT policy: `auth.uid() = user_id OR user_id IS NULL` (Sprint 1)
+trading_days — LEGACY, will be dropped in Sprint 3
+Kept for backwards compat during Sprint 2
+calendar_entries — NEW in Sprint 2, replaces trading_days
 ```
 id, user_id (FK profiles), day, emoji, label, numeric_value, count_value,
 journal, mood, color, freeform_blocks (jsonb), created_at, updated_at
 unique(user_id, day)
 ```
-- `color` column added in Sprint 2 PR #2 (rainbow calendar capability — per-cell background color override)
-- `freeform_blocks` format: `[{type: 'text'|'emoji'|'sticker', content, x: 0-100, y: 0-100, fontSize?, color?}, ...]`
-- Coordinates are percentages (cell-size independent)
-- Hard cap: 20 elements per cell, client-enforced
-
-**month_archives** — SPECCED, NOT BUILT (Sprint 3)
+`color` column added in Sprint 2 PR #2 (rainbow calendar capability — per-cell background color override)
+`freeform_blocks` format: `[{type: 'text'|'emoji'|'sticker', content, x: 0-100, y: 0-100, fontSize?, color?}, ...]`
+Coordinates are percentages (cell-size independent)
+Hard cap: 20 elements per cell, client-enforced
+month_archives — SPECCED, NOT BUILT (Sprint 3)
 ```
 year, month, custom_name, blocks_snapshot (jsonb),
 page_settings_snapshot (jsonb), unique(user_id, year, month)
 ```
-
-### Storage
-
-- `user-uploads` bucket (Sprint 2, requires manual creation)
-- Path convention: `{user_id}/{block_id}/{timestamp}-{filename}`
-- Limits: 5MB free / 25MB premium, MIME types jpeg/png/webp/gif
-
+Storage
+`user-uploads` bucket (Sprint 2, requires manual creation)
+Path convention: `{user_id}/{block_id}/{timestamp}-{filename}`
+Limits: 5MB free / 25MB premium, MIME types jpeg/png/webp/gif
 ---
-
-## 7. KEY ARCHITECTURAL DECISIONS (the things you'd otherwise have to ask)
-
-### Public visibility
+7. KEY ARCHITECTURAL DECISIONS (the things you'd otherwise have to ask)
+Public visibility
 All pages are public-with-link by default. No private/listed toggle yet. That's Sprint 4+ (tied to marketplace launch).
-
-### Mobile rendering
+Mobile rendering
 Below 768px viewport = single-column vertical stack ordered by y then x of each block on desktop. Drag DISABLED on mobile entirely. Tap a block → action sheet (delete/edit/style/up/down). NO mobile-specific layouts — same blocks, different rendering.
-
-### Templates
+Templates
 Copied at save-time, not referenced. Template updates do NOT propagate to existing pages. Critical for marketplace integrity (buyer's purchase is a frozen snapshot).
-
-### Marketplace (when built)
-- Sellable layouts contain **structure only** (block positions, sizes, rotations, colors, fonts, embed slots)
-- NOT content (text, images, embeds, calendar entries, journal data)
-- Default opt-in OFF per save (must be explicitly enabled per save)
-- $8.99 floor, 15% platform fee
-- Anyone can sell, every page can be sold (open supply)
-- Discovery via feeds + curated badges, NOT search/categories
-
-### Authentication
+Marketplace (when built)
+Sellable layouts contain structure only (block positions, sizes, rotations, colors, fonts, embed slots)
+NOT content (text, images, embeds, calendar entries, journal data)
+Default opt-in OFF per save (must be explicitly enabled per save)
+$8.99 floor, 15% platform fee
+Anyone can sell, every page can be sold (open supply)
+Discovery via feeds + curated badges, NOT search/categories
+Authentication
 Supabase native email + password only currently. OAuth (Google/Apple) and magic links not wired. Email verification currently OFF — turn on before public launch.
-
-### Mobile detection
+Mobile detection
 `useIsMobile()` hook reading `window.matchMedia('(max-width: 767px)')`. NEVER user-agent sniffing.
-
-### URLs
-- `/` — home (start screen for visitors, own page for logged-in users)
-- `/u/{handle}` — public read-only view of user's active page
-- `/u/{handle}/edit` — owner-only edit view (redirects to `/` if logged out, to `/u/{handle}` if wrong user)
-- `/account` — settings page (Sprint 2)
-
-### URL format note
+URLs
+`/` — home (start screen for visitors, own page for logged-in users)
+`/u/{handle}` — public read-only view of user's active page
+`/u/{handle}/edit` — owner-only edit view (redirects to `/` if logged out, to `/u/{handle}` if wrong user)
+`/account` — settings page (Sprint 2)
+URL format note
 Current: `koy-calendar-ecek.vercel.app/u/{handle}`. Real domain TBD before public launch. Khalid's roadmap includes custom domain support as a Pro upsell (`yourname.com` → their Koy page).
-
 ---
-
-## 8. ACTIVE OPEN QUESTIONS / DECISIONS LOG
-
+8. ACTIVE OPEN QUESTIONS / DECISIONS LOG
 These are decisions that have been made but might come up again:
-
-| Question | Decision | When |
-|---|---|---|
-| OG image format | SVG-only, ship without PNG; swap later | Sprint 2 chunk 4 |
-| Freeform palette source | Fixed 12 emoji + "more" button to full picker | Sprint 2 chunk 7 |
-| Day delete UX | Single Delete button, confirmation if freeform_blocks non-empty | Sprint 2 chunk 7 |
-| Default page visibility | Public-with-link (anyone with URL can view) | Sprint 1 |
-| URL prefix structure | `/u/{handle}` not bare `koy.app/{handle}` (future-proofs `/m/`, `/c/`, `/p/`) | Sprint 1 |
-| Save-page UX | Save = make this my live page (auto-deactivate older pages); no explicit Activate button | Sprint 1 |
-| Marketplace what transfers | Skeleton only, not content/embeds/personal data | Architect strategy session |
-| Marketplace contests | Free entry, winners get featured-creator status (not paid prizes — sweepstakes law risk) | Architect strategy session |
-| Multi-month time machine | Real page snapshots, user-nameable months, opt-in P&L | Sprint 3 spec |
-| CellEditor desktop UI | Centered modal not anchored popover (viewport-edge clipping risk) | Sprint 2 PR #2, sub-step 6c |
-| Per-cell color | Single `color` column (background only), 12 swatches + "custom" hex picker for arbitrary colors | Sprint 2 PR #2, sub-step 6c.5 |
-| Image block storage shape | `b.content` stays bare URL string + sibling `b.alt` field (not nested object) | Sprint 2 PR #3, chunk 8 |
-| Editor self-expression timing | Seed editor expression in Sprint 5 alongside package architecture, not Sprint 10. Identity signal is constitutive to product, not additive | Architect strategy session, May 6 2026 |
-| Editor wrap economy timing | Theme/cursor marketplace deferred until after page marketplace ships (Sprint 6+) | Architect strategy session, May 6 2026 |
-| NSFW content | Deferred 12+ months post-launch; major regulatory implications, separate sister-platform if pursued | Architect strategy session, May 6 2026 |
-
+Question	Decision	When
+OG image format	SVG-only, ship without PNG; swap later	Sprint 2 chunk 4
+Freeform palette source	Fixed 12 emoji + "more" button to full picker	Sprint 2 chunk 7
+Day delete UX	Single Delete button, confirmation if freeform_blocks non-empty	Sprint 2 chunk 7
+Default page visibility	Public-with-link (anyone with URL can view)	Sprint 1
+URL prefix structure	`/u/{handle}` not bare `koy.app/{handle}` (future-proofs `/m/`, `/c/`, `/p/`)	Sprint 1
+Save-page UX	Save = make this my live page (auto-deactivate older pages); no explicit Activate button	Sprint 1
+Marketplace what transfers	Skeleton only, not content/embeds/personal data	Architect strategy session
+Marketplace contests	Free entry, winners get featured-creator status (not paid prizes — sweepstakes law risk)	Architect strategy session
+Multi-month time machine	Real page snapshots, user-nameable months, opt-in P&L	Sprint 3 spec
+CellEditor desktop UI	Centered modal not anchored popover (viewport-edge clipping risk)	Sprint 2 PR #2, sub-step 6c
+Per-cell color	Single `color` column (background only), 12 swatches + "custom" hex picker for arbitrary colors	Sprint 2 PR #2, sub-step 6c.5
+Image block storage shape	`b.content` stays bare URL string + sibling `b.alt` field (not nested object)	Sprint 2 PR #3, chunk 8
+Editor self-expression timing	Seed editor expression in Sprint 5 alongside package architecture, not Sprint 10. Identity signal is constitutive to product, not additive	Architect strategy session, May 6 2026
+Editor wrap economy timing	Theme/cursor marketplace deferred until after page marketplace ships (Sprint 6+)	Architect strategy session, May 6 2026
+NSFW content	Deferred 12+ months post-launch; major regulatory implications, separate sister-platform if pursued	Architect strategy session, May 6 2026
 ---
-
-## 9. NEXT-NEXT BACKLOG (Sprint 4+, NOT YET BUILT)
-
-Khalid wants these in the order shown after Sprint 2 + 3 ship:
-
-1. **Package architecture** (Sprint 4) — `packages` table, `user_packages` join table, package-gated features and blocks. Build the *capability* without committing to a specific vertical. ~$25.99 hybrid pricing (one-time for templates/content, recurring features tied to active subscription).
-2. **Editor Self-Expression Seed + First Package** (Sprint 5) — bundled because they amplify each other. The editor seed is constitutive to Koy's identity differentiation (per architect strategy session May 6 2026):
-   - **Editor Self-Expression Seed scope:**
-     - `profiles.editor_theme` text column, default `'koy_default'`
-     - `profiles.editor_panel_opacity` numeric 0.5-1.0, default 1.0
-     - `profiles.custom_cursor_url` text, nullable
-     - **4 themes shipped:** `koy_default` (current), `sticky_note` (yellow legal-pad, marker font), `terminal` (Bloomberg-meets-MySpace literally — black panel, monospace, green text), `[WILD CHOICE TBD]` (Y2K is architect's rec — frosted blue glass, gradient bars, animated hover sparkles, screenshots well on social)
-     - Account settings: theme picker, opacity slider, cursor uploader (32-128px PNG/SVG, 50KB max)
-     - CSS variables drive theme switching, no rebuild required
-     - Cursor: editor only, NOT public page (deferred)
-     - Mobile: opacity + theme work; cursor desktop-only (touch has no cursor)
-   - **First Package scope:** chosen by data after 90 days of real users. Could be tattoo, hair, working parents, podcasters — whichever persona shows up most.
-3. **Marketplace v1** (Sprint 6) — Stripe Connect integration, designer payouts, "Use this layout" purchase flow on every public page, $8.99 floor, 15% take.
-4. **Custom domains** (Sprint 7) — Pro-tier upsell, vercel.app/u/handle → yourname.com.
-5. **Discovery feeds** (Sprint 8) — algorithmic + curated, "Pages you might like" / "Trending layouts" / "Top this week."
-6. **Contest mechanics** (Sprint 9) — bi-weekly free contests, winners featured in marketplace.
-7. **Editor Wrap Economy expansion** (Sprint 10+) — when page marketplace exists and is mature enough to support the second one:
-   - Theme marketplace ($4.99 floor, 15% take rate)
-   - Cursor packs ($1.99 each, 3-cursor minimum bundles)
-   - Sound effect packs (hover/click sounds bundled with themes)
-   - Animated chrome (theme animations beyond the wild-theme baseline)
-   - Custom user-created themes (currently only Koy-shipped themes selectable; this opens it up)
-   - Featured Wrap of the Week, contest winner reserved slot
-   - Per-page cursor application (cursor follows visitor on public page, not just owner in editor)
-8. **Months archive — phase 2** — per-month shareable URLs (`/u/handle/october-2026`).
-9. **OAuth providers** — Google + Apple sign-in.
-10. **Email verification** — turn on before public launch.
-11. **NSFW content layer** — deferred 12+ months post-launch. Major regulatory implications: app stores (Apple/Google) reject, Stripe won't process, hosting providers have content policies. Path most platforms take: launch SFW only, build separate adult-content sister platform later if demand. Don't try to be both at once.
-
+9. NEXT-NEXT BACKLOG (Sprint 4+, NOT YET BUILT)
+Khalid wants these in the order shown after Sprint 2 + 2.5 + 3 ship:
+Sprint 2.5: Design Pass (between Sprint 2 close and Sprint 3 start) — UI/visual identity overhaul. Current homepage and templates feel "elementary" relative to Koy's vision. Scope:
+Homepage hero rebuild (new layout, new copy, new visual personality)
+Template visual revamp (each template gets distinct personality, not just different blocks)
+Editor chrome polish
+Brand consistency cleanup across all screens
+Discipline rule: cosmetic-only changes. No component restructuring, no data flow changes, no prop renames, no route changes. Only CSS, JSX layout within existing components, content (copy/images/defaults).
+Process (4 phases):
+Phase 1 — Khalid builds moodboard. Screenshots collected on phone or Pinterest. 50+ images of pages/sites/aesthetics that capture Koy's intended feel. Don't curate too hard, just collect.
+Phase 2 — Architect writes `KOY-VISUAL-IDENTITY.md`. Lives in repo root. Contains: color palette with hex codes, font rules (display/body/accent), component patterns (buttons, cards, panel chrome), animation/motion principles, spacing system, "feel" rules that translate vibes into code. This becomes the spec.
+Phase 3 — Khalid uses `claude.ai/design`. Context-load with strategic docs (handoff Sections 1, 9, 14, 18 + finished product vision + Editor Seed plan + Modern UX Discipline + Four Protections). Then upload moodboard. Then upload `KOY-VISUAL-IDENTITY.md`. Then ask for specific deliverables one at a time (homepage hero → template variants → editor chrome). Iterate per artifact. Note: Claude Design lives at claude.ai/design (separate from regular Claude), uses Opus 4.7, requires Pro/Max/Team/Enterprise plan, and burns tokens fast — pace usage. Link `src/` subdirectory only, not entire repo (large-repo lag is a known issue).
+Phase 4 — Claude Design → Claude Code handoff. Claude Design exports as a Claude Code-compatible bundle. Hand approved designs to Dev A, Dev B, or a fresh Dev C dedicated to the design pass implementation. Implementor follows the same chunk-and-pause discipline as Sprints 1 and 2.
+Estimated: 1-2 weeks total. Worth the timeline cost — first impression sets the category in users' heads.
+Package architecture (Sprint 4) — `packages` table, `user_packages` join table, package-gated features and blocks. Build the capability without committing to a specific vertical. ~$25.99 hybrid pricing (one-time for templates/content, recurring features tied to active subscription). State management refactor lands in this sprint (centralized via `useAppState()` hook with useReducer + Context). File split refactor likely also lands here — see Section 16.
+Editor Self-Expression Seed + First Package (Sprint 5) — bundled because they amplify each other. The editor seed is constitutive to Koy's identity differentiation (per architect strategy session May 6 2026):
+Editor Self-Expression Seed scope:
+`profiles.editor_theme` text column, default `'koy_default'`
+`profiles.editor_panel_opacity` numeric 0.5-1.0, default 1.0
+`profiles.custom_cursor_url` text, nullable
+4 themes shipped: `koy_default` (current), `sticky_note` (yellow legal-pad, marker font), `terminal` (Bloomberg-meets-MySpace literally — black panel, monospace, green text), `[WILD CHOICE TBD]` (Y2K is architect's rec — frosted blue glass, gradient bars, animated hover sparkles, screenshots well on social)
+Account settings: theme picker, opacity slider, cursor uploader (32-128px PNG/SVG, 50KB max)
+CSS variables drive theme switching, no rebuild required
+Cursor: editor only, NOT public page (deferred)
+Mobile: opacity + theme work; cursor desktop-only (touch has no cursor)
+First Package scope: chosen by data after 90 days of real users. Could be tattoo, hair, working parents, podcasters — whichever persona shows up most.
+Marketplace v1 (Sprint 6) — Stripe Connect integration, designer payouts, "Use this layout" purchase flow on every public page, $8.99 floor, 15% take. Anti-spam systems must ship with this sprint — see Section 18 (The Four Protections).
+Custom domains (Sprint 7) — Pro-tier upsell, vercel.app/u/handle → yourname.com.
+Discovery feeds (Sprint 8) — algorithmic + curated, "Pages you might like" / "Trending layouts" / "Top this week." Creator visibility and discovery fairness rules must be baked into the algorithm spec, not retrofitted — see Section 18.
+Contest mechanics (Sprint 9) — bi-weekly free contests, winners featured in marketplace.
+Scale Prep (Sprint 6 or 7, parallel track) — file split refactor (if not done in Sprint 4), React Query for caching, CDN in front of Supabase Storage (Cloudflare or BunnyCDN), image transcoding (Cloudinary or Vercel image optimization), database query monitoring, user_events archival strategy. Doesn't need to ship before launch but does need to ship before crossing 10k users.
+Editor Wrap Economy expansion (Sprint 10+) — when page marketplace exists and is mature enough to support the second one:
+Theme marketplace ($4.99 floor, 15% take rate)
+Cursor packs ($1.99 each, 3-cursor minimum bundles)
+Sound effect packs (hover/click sounds bundled with themes)
+Animated chrome (theme animations beyond the wild-theme baseline)
+Custom user-created themes (currently only Koy-shipped themes selectable; this opens it up)
+Featured Wrap of the Week, contest winner reserved slot
+Per-page cursor application (cursor follows visitor on public page, not just owner in editor)
+Months archive — phase 2 — per-month shareable URLs (`/u/handle/october-2026`).
+OAuth providers — Google + Apple sign-in.
+Email verification — turn on before public launch.
+NSFW content layer — deferred 12+ months post-launch. Major regulatory implications: app stores (Apple/Google) reject, Stripe won't process, hosting providers have content policies. Path most platforms take: launch SFW only, build separate adult-content sister platform later if demand. Don't try to be both at once.
 ---
-
-## 10. THINGS A NEW DEVELOPER NEEDS TO DO BEFORE WRITING CODE
-
+10. THINGS A NEW DEVELOPER NEEDS TO DO BEFORE WRITING CODE
 If you're a second developer joining the project (or a future Claude instance recovering from a chat limit):
-
-1. **Read this entire document.**
-2. **Check the latest commits on the repo** to see what's actually been shipped vs. specced.
-3. **Read `src/App.jsx` end to end** before any change. The file is large but structured.
-4. **Check the active branches** to see what's in flight: `git branch -a` or look at GitHub.
-5. **Confirm with Khalid which PR you're picking up.** Don't assume.
-6. **Verify the SQL migration state** by running `\d calendar_entries` and `\d profiles` in Supabase SQL Editor — make sure you're reading current schema.
-7. **For coordination with another active dev:** Pick a different file/scope. Backend+SQL on one dev, frontend/UI on another. Avoid both editing `App.jsx` simultaneously.
-
+Read this entire document.
+Check the latest commits on the repo to see what's actually been shipped vs. specced.
+Read `src/App.jsx` end to end before any change. The file is large but structured.
+Check the active branches to see what's in flight: `git branch -a` or look at GitHub.
+Confirm with Khalid which PR you're picking up. Don't assume.
+Verify the SQL migration state by running `\d calendar_entries` and `\d profiles` in Supabase SQL Editor — make sure you're reading current schema.
+For coordination with another active dev: Pick a different file/scope. Backend+SQL on one dev, frontend/UI on another. Avoid both editing `App.jsx` simultaneously.
 ---
-
-## 11. COORDINATION RULES IF MULTIPLE DEVS ARE ACTIVE
-
-**Two-dev maximum recommended.** Three+ creates merge conflicts faster than features ship.
-
-**File partitioning:**
-- Dev A handles "data layer" tasks: Supabase queries, RLS, migrations, API integration, storage uploads.
-- Dev B handles "UI layer" tasks: components, styling, layout, mobile rendering.
-- The same `src/App.jsx` file gets edited by both eventually, but at different sections.
-
-**Branch strategy:**
-- Each dev works on their own branch named `claude/sprint-N-pr-P-{theme}-{dev-letter}`.
-- Both target `main`.
-- Whichever PR opens first merges first; the other rebases on top.
-
-**Communication:**
-- Khalid pastes status updates between the two architect chats and two implementor chats.
-- Conflicts get resolved by the architect (this chat), not by either dev independently.
-
-**Stop-the-line conditions:**
-- Either dev makes a schema change → both pause until migration is run and confirmed.
-- Either dev refactors a shared utility → other dev stops and rebases.
-
+11. COORDINATION RULES IF MULTIPLE DEVS ARE ACTIVE
+Two-dev maximum recommended. Three+ creates merge conflicts faster than features ship.
+File partitioning:
+Dev A handles "data layer" tasks: Supabase queries, RLS, migrations, API integration, storage uploads.
+Dev B handles "UI layer" tasks: components, styling, layout, mobile rendering.
+The same `src/App.jsx` file gets edited by both eventually, but at different sections.
+Branch strategy:
+Each dev works on their own branch named `claude/sprint-N-pr-P-{theme}-{dev-letter}`.
+Both target `main`.
+Whichever PR opens first merges first; the other rebases on top.
+Communication:
+Khalid pastes status updates between the two architect chats and two implementor chats.
+Conflicts get resolved by the architect (this chat), not by either dev independently.
+Stop-the-line conditions:
+Either dev makes a schema change → both pause until migration is run and confirmed.
+Either dev refactors a shared utility → other dev stops and rebases.
 ---
-
-## 12. EMERGENCY RECOVERY (if architect chat hits limit)
-
+12. EMERGENCY RECOVERY (if architect chat hits limit)
 If you're a fresh Claude instance reading this because the previous architect chat ended:
-
-1. **You are now the architect.** Same role. Read this doc end to end.
-2. **Khalid will tell you the current sprint and PR status.** Trust him; he's been in every conversation.
-3. **The implementor (Claude Code) is trustworthy** — Sprint 1 shipped clean. Don't second-guess working code.
-4. **Defer to Khalid on strategy decisions** until you've caught up. Strategic context lives in this doc + his head + the chat history he can paste.
-5. **Don't rebuild what's been decided.** Section 8 is the decisions log — these are settled.
-6. **Keep the architect-implementor split.** You spec, Claude Code builds. Don't write production code yourself.
-
+You are now the architect. Same role. Read this doc end to end.
+Khalid will tell you the current sprint and PR status. Trust him; he's been in every conversation.
+The implementor (Claude Code) is trustworthy — Sprint 1 shipped clean. Don't second-guess working code.
+Defer to Khalid on strategy decisions until you've caught up. Strategic context lives in this doc + his head + the chat history he can paste.
+Don't rebuild what's been decided. Section 8 is the decisions log — these are settled.
+Keep the architect-implementor split. You spec, Claude Code builds. Don't write production code yourself.
 ---
-
-## 13. KHALID'S COMMUNICATION PREFERENCES
-
-- Lean responses, no essays
-- Notes format > paragraph format for status updates
-- Skip obvious steps ("log into GitHub")
-- Speak with confidence in him as a founder
-- Token-conscious — don't pad
-- Calls Claude "Claudisson" or "Claudesson" — affectionate, not formal
-- Honesty > performance. He'd rather hear "this is hard, here's why" than "yes I can do that easily" followed by failure.
-
+13. KHALID'S COMMUNICATION PREFERENCES
+Lean responses, no essays
+Notes format > paragraph format for status updates
+Skip obvious steps ("log into GitHub")
+Speak with confidence in him as a founder
+Token-conscious — don't pad
+Calls Claude "Claudisson" or "Claudesson" — affectionate, not formal
+Honesty > performance. He'd rather hear "this is hard, here's why" than "yes I can do that easily" followed by failure.
 ---
-
-## 14. WHAT NOT TO DO
-
-- Don't promise the marketplace will ship faster than 6+ months from now.
-- Don't agree to build tattoo-specific booking SaaS. The wedge is the Tattoo *Package* (templates + tuned blocks), not full Vagaro replacement.
-- Don't add email/calendar/SMS integrations (out of scope for the platform thesis).
-- Don't suggest Tailwind, Material UI, or any UI framework. Plain CSS only.
-- Don't reframe Koy as a productivity tool, Linktree alternative, or Notion competitor. None of those are accurate.
-- Don't recommend going viral via paid ads — Koy's growth model is page-as-marketing organic loop, not paid acquisition.
-- Don't suggest payment integrations before Sprint 6 (Stripe Connect for marketplace). Premium subscription Stripe is fine earlier as a separate concern.
-- Don't push the editor self-expression seed earlier than Sprint 5. It needs the package architecture work to land first so themes have rails to live on. Don't push it later than Sprint 5 either — it's a constitutive identity feature, not a polish item.
-- Don't build the editor wrap economy (theme/cursor marketplace) before the page marketplace exists. Two marketplaces can't ship simultaneously without confusion.
-- Don't recommend NSFW features. Major regulatory implications, deferred 12+ months minimum, separate sister-platform if pursued at all.
-- Don't add user-created custom themes during the seed phase. Sprint 5 ships ONLY Koy-curated themes; user uploads come in Sprint 10+.
-
+14. WHAT NOT TO DO
+Don't promise the marketplace will ship faster than 6+ months from now.
+Don't agree to build tattoo-specific booking SaaS. The wedge is the Tattoo Package (templates + tuned blocks), not full Vagaro replacement.
+Don't add email/calendar/SMS integrations (out of scope for the platform thesis).
+Don't suggest Tailwind, Material UI, or any UI framework. Plain CSS only.
+Don't reframe Koy as a productivity tool, Linktree alternative, or Notion competitor. None of those are accurate.
+Don't recommend going viral via paid ads — Koy's growth model is page-as-marketing organic loop, not paid acquisition.
+Don't suggest payment integrations before Sprint 6 (Stripe Connect for marketplace). Premium subscription Stripe is fine earlier as a separate concern.
+Don't push the editor self-expression seed earlier than Sprint 5. It needs the package architecture work to land first so themes have rails to live on. Don't push it later than Sprint 5 either — it's a constitutive identity feature, not a polish item.
+Don't build the editor wrap economy (theme/cursor marketplace) before the page marketplace exists. Two marketplaces can't ship simultaneously without confusion.
+Don't recommend NSFW features. Major regulatory implications, deferred 12+ months minimum, separate sister-platform if pursued at all.
+Don't add user-created custom themes during the seed phase. Sprint 5 ships ONLY Koy-curated themes; user uploads come in Sprint 10+.
 ---
-
-## 15. PRE-LAUNCH SECURITY & PRIVACY CHECKLIST
-
+15. PRE-LAUNCH SECURITY & PRIVACY CHECKLIST
 Items that MUST be addressed before public launch. Track against this list before announcing Koy publicly.
-
-### Authentication & Account Security
-- [ ] **Email verification turned ON** in Supabase Dashboard → Authentication → Settings. Currently OFF, allowing fake account creation. Spam risk at scale.
-- [ ] **Password reset flow tested end-to-end.** Supabase has it built-in but verify the "forgot password" link is wired to the auth modal and emails are deliverable.
-- [ ] **Account deletion exposed in Account Settings page.** Currently no UI to delete account. GDPR requirement if launching in EU; basic respect regardless. `cascade` deletes through pages/comments/calendar_entries; `set null` on user_events anonymizes data.
-- [ ] **OAuth providers wired** (Google + Apple) — currently email+password only. Sprint 9+ scope but flag for launch readiness.
-
-### Rate Limiting & Abuse Prevention
-- [ ] **Verify Supabase rate limits** are configured. Free tier has defaults; check Settings → API. Anon key is exposed in client bundle (normal for client apps), so rate limiting is the only defense against script abuse.
-- [ ] **Add rate limit on user_events writes** — even with the auth.uid() = user_id policy, an authenticated user can spam millions of events to inflate their own activity or pollute the AI-training-data table. Options: trigger limiting inserts per user per minute, OR Edge Function with rate limit. Critical before selling data to any AI buyer.
-- [ ] **Add rate limit on comments** — max 5 per user per minute. Currently no limit; comment-spam is the easiest abuse vector at launch scale.
-
-### Content Safety
-- [ ] **Comment moderation: report button.** Add "report this comment" → stores report → manual review queue (acceptable at first 1-5K users; automated tooling like Hive/Sightengine when reports exceed ~20/day).
-- [ ] **Comment moderation: simple word blocklist** for the worst content. Free, fast, blocks obvious abuse.
-- [ ] **DMCA takedown procedure documented.** Required to use Section 512 safe harbor protection. Email address (e.g., dmca@koy.app), response SLA, takedown form.
-- [ ] **Image upload moderation.** User-uploaded images are highest-risk content vector. NSFW/copyrighted/etc. Either manual review queue at v1 OR moderation API (Hive, Sightengine, Cloudflare). Budget $100-500/month at small scale.
-
-### Data Privacy
-- [ ] **Privacy Policy published.** Cannot legally collect user data without one. Cover what data is collected, how it's used (especially the user_events → AI training story), retention, deletion.
-- [ ] **Terms of Service published.** Cover acceptable use, IP ownership, content removal rights, account termination, liability limits.
-- [ ] **Cookie consent banner** if launching in EU/UK markets.
-- [ ] **Document the public-storage caveat.** User-uploaded images live at guessable URLs in `user-uploads` bucket (path: `{user_id}/{block_id}/{timestamp}-{filename}`). If user removes an image from a page, the URL still works for anyone who saved it. True of all public CDNs (Imgur, Cloudinary, etc.) but document in Privacy Policy.
-
-### Architectural Security
-- [ ] **CSRF concern flagged for OAuth migration.** Currently JWT in headers (not cookies), so CSRF mitigated. When OAuth lands (Sprint 9+), reassess if cookie-based auth is introduced.
-- [ ] **Audit log for sensitive changes** — currently no record when users change email, handle, password. Standard at scale; build before significant adoption.
-
-### Pre-Launch Sign-Off
+Authentication & Account Security
+[ ] Email verification turned ON in Supabase Dashboard → Authentication → Settings. Currently OFF, allowing fake account creation. Spam risk at scale.
+[ ] Password reset flow tested end-to-end. Supabase has it built-in but verify the "forgot password" link is wired to the auth modal and emails are deliverable.
+[ ] Account deletion exposed in Account Settings page. Currently no UI to delete account. GDPR requirement if launching in EU; basic respect regardless. `cascade` deletes through pages/comments/calendar_entries; `set null` on user_events anonymizes data.
+[ ] OAuth providers wired (Google + Apple) — currently email+password only. Sprint 9+ scope but flag for launch readiness.
+Rate Limiting & Abuse Prevention
+[ ] Verify Supabase rate limits are configured. Free tier has defaults; check Settings → API. Anon key is exposed in client bundle (normal for client apps), so rate limiting is the only defense against script abuse.
+[ ] Add rate limit on user_events writes — even with the auth.uid() = user_id policy, an authenticated user can spam millions of events to inflate their own activity or pollute the AI-training-data table. Options: trigger limiting inserts per user per minute, OR Edge Function with rate limit. Critical before selling data to any AI buyer.
+[ ] Add rate limit on comments — max 5 per user per minute. Currently no limit; comment-spam is the easiest abuse vector at launch scale.
+Content Safety
+[ ] Comment moderation: report button. Add "report this comment" → stores report → manual review queue (acceptable at first 1-5K users; automated tooling like Hive/Sightengine when reports exceed ~20/day).
+[ ] Comment moderation: simple word blocklist for the worst content. Free, fast, blocks obvious abuse.
+[ ] DMCA takedown procedure documented. Required to use Section 512 safe harbor protection. Email address (e.g., dmca@koy.app), response SLA, takedown form.
+[ ] Image upload moderation. User-uploaded images are highest-risk content vector. NSFW/copyrighted/etc. Either manual review queue at v1 OR moderation API (Hive, Sightengine, Cloudflare). Budget $100-500/month at small scale.
+Data Privacy
+[ ] Privacy Policy published. Cannot legally collect user data without one. Cover what data is collected, how it's used (especially the user_events → AI training story), retention, deletion.
+[ ] Terms of Service published. Cover acceptable use, IP ownership, content removal rights, account termination, liability limits.
+[ ] Cookie consent banner if launching in EU/UK markets.
+[ ] Document the public-storage caveat. User-uploaded images live at guessable URLs in `user-uploads` bucket (path: `{user_id}/{block_id}/{timestamp}-{filename}`). If user removes an image from a page, the URL still works for anyone who saved it. True of all public CDNs (Imgur, Cloudinary, etc.) but document in Privacy Policy.
+Architectural Security
+[ ] CSRF concern flagged for OAuth migration. Currently JWT in headers (not cookies), so CSRF mitigated. When OAuth lands (Sprint 9+), reassess if cookie-based auth is introduced.
+[ ] Audit log for sensitive changes — currently no record when users change email, handle, password. Standard at scale; build before significant adoption.
+Pre-Launch Sign-Off
 Cannot announce public launch until all critical items (email verification, Privacy Policy, ToS, account deletion, password reset, comment report button, rate limits) are complete. The "non-negotiable" items above are the minimum legal and ethical floor.
-
 ---
-
-## 16. ARCHITECTURAL HEALTH & PLANNED REFACTORS
-
+16. ARCHITECTURAL HEALTH & PLANNED REFACTORS
 Track these planned refactors so they don't get forgotten. None are urgent but all become problems if deferred indefinitely.
-
-### State Management Refactor (Target: Sprint 4)
-
-**Current:** App.jsx manages all state via useState at the top, drilled down through props. Pattern works at current scale but produces stale-closure bugs (the 6d color picker bug was this) and prop-drilling depth grows with every feature.
-
-**Trigger to act:** Sprint 4 (package architecture) adds `userPackages`, `editorTheme`, `editorOpacity`, `customCursorUrl` as new state. Prop drilling becomes unmanageable.
-
-**Plan:** Introduce single `useAppState()` hook with `useReducer` and React Context. Lightweight — no Redux, no Zustand. Just one Context provider at App root, hooks consume what they need.
-
-**Scope when done:**
-- One reducer in `src/hooks/useAppState.js`
-- Context provider wraps `<App />`
-- Components call `const { entries, upsertEntry } = useAppState()` instead of receiving props
-- Eliminates ~80% of current prop drilling
-- Fixes stale-closure bugs by design
-
-### File Split Refactor (Target: Sprint 3 or 4)
-
-**Current:** Single `src/App.jsx` file holds everything. Estimated 3,000+ lines. Manageable today but every sprint adds 2-3 components and the file is becoming a monolith.
-
-**Trigger to act:** When App.jsx hits ~5,000 lines OR when adding a feature requires touching more than 6 different sections of the file.
-
-**Planned split:**
+State Management Refactor (Target: Sprint 4)
+Current: App.jsx manages all state via useState at the top, drilled down through props. Pattern works at current scale but produces stale-closure bugs (the 6d color picker bug was this) and prop-drilling depth grows with every feature.
+Trigger to act: Sprint 4 (package architecture) adds `userPackages`, `editorTheme`, `editorOpacity`, `customCursorUrl` as new state. Prop drilling becomes unmanageable.
+Plan: Introduce single `useAppState()` hook with `useReducer` and React Context. Lightweight — no Redux, no Zustand. Just one Context provider at App root, hooks consume what they need.
+Scope when done:
+One reducer in `src/hooks/useAppState.js`
+Context provider wraps `<App />`
+Components call `const { entries, upsertEntry } = useAppState()` instead of receiving props
+Eliminates ~80% of current prop drilling
+Fixes stale-closure bugs by design
+File Split Refactor (Target: Sprint 3 or 4)
+Current: Single `src/App.jsx` file holds everything. Estimated 3,000+ lines. Manageable today but every sprint adds 2-3 components and the file is becoming a monolith.
+Trigger to act: When App.jsx hits ~5,000 lines OR when adding a feature requires touching more than 6 different sections of the file.
+Planned split:
 ```
 src/
   App.jsx                     — routes + top-level state only
@@ -439,50 +337,116 @@ src/
     useIsMobile.js
     useAppState.js           — central state if Context approach
 ```
-
-### Repeated Logic Extraction (Ongoing)
-
+Repeated Logic Extraction (Ongoing)
 Watch for the "rule of three" — when a pattern appears in three different components, extract it into a shared utility. Current candidates being monitored:
-
-- **Mobile vs desktop render branches.** Each new feature has two render paths. Eventually need a `<ResponsiveContainer mobileSlot desktopSlot />` pattern or similar.
-- **Save state machines.** Yellow → green → red status dot transitions are needed for comments, pages, calendar entries, image uploads. If reimplemented per-feature, extract.
-- **Authentication checks.** "Is user logged in?" "Is user the page owner?" "Is user premium?" — should be 2-3 helper functions at most.
-
-### Code Health Status as of Mid-Sprint 2
-
-- **Dev review reports clean code:** correct React imports, no arrow-fn components where function declarations should be, proper export pattern
-- **Spec deviations are documented in commit messages** (good discipline)
-- **Two-dev parallel model is producing real velocity** without merge conflicts (so far)
-- **Bugs are being caught by Khalid's testing pass** before merge (the system is working)
-- **Decisions log in Section 8 is preventing re-litigation** of settled questions
-
+Mobile vs desktop render branches. Each new feature has two render paths. Eventually need a `<ResponsiveContainer mobileSlot desktopSlot />` pattern or similar.
+Save state machines. Yellow → green → red status dot transitions are needed for comments, pages, calendar entries, image uploads. If reimplemented per-feature, extract.
+Authentication checks. "Is user logged in?" "Is user the page owner?" "Is user premium?" — should be 2-3 helper functions at most.
+Code Health Status as of Mid-Sprint 2
+Dev review reports clean code: correct React imports, no arrow-fn components where function declarations should be, proper export pattern
+Spec deviations are documented in commit messages (good discipline)
+Two-dev parallel model is producing real velocity without merge conflicts (so far)
+Bugs are being caught by Khalid's testing pass before merge (the system is working)
+Decisions log in Section 8 is preventing re-litigation of settled questions
 ---
-
-## 17. QUICK STATUS REFERENCE FOR FRESH CLAUDE INSTANCES
-
+17. QUICK STATUS REFERENCE FOR FRESH CLAUDE INSTANCES
 If you're a new Claude instance picking up this project, you need three things to be useful immediately:
-
-### 1. What ships next (the active sprint)
-
+1. What ships next (the active sprint)
 Sprint 2 is mid-flight. Two PRs in parallel:
-
-- **PR #2 (Dev A):** Calendar editing. Through 7b (freeform canvas in flight). Needs bug fixes from Khalid's 6d testing before merge: (1) intermittent color change on edited cells, (2) emoji/color coexistence, (3) delete button workaround, (4) size control acts as zoom. Bug fixes ship as 6d.2 patch within PR #2.
-- **PR #3 (Dev B):** Image upload. Through 8c (file picker on add-block flow). Spec deviation: `b.content` stays as bare URL string + sibling `b.alt` field (cleaner than spec's nested object).
-
-### 2. What ships after Sprint 2 (next 3 sprints)
-
-- **Sprint 3:** Months archive rebuild + schema cleanup (`trading_days` HARD DROP) + Tattoo template (lean wedge, NOT booking SaaS)
-- **Sprint 4:** Package architecture + state management refactor + maybe file split refactor
-- **Sprint 5:** First package (chosen by data) + Editor Self-Expression Seed (4 themes, opacity, cursor)
-
-### 3. What's NEVER on the roadmap
-
+PR #2 (Dev A): Calendar editing. Through 7b (freeform canvas in flight). Needs bug fixes from Khalid's 6d testing before merge: (1) intermittent color change on edited cells, (2) emoji/color coexistence, (3) delete button workaround, (4) size control acts as zoom. Bug fixes ship as 6d.2 patch within PR #2.
+PR #3 (Dev B): Image upload. Through 8c (file picker on add-block flow). Spec deviation: `b.content` stays as bare URL string + sibling `b.alt` field (cleaner than spec's nested object).
+2. What ships after Sprint 2 (next 3 sprints)
+Sprint 3: Months archive rebuild + schema cleanup (`trading_days` HARD DROP) + Tattoo template (lean wedge, NOT booking SaaS)
+Sprint 4: Package architecture + state management refactor + maybe file split refactor
+Sprint 5: First package (chosen by data) + Editor Self-Expression Seed (4 themes, opacity, cursor)
+3. What's NEVER on the roadmap
 NSFW (12+ months minimum, separate sister platform if at all). Tattoo booking SaaS. Email/calendar/SMS integrations. Ad-based revenue. Paid acquisition. Anything that reframes Koy as a productivity tool.
-
 If a request comes in for any of the above, see Section 14 ("What Not To Do").
-
 ---
-
-**End of handoff doc.**
-
+18. THE FOUR PROTECTIONS + MODERN UX DISCIPLINE — KOY'S MYSPACE-AWARE PRINCIPLES
+MySpace died from five specific failure modes. Four were strategic (visibility, fairness, quality, spam) and one was performance (the platform became unusably laggy in its final years). Koy is structurally similar enough that we will repeat them unless we deliberately don't. These five principles are constitutional — they get baked into the sprint that introduces the relevant feature, not retrofitted later.
+Protection 1: Creator Visibility
+The risk: Algorithm rewards already-popular creators. New creators stay invisible. Discovery becomes a popularity contest where the same accounts win every week. Late-period MySpace homepage feed.
+The principle: Every creator deserves a fair shot at being seen. Visibility is not a winner-take-all distribution.
+Owned by:
+Sprint 8 (Discovery feeds) — algorithm spec MUST include:
+"Rising Creators" feed surface separate from "Trending" — surfaces accounts with strong recent engagement velocity, not absolute follower counts
+Decay function on creator promotion — same creator can't dominate "Featured" slots more than once per N weeks
+"New on Koy" feed — surfaces accounts under 30 days old with non-zero engagement
+Personalized feeds weight novelty, not just popularity
+Sprint 9 (Contests) — featured-creator slots include explicit reservations for first-time winners
+Ongoing: "Follow" mechanism (currently not specced) so users can subscribe to specific creators and see their new pages independent of feed algorithms. Add to Sprint 8 scope.
+Protection 2: Discovery Fairness
+The risk: Viral content begets more viral content. Diversity collapses. Every user's feed looks the same. Algorithm becomes a centralized cultural gatekeeper.
+The principle: Discovery surfaces represent the diversity of the platform, not the loudest signals.
+Owned by:
+Sprint 8 (Discovery feeds) — algorithm spec MUST include:
+Diversity injection: every feed reserves N% of slots for accounts the user hasn't seen before
+Anti-pile-on damping: viral signals get sub-linear weighting (popular gets popular slower than naive trending math)
+Persona/category awareness: a working mom's feed defaults to relevant content, not the trader pages dominating overall trending
+Regional/timezone fairness: at scale, ensure global users aren't drowned out by US-peak-hours signals
+Documentation requirement: When Sprint 8 ships, publish a "How discovery works" page. Transparency is fairness infrastructure. Hidden algorithms erode trust.
+Appeals process: When shadow-banning or moderation actions exist, document the appeals path before the action is allowed. (Add to Sprint 6 scope.)
+Protection 3: Aesthetic Quality
+The risk: Open marketplace floods with low-effort listings. Buyers can't tell good from bad. Quality creators leave. Marketplace becomes a graveyard.
+The principle: Open supply with curated quality signals. Anyone can sell, but quality is visible.
+Owned by:
+Sprint 6 (Marketplace v1) — must ship with:
+Floor pricing ($8.99) — already specced, do not lower
+Two-tier pricing (general vs. featured) so quality can command premium
+Featured-creator badges visible on listings
+"Completeness check" before a listing can publish — minimum block count, minimum customization (not just default template + price)
+Refund/dispute handling that protects buyers from blatantly low-effort listings
+Sprint 9 (Contests) — feed quality continuously via contest winners → featured slots
+Architectural rule: Skeleton-only marketplace transfers (already locked) prevent low-effort "copy and re-list" exploitation
+Editor Self-Expression Seed (Sprint 5) — prevents generic platform look at the foundation level
+Protection 4: Anti-Spam Systems
+The risk: Bots, fake accounts, comment spam, fake engagement, marketplace abuse. Most under-architected of the four. Will hit Koy on day one of public launch.
+The principle: Trust is earned, not granted. Systems assume abuse and design against it.
+Owned by:
+Pre-launch (Section 15 checklist):
+Email verification ON
+Comment "report" button + manual review queue
+Comment word blocklist
+Rate limit on user_events writes
+Rate limit on comments (5/user/min)
+Sprint 6 (Marketplace v1) — must add:
+Rate limit on marketplace listings (max N/day per user)
+Bot detection on signup (CAPTCHA or similar at scale)
+Cross-account abuse detection (one IP, many accounts gaming the system)
+Fake-engagement detection (purchases from accounts with no other activity, like-spam patterns)
+Sprint 8 (Discovery feeds) — must add:
+Engagement-quality signals (a "use" from a 1-day-old account weighs less than from a 6-month account)
+Network-clustering detection (group of accounts liking only each other)
+Sprint 9 (Contests) — must add:
+Rate limit on contest submissions
+Submission quality minimum (same completeness check as marketplace)
+Anti-collusion rules (can't have multiple accounts submitting variants of the same design)
+Protection 5: Modern UX Discipline
+The risk: Customization comes at the cost of performance. MySpace pages took 30+ seconds to load on dial-up; even on broadband, autoplay music + animated GIFs + custom CSS + embedded widgets crashed browsers. The customization that gave MySpace its identity also killed it. Koy's current architecture (single-file React, no caching, no lazy-load, image-heavy public pages with no CDN) starts producing the same problem at scale.
+The principle: Customization without compromise. Every feature ships fast, responsive, mobile-friendly, and intuitive — or it doesn't ship.
+The acceptance floor (every sprint, not just one):
+Fast: Public pages load under 2 seconds on 4G. Editor opens under 1 second.
+Responsive: Every interaction responds in under 200ms. Save/upload feedback under 500ms.
+Mobile-friendly: Every feature works mobile-first. If it can't ship cleanly on iPhone, it doesn't ship.
+Intuitive: New user can complete the core action (create a page, upload an image, share their URL) without instructions. Test with real humans, not assumptions.
+Owned by:
+Every sprint from now forward. Not a one-time sprint, an ongoing rule applied to every PR.
+Sprint 2.5 (Design Pass) — first formal application: redesign for performance and intuitiveness, not just aesthetics
+Sprint 4 (Package Architecture) — state management refactor with `useAppState()` hook addresses the "everything re-renders" performance issue
+Sprint 6 or 7 (Scale Prep, parallel track) — file split refactor, React Query caching, CDN in front of Supabase Storage, image transcoding. Doesn't ship before launch but must ship before crossing 10k users.
+Pre-launch checklist (Section 15) — performance audit before announcing publicly
+Architectural rules going forward:
+No new dependency adds 50KB+ to bundle without justification
+Every public page must be code-split from editor (separate chunks)
+Every list/feed must paginate, never render all-at-once
+Every image upload must be width-constrained on render (don't ship full-res to mobile)
+Every embed (YouTube, Spotify, etc.) must lazy-load
+Every animation must respect `prefers-reduced-motion`
+How these get enforced
+When writing any future sprint spec, the architect must check this section and confirm which protections that sprint owns. Not "add to backlog" — actually written into the sprint's acceptance criteria. Section 18 is the constitutional constraint on Sprint specs from Sprint 6 onward.
+Special case for Protection 5 (Modern UX Discipline): every sprint owns this protection. Every PR must demonstrate fast/responsive/mobile-friendly/intuitive on Khalid's phone before merge. No exceptions, even for backend-only changes (because backend latency affects perceived performance).
+If a future Claude or developer is unclear whether a protection applies to their work, the rule is: the sprint that introduces the feature owns the protection for that feature. If marketplace ships without anti-spam rate limits, that's a violation. If discovery feeds ship without diversity injection, that's a violation. If any feature ships slow or unintuitive, that's a violation.
+---
+End of handoff doc.
 If you're a developer or future Claude instance reading this and something is unclear, ask Khalid. He has more context than this document captures.
