@@ -1,6 +1,6 @@
 KOY CALENDAR — PROJECT HANDOFF DOC
 Purpose: Bring any new developer or future Claude instance up to speed on Koy in 10 minutes. Also serves as a safety backup if the current architect chat hits its limit.
-Last updated: May 7, 2026 (mid-Sprint 2 — added Modern UX Discipline principle, Claude Design workflow for Sprint 2.5)
+Last updated: May 7, 2026 (mid-Sprint 2 — added embed wraps, HTML customization phases, softened marketplace fee language with notice requirement)
 Status: Sprint 2 in progress (PR #2 awaiting Khalid's 6d.2 testing + Dev A's 7c, PR #3 awaiting Khalid's anonymous-image test)
 ---
 1. WHAT KOY IS (the 30-second version)
@@ -201,16 +201,28 @@ First Package scope: chosen by data after 90 days of real users. Could be tattoo
 Marketplace v1 (Sprint 6) — Stripe Connect integration, designer payouts, "Use this layout" purchase flow on every public page, $8.99 floor, 15% take. Anti-spam systems must ship with this sprint — see Section 18 (The Four Protections).
 Custom domains (Sprint 7) — Pro-tier upsell, vercel.app/u/handle → yourname.com.
 Discovery feeds (Sprint 8) — algorithmic + curated, "Pages you might like" / "Trending layouts" / "Top this week." Creator visibility and discovery fairness rules must be baked into the algorithm spec, not retrofitted — see Section 18.
-Contest mechanics (Sprint 9) — bi-weekly free contests, winners featured in marketplace.
+Contests + Community Forum (Sprint 9) — bi-weekly free contests, winners featured in marketplace. Plus the customer service / community layer:
+Forum at `koy.app/community` — users post questions, feature requests, bug reports, contest discussion
+Public roadmap — show users what's coming, allow upvoting on feature requests
+Status page — Vercel/Supabase health, scheduled maintenance, incident history
+FAQ deepening based on first 90 days of user questions
+Why bundled with contests: contests create the engaged creator community that populates the forum. Empty forums signal dead products; populated forums signal life. Sprint 9 ensures forum launches with real users to seed it.
+Don't launch forum at public launch. Launch with email support + static FAQ + contact form first (see Pre-launch hardening). Forum waits until ~500 engaged users exist.
 Scale Prep (Sprint 6 or 7, parallel track) — file split refactor (if not done in Sprint 4), React Query for caching, CDN in front of Supabase Storage (Cloudflare or BunnyCDN), image transcoding (Cloudinary or Vercel image optimization), database query monitoring, user_events archival strategy. Doesn't need to ship before launch but does need to ship before crossing 10k users.
 Editor Wrap Economy expansion (Sprint 10+) — when page marketplace exists and is mature enough to support the second one:
-Theme marketplace ($4.99 floor, 15% take rate)
+Theme marketplace ($4.99 floor, 15% target take)
 Cursor packs ($1.99 each, 3-cursor minimum bundles)
 Sound effect packs (hover/click sounds bundled with themes)
 Animated chrome (theme animations beyond the wild-theme baseline)
 Custom user-created themes (currently only Koy-shipped themes selectable; this opens it up)
 Featured Wrap of the Week, contest winner reserved slot
 Per-page cursor application (cursor follows visitor on public page, not just owner in editor)
+Embed wraps — visual frames around YouTube/Spotify/SoundCloud embeds (e.g., "Y2K CD case wrap" around a Spotify player, "VHS bezel" around a YouTube embed, "kawaii cartoon hands" wrap that gives the same vibe as Billy and Mandy without IP issues). The iframe content itself stays untouched (browser security boundary), but the surrounding frame, hover effects, transparent overlays, and reactive animations belong to the wrap. Sellable as marketplace items. New marketplace category. Floor: $2.99, 15% target take.
+HTML customization (phased rollout) — Koy's answer to MySpace-era full-HTML editing, but architected for safety and performance. Three phases:
+Phase A (ships with Sprint 5 Editor Seed): Token-based theming + curated CSS classes. Users pick CSS variable values (`--accent-color`, `--font-display`) and apply named effects ("glitter overlay," "TV scan-lines," "VHS distortion"). Limited but mobile-safe and performant.
+Phase B (Sprint 10+): Sandboxed CSS-only customization for power users. "Custom CSS" tab in advanced editor settings. Strict allow-list of properties (no `position: fixed`, no animations longer than X seconds, no external resource loading). Sanitized through CSS parser before save. CSS-only, no JavaScript ever.
+Phase C (post-launch, post-stability): Sandboxed HTML iframe blocks for power users wanting MySpace-level freedom. Special "Code Block" type that renders user-written HTML/CSS in an isolated iframe (browser sandbox prevents escape). Rate-limited. Likely gated to premium tier.
+What we will NEVER ship: unrestricted HTML/JS injection into user pages. Section 18 Protection 5 forbids it (security/performance risk), Protection 7 makes it unnecessary (soft guardrails achieve the same expressive feeling without consequences). MySpace's mistake was making this freedom default; we make it gated, sandboxed, and earned.
 Months archive — phase 2 — per-month shareable URLs (`/u/handle/october-2026`).
 OAuth providers — Google + Apple sign-in.
 Email verification — turn on before public launch.
@@ -298,8 +310,16 @@ Data Privacy
 Architectural Security
 [ ] CSRF concern flagged for OAuth migration. Currently JWT in headers (not cookies), so CSRF mitigated. When OAuth lands (Sprint 9+), reassess if cookie-based auth is introduced.
 [ ] Audit log for sensitive changes — currently no record when users change email, handle, password. Standard at scale; build before significant adoption.
+Customer Support Infrastructure (must ship at public launch)
+[ ] support@koy.app email address set up with auto-forward to founder inbox. Stated SLA: 48-hour response for non-urgent, 24-hour for paid users.
+[ ] Static FAQ at `koy.app/help` covering the 20 most predictable questions: signup, share a page, free vs premium, refund policy, account deletion, where to report bugs, how to recover password, how to change handle, content moderation policy, what data is collected, custom domains coming when, marketplace launch when, etc.
+[ ] Contact form in bottom sheet and footer that submits to support email. Accepts attachment for screenshots.
+[ ] Bug report flow — distinct from generic contact, captures device/browser/URL automatically.
+[ ] Refund / dispute policy documented publicly before marketplace launches. Even before marketplace, premium subscription refund policy must be stated.
+[ ] Account recovery flow tested — what happens when a user emails support saying "I forgot my email and lost access to it"? Document the manual recovery process.
+[ ] Estimated time investment for support: 5-10 hours/week for first 1K users, scaling up. Plan accordingly. Forum (Sprint 9) reduces volume but doesn't replace direct support.
 Pre-Launch Sign-Off
-Cannot announce public launch until all critical items (email verification, Privacy Policy, ToS, account deletion, password reset, comment report button, rate limits) are complete. The "non-negotiable" items above are the minimum legal and ethical floor.
+Cannot announce public launch until all critical items (email verification, Privacy Policy, ToS, account deletion, password reset, comment report button, rate limits, support email, FAQ, contact form) are complete. The "non-negotiable" items above are the minimum legal and ethical floor.
 ---
 16. ARCHITECTURAL HEALTH & PLANNED REFACTORS
 Track these planned refactors so they don't get forgotten. None are urgent but all become problems if deferred indefinitely.
@@ -363,8 +383,11 @@ Sprint 5: First package (chosen by data) + Editor Self-Expression Seed (4 themes
 NSFW (12+ months minimum, separate sister platform if at all). Tattoo booking SaaS. Email/calendar/SMS integrations. Ad-based revenue. Paid acquisition. Anything that reframes Koy as a productivity tool.
 If a request comes in for any of the above, see Section 14 ("What Not To Do").
 ---
-18. THE FOUR PROTECTIONS + MODERN UX DISCIPLINE — KOY'S MYSPACE-AWARE PRINCIPLES
-MySpace died from five specific failure modes. Four were strategic (visibility, fairness, quality, spam) and one was performance (the platform became unusably laggy in its final years). Koy is structurally similar enough that we will repeat them unless we deliberately don't. These five principles are constitutional — they get baked into the sprint that introduces the relevant feature, not retrofitted later.
+18. THE SEVEN PROTECTIONS — KOY'S MYSPACE-AWARE PRINCIPLES
+Meta-principle: "Constrained systems, unconstrained feeling."
+Allow emotional chaos. Prevent technical chaos. Users should feel unlimited freedom while invisible systems quietly maintain coherence underneath. The editor should feel chaotic, playful, alive. The output must be readable and responsive. Different optimization targets for different surfaces of the same product.
+This meta-principle governs how all seven protections below get applied. We don't ban chaos, we shape it. We don't enforce taste, we curate amplification. We don't restrict creation, we discipline mechanics.
+MySpace, Tumblr, AIM, Winamp, Discord, Roblox — each got pieces of this right and pieces wrong. Koy's discipline is to absorb all the lessons without becoming sterile in the process. The seven protections below are constitutional — they get baked into the sprint that introduces the relevant feature, not retrofitted later.
 Protection 1: Creator Visibility
 The risk: Algorithm rewards already-popular creators. New creators stay invisible. Discovery becomes a popularity contest where the same accounts win every week. Late-period MySpace homepage feed.
 The principle: Every creator deserves a fair shot at being seen. Visibility is not a winner-take-all distribution.
@@ -389,17 +412,19 @@ Documentation requirement: When Sprint 8 ships, publish a "How discovery works" 
 Appeals process: When shadow-banning or moderation actions exist, document the appeals path before the action is allowed. (Add to Sprint 6 scope.)
 Protection 3: Aesthetic Quality
 The risk: Open marketplace floods with low-effort listings. Buyers can't tell good from bad. Quality creators leave. Marketplace becomes a graveyard.
-The principle: Open supply with curated quality signals. Anyone can sell, but quality is visible.
+The principle: Open supply with curated quality signals. Anyone can sell, but quality is rewarded in discovery, not gatekept at creation. We never tell a creator "your work isn't good enough to exist." We tell discovery surfaces "amplify the work that demonstrates craft."
+Important framing (per controlled-freedom meta-principle): Aesthetic quality protection does NOT mean blocking ugly pages. Some users will make pages we'd never feature. That's their right and Koy's authenticity. Quality protection means the featured slots, trending feeds, and homepage placements go to work that meets standards — chaos still exists, it just doesn't get amplified above the work that doesn't deserve to drown it out.
 Owned by:
 Sprint 6 (Marketplace v1) — must ship with:
 Floor pricing ($8.99) — already specced, do not lower
 Two-tier pricing (general vs. featured) so quality can command premium
 Featured-creator badges visible on listings
-"Completeness check" before a listing can publish — minimum block count, minimum customization (not just default template + price)
+"Completeness check" before a listing can publish — minimum block count, minimum customization (not a quality judgment, just confirms the listing is meaningfully different from a default template)
 Refund/dispute handling that protects buyers from blatantly low-effort listings
 Sprint 9 (Contests) — feed quality continuously via contest winners → featured slots
 Architectural rule: Skeleton-only marketplace transfers (already locked) prevent low-effort "copy and re-list" exploitation
 Editor Self-Expression Seed (Sprint 5) — prevents generic platform look at the foundation level
+Don't fear ugly. After-MySpace founders over-correct toward sterile. Koy must not remove personality in pursuit of "good design." The goal is to amplify well-crafted chaos, not eliminate chaos.
 Protection 4: Anti-Spam Systems
 The risk: Bots, fake accounts, comment spam, fake engagement, marketplace abuse. Most under-architected of the four. Will hit Koy on day one of public launch.
 The principle: Trust is earned, not granted. Systems assume abuse and design against it.
@@ -443,10 +468,45 @@ Every list/feed must paginate, never render all-at-once
 Every image upload must be width-constrained on render (don't ship full-res to mobile)
 Every embed (YouTube, Spotify, etc.) must lazy-load
 Every animation must respect `prefers-reduced-motion`
+Protection 6: Policy Stability
+The risk: Tumblr destroyed user trust overnight in 2018 with the NSFW ban. Users had built communities, identities, archives — and the platform reversed core policy with weeks of notice. Trust that took a decade to build evaporated in days. Discord faces similar pressure on community policies. App stores force these reversals on platforms regularly.
+The principle: Major user-facing policies (content allowed, monetization rules, visibility defaults, marketplace fees) don't reverse without long deprecation windows and clear communication. We earn trust by being predictable.
+Locked-in commitments (constitutional):
+Public-with-link visibility default doesn't reverse to private-by-default. Pages users created with public-share expectations stay public-shareable.
+NSFW deferred 12+ months minimum (already in Section 9). If we ever flip this either direction (allow then ban, or ban then allow), we communicate 6 months in advance.
+User content ownership. Anything a user creates on Koy belongs to them. We don't retroactively claim rights, train commercial models on their work without consent, or repurpose their content for marketing without explicit opt-in.
+Marketplace fee strategy (deferred, not constitutionally locked):
+Khalid's call: rate-setting authority belongs to founder, not architectural lock. Pricing decisions deferred until post-launch when real revenue and creator behavior provide signal. Roblox lesson stands: high take rates damage creator trust. Anchor: aim for the 10–20% range historically associated with creator-friendly platforms (Etsy, Gumroad). Above 20% raises trust questions; above 30% replicates Roblox's creator revolts.
+Procedural protection that IS locked (per Tumblr lesson): any fee change announced post-launch must come with 6 months notice and direct creator communication, not silently in a TOS update. Increases above 20% require existing creator opt-out provision (they retain old rate on existing listings). This protects Koy's trust signal even while leaving rate flexibility intact.
+Owned by:
+Section 14 (What Not To Do) — these commitments belong on the "never break this" list
+Pre-launch (Section 15) — Privacy Policy and Terms of Service must explicitly codify the locked-in commitments above. Don't write generic ToS templates that allow reversal.
+Every sprint: if a future sprint spec proposes changing any of the above, reject it. If circumstances genuinely change (legal, business, technical), the response is "long deprecation + communication," not "ship the change quietly."
+Protection 7: Soft Guardrails Philosophy
+The risk: Founders over-correct after MySpace toward hard restrictions. They limit customization, force clean templates, ban features users want. The cure becomes the disease. Sterilization kills emotional engagement.
+The principle: Use invisible guidance instead of visible restrictions. The system enforces coherence; the user experiences freedom.
+Architectural patterns required (every sprint):
+Smart contrast correction. When a user picks a dark background, text auto-flips to readable color. Already implemented in Sprint 2 calendar cells (color picker auto-contrast). Apply pattern everywhere user-customized colors meet text.
+Performance caps via degradation, not prohibition. "Too many GIFs" → system serves smaller versions / lazy-loads aggressively / compresses on upload. Never "GIFs not allowed."
+Snap systems for free-form positioning. Users drag freely, but invisible alignment helps things look intentional. Already partially implemented in calendar freeform mode. Extend to block placement on canvas.
+Layer warnings, not blocks. "You have 18 freeform elements in this cell, max is 20" — informational, lets the user decide. Never silent failure or hard block.
+Aesthetic Lanes. Templates and packages provide subcultural defaults (Y2K, terminal, scrapbook, soft pastel, brutalist, trader-core, etc.) so users start in a coherent aesthetic and can customize from there. Chaos becomes organized culture, not visual soup. Drives package strategy in Sprint 5+.
+Editor experience and output experience optimize differently. The editor can feel chaotic, playful, full of options and animation. The published page must be performant and readable. Don't apply editor-side complexity penalties to output-side performance.
+Owned by:
+Every sprint from now forward. This is a UX design philosophy that informs every feature build, same as Protection 5.
+Sprint 2.5 (Design Pass) — first formal application: identify where hard restrictions exist that should be soft guardrails instead. Refactor where appropriate (cosmetic-only).
+Architect's role: When writing future specs, default to soft guardrails. If a spec calls for a hard block (e.g., "users can't do X"), justify why a soft guardrail (e.g., "users get warned about X but can override") doesn't work for that case.
 How these get enforced
 When writing any future sprint spec, the architect must check this section and confirm which protections that sprint owns. Not "add to backlog" — actually written into the sprint's acceptance criteria. Section 18 is the constitutional constraint on Sprint specs from Sprint 6 onward.
-Special case for Protection 5 (Modern UX Discipline): every sprint owns this protection. Every PR must demonstrate fast/responsive/mobile-friendly/intuitive on Khalid's phone before merge. No exceptions, even for backend-only changes (because backend latency affects perceived performance).
-If a future Claude or developer is unclear whether a protection applies to their work, the rule is: the sprint that introduces the feature owns the protection for that feature. If marketplace ships without anti-spam rate limits, that's a violation. If discovery feeds ship without diversity injection, that's a violation. If any feature ships slow or unintuitive, that's a violation.
+Special cases:
+Protection 5 (Modern UX Discipline): every sprint owns this. Every PR must demonstrate fast/responsive/mobile-friendly/intuitive on Khalid's phone before merge.
+Protection 6 (Policy Stability): every sprint must verify it doesn't propose reversing a locked-in commitment.
+Protection 7 (Soft Guardrails): every sprint defaults to soft guardrails over hard restrictions. Hard blocks require explicit architect justification.
+The controlled-freedom test: before any feature ships, ask:
+Does this give the user a feeling of expressive freedom? (Emotional chaos allowed.)
+Does this maintain technical coherence — performance, readability, mobile-friendly? (Technical chaos prevented.)
+If forced to choose between the two for this feature, which side falls? (Bias toward emotional freedom; engineer harder on the technical side.)
+If a future Claude or developer is unclear whether a protection applies to their work, the rule is: the sprint that introduces the feature owns the protection for that feature. If marketplace ships without anti-spam rate limits, that's a violation. If discovery feeds ship without diversity injection, that's a violation. If any feature ships slow or unintuitive, that's a violation. If a sprint proposes raising the marketplace fee above 15%, that's a violation. If a feature ships with hard restrictions where soft guardrails would have worked, that's a violation.
 ---
 End of handoff doc.
 If you're a developer or future Claude instance reading this and something is unclear, ask Khalid. He has more context than this document captures.
