@@ -1,0 +1,963 @@
+/* =============================================================
+   KOY LANDING — B1 v1.1
+   Sprint 2.5 · Phase B · Deliverable B1 (v1.1 hotspot region
+   reconciliation; see B1-patch-v1.1-hotspot-region-reconciliation.md)
+   Depends on: koy-tokens.css (loaded first)
+   -------------------------------------------------------------
+   Scope (layout shell — motion/asset deliverables follow):
+     · Full-bleed hero region            — B3 rip-mark, B2 copy
+     · Scroll-transition system          — CSS scroll-driven, no JS
+     · Slime band slot                   — B4 takeover fills this
+     · Hotspot region (3-tile portal)    — B5 behavior canonical
+     · Navigation footprint              — minimal, identity-first
+     · Bridge to template gallery        — Phase C handoff slot
+     · Mobile reshape (<768px / <420px)  — first-class, not trimmed
+
+   v1.0 → v1.1 supersession (hotspot region only):
+     · count 6 → 3                       (Phase C launch count)
+     · 12-col constellation → 3-tile linear portal row
+     · card model: content-card → portal-tile (frame-vs-fill rule)
+     · scroll-driven entry → IntersectionObserver wake
+     · namespace: .kl-constellation aliased to .kl-hotspots
+     · all other B1 v1.0 surfaces untouched
+
+   Conventions:
+     · Class prefix:  kl-  (koy landing)
+     · Motion grammar at landing scale: snap + glide + pulse.
+       --ease-rip RESERVED for B3 (rip-from-void) and B4 (slime).
+     · NO FADE. Translate-only entries; chroma not opacity for
+       all reveals (Rule #9). Static opacity allowed only as
+       constant low-intensity hairlines.
+     · CSS scroll-driven animation wrapped in @supports so older
+       UAs degrade to static layout. No JS scroll listeners for
+       layout shell; B5 orchestrator carries its own IO.
+   ============================================================= */
+
+
+/* ============================================================
+   ROOT — landing is its own surface, not the editor.
+   ============================================================ */
+.kl, .kl * { box-sizing: border-box; }
+.kl {
+  font-family: var(--font-ui);
+  color: var(--fg);
+  background: var(--bg-deep);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* The void substrate — green-undertoned dark, not generic dark mode. */
+.kl::before {
+  content: "";
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60vmax 55vmax at 50% -10%,
+      oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80vmax 60vmax at 50% 115%,
+      oklch(0.13 0.060 148 / 0.45), transparent 65%),
+    var(--bg-deep);
+}
+
+.kl > * { position: relative; z-index: 1; }
+
+
+/* ============================================================
+   SCROLL PROGRESS — slime-tinted hairline; CSS scroll-driven.
+   ============================================================ */
+.kl-scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 60;
+  pointer-events: none;
+  background: oklch(0.04 0.01 148 / 0.4);
+}
+.kl-scroll-progress::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+@supports (animation-timeline: scroll()) {
+  .kl-scroll-progress::before {
+    animation: kl-scroll-fill linear both;
+    animation-timeline: scroll(root);
+  }
+  @keyframes kl-scroll-fill {
+    to { transform: scaleX(1); }
+  }
+}
+
+
+/* ============================================================
+   NAV — minimal. Brand-mark slot (B3 fills with rip-mark).
+   ============================================================ */
+.kl-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: var(--s-4) var(--s-6);
+  pointer-events: none;
+}
+.kl-nav > * { pointer-events: auto; }
+
+.kl-nav__brand-slot {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+}
+
+.kl-nav__route {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  font-weight: var(--w-medium);
+  color: var(--fg);
+  text-decoration: none;
+  padding: 8px 14px;
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--r-pill);
+  background: oklch(0.08 0.015 148 / 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    border-color var(--dur-quick) var(--ease-snap),
+    background var(--dur-quick) var(--ease-snap),
+    box-shadow var(--dur-quick) var(--ease-snap),
+    color var(--dur-quick) var(--ease-snap);
+}
+.kl-nav__route:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: var(--glow-slime);
+}
+.kl-nav__route:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+
+/* ============================================================
+   HERO — full-bleed, 100svh. B3 fills rip-slot; B2 fills copy.
+   ============================================================ */
+.kl-hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto auto 1fr;
+  justify-items: center;
+  align-items: center;
+  padding: var(--s-9) var(--s-6) var(--s-7);
+  position: relative;
+}
+
+.kl-hero__rip-slot {
+  grid-row: 2;
+  width: min(320px, 60vmin);
+  aspect-ratio: 1;
+  display: grid; place-items: center;
+}
+
+.kl-hero__copy-slot {
+  grid-row: 3;
+  margin-top: var(--s-7);
+  width: min(720px, 100%);
+  text-align: center;
+  display: grid;
+  gap: var(--s-3);
+}
+
+.kl-hero__tag {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 var(--s-3);
+}
+
+.kl-hero__phrase {
+  font-family: var(--font-display);
+  font-size: var(--t-4xl);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+  color: var(--fg);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.kl-hero__cue {
+  grid-row: 4;
+  align-self: end;
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  padding-bottom: var(--s-3);
+}
+.kl-hero__cue-line {
+  width: 1px; height: 32px;
+  background: linear-gradient(to bottom, transparent, var(--accent));
+}
+.kl-hero__cue-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+
+/* ============================================================
+   SLIME BAND — inter-section void; B4 fills with spread asset.
+   ============================================================ */
+.kl-slime-band {
+  height: 42vh;
+  min-height: 280px;
+  display: grid;
+  place-items: stretch;
+  position: relative;
+}
+.kl-slime-band__slot {
+  border-top: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--line);
+  display: grid; place-items: center;
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 14px,
+      oklch(0.16 0.04 148 / 0.4) 14px 15px
+    );
+}
+.kl-slime-band__slot-label {
+  padding: 6px var(--s-3);
+  border: 1px solid var(--line);
+  background: var(--bg-deep);
+  border-radius: var(--r-1);
+}
+
+
+/* ============================================================
+   HOTSPOTS — v1.1 · 3-tile portal row. The hotspot region is
+   the handoff moment: three vibe portals into Phase C templates.
+   Frame-vs-fill rule (B4.05 inherit) — chrome on .kl-hotspot;
+   interior is the .kl-frag fragment. B5 behavior layer hosts:
+     · rest frame-breath  (4.8s, L/C oklch glow, alpha pinned)
+     · hover              (220ms, base-anchored scale 1.015)
+     · tap                (120ms burst → 700ms expansion → dissolve)
+     · long-press         (mobile preview-on-touch)
+     · wake               (IntersectionObserver, 180ms stagger)
+     · graceful-degrade   (third slot until founder names vibe 3)
+     · reverse transition (900ms back into grid position)
+   ============================================================ */
+
+/* ----- propose-queue tokens (--z-hotspot, --dur-tap-expand) live in
+   koy-tokens.css as of Beat 1 (Contract 3 promotion). The pre-promotion
+   file-scoped .kl{} block CD's v1.1 shipped was deduped per architect
+   sign 2026-05-27 — koy-tokens.css is the SSOT. */
+
+/* ----- @property registrations for L/C oklch glow modulation -----
+   Required for the no-alpha-ramping glow breath grammar (Q1 patch
+   from B5 close). Enables keyframe + transition interpolation of
+   oklch L/C/blur components. */
+@property --glow-l {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.50;
+}
+@property --glow-c {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.08;
+}
+@property --glow-blur {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 12px;
+}
+@property --frag-l-mult {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+/* ----- the constellation wrapper (also the section) ----- */
+.kl-hotspots {
+  padding: var(--s-9) var(--s-6) var(--s-9);
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 120px));
+  grid-auto-rows: min-content;
+  justify-content: center;
+  gap: var(--s-5) 36px;
+}
+
+/* head spans the full row regardless of column count */
+.kl-hotspots__head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--s-5);
+}
+.kl-hotspots__title {
+  font-family: var(--font-display);
+  font-size: var(--t-2xl);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  margin: 0;
+  line-height: var(--lh-tight);
+}
+.kl-hotspots__count {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+/* ----- THE PORTAL TILE ----- */
+.kl-hotspot {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid oklch(0.45 0.08 148);
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-mono);
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: center 80%;
+  z-index: var(--z-hotspot);
+
+  /* glow modulation variables — animated via L/C, alpha pinned 0.30 */
+  --glow-l: 0.50;
+  --glow-c: 0.08;
+  --glow-blur: 12px;
+
+  /* frame-breath on the glow only — frame-vs-fill */
+  box-shadow: 0 0 var(--glow-blur) 0 oklch(var(--glow-l) var(--glow-c) 148 / 0.30);
+  animation: b5-rest-breath 4.8s linear infinite;
+
+  transition:
+    transform 220ms var(--ease-pulse),
+    border-color 220ms var(--ease-pulse),
+    --glow-l 220ms var(--ease-pulse),
+    --glow-c 220ms var(--ease-pulse),
+    --glow-blur 220ms var(--ease-pulse);
+}
+.kl-hotspot:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* per-tile breath phase stagger — not synchronous across the row */
+.kl-hotspot:nth-child(1 of .kl-hotspot) { animation-delay: 0s; }
+.kl-hotspot:nth-child(2 of .kl-hotspot) { animation-delay: -1.6s; }
+.kl-hotspot:nth-child(3 of .kl-hotspot) { animation-delay: -3.2s; }
+
+/* ----- REST · frame-breath 4.8s · L/C oklch ----- */
+@keyframes b5-rest-breath {
+  0% {
+    animation-timing-function: var(--ease-pulse);
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+  }
+  45% {
+    animation-timing-function: linear;
+    --glow-l: 0.62; --glow-c: 0.14; --glow-blur: 14px;
+  }
+  55% {
+    animation-timing-function: cubic-bezier(0.25, 0.65, 0.45, 1);
+    --glow-l: 0.62; --glow-c: 0.14; --glow-blur: 14px;
+  }
+  100% {
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+  }
+}
+
+/* ----- HOVER (desktop only) — pause breath; transition to peak ----- */
+@media (hover: hover) {
+  .kl-hotspot:hover {
+    animation-play-state: paused;
+    border-color: oklch(0.65 0.18 148);
+    transform: scale(1.015);
+    --glow-l: 0.70;
+    --glow-c: 0.20;
+    --glow-blur: 18px;
+  }
+}
+
+/* ----- TAP cascade · 120ms burst → 700ms expansion → dissolve ----- */
+.kl-hotspot.is-tapping {
+  animation: none;
+  border-color: oklch(0.80 0.26 148);
+  --glow-l: 0.80;
+  --glow-c: 0.26;
+  --glow-blur: 24px;
+  transform: scale(1.025);
+  transition:
+    border-color 120ms var(--ease-pulse),
+    --glow-l 120ms var(--ease-pulse),
+    --glow-c 120ms var(--ease-pulse),
+    --glow-blur 120ms var(--ease-pulse),
+    transform 120ms var(--ease-pulse);
+}
+.kl-hotspot.is-expanding {
+  z-index: 100;
+  transform:
+    translate(var(--tx, 0px), var(--ty, 0px))
+    scale(var(--scale, 8));
+  transition: transform var(--dur-tap-expand) var(--ease-pulse);
+}
+/* frame dissolve at ~85% of expansion — chroma desaturation NOT alpha */
+.kl-hotspot.is-dissolving {
+  border-color: oklch(0.10 0.005 148);
+  --glow-l: 0.10;
+  --glow-c: 0.005;
+  --glow-blur: 4px;
+  transition:
+    transform var(--dur-tap-expand) var(--ease-pulse),
+    border-color 240ms var(--ease-pulse),
+    --glow-l 240ms var(--ease-pulse),
+    --glow-c 240ms var(--ease-pulse),
+    --glow-blur 240ms var(--ease-pulse);
+}
+/* unchosen tiles collapse — transform+filter, NOT opacity (Rule #9) */
+.kl-hotspots.has-tap .kl-hotspot:not(.is-tapping):not(.is-expanding):not(.is-graceful) {
+  transform: scale(0.92);
+  filter: brightness(0.7);
+  animation-play-state: paused;
+  transition:
+    transform 280ms var(--ease-pulse),
+    filter 280ms var(--ease-pulse);
+}
+
+/* ----- GRACEFUL · pending tile taps to scale + tooltip ----- */
+.kl-hotspot.is-graceful {
+  animation: none;
+  transform: scale(1.3);
+  border-color: oklch(0.55 0.12 148);
+  --glow-l: 0.62;
+  --glow-c: 0.14;
+  --glow-blur: 18px;
+  transition: transform 220ms var(--ease-pulse),
+              border-color 220ms var(--ease-pulse);
+}
+.kl-hotspot.is-graceful::after {
+  content: attr(data-coming-soon);
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  border-radius: var(--r-1);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ----- PREVIEW-ON-TOUCH · long-press · only interior-animates state ----- */
+.kl-hotspot.is-previewing {
+  animation-play-state: paused;
+  border-color: oklch(0.65 0.18 148);
+  --glow-l: 0.70;
+  --glow-c: 0.20;
+  --glow-blur: 18px;
+}
+.kl-hotspot.is-previewing .kl-frag {
+  animation: none;
+}
+.kl-hotspot.is-previewing .kl-frag--bloomberg .kl-frag__rows {
+  animation: bloomberg-scroll 1.5s linear;
+}
+.kl-hotspot.is-previewing .kl-frag--glam .kl-frag__orb {
+  animation: glam-spin 1.5s var(--ease-pulse);
+}
+.kl-hotspot.is-previewing::after {
+  content: "Tap to enter · Lift to dismiss";
+  position: absolute; bottom: -28px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap; pointer-events: none;
+}
+
+/* ----- REVERSE TRANSITION · 900ms back to grid position -----
+   Phase C dispatches koy:template:exit; Dev A orchestrator
+   applies .is-expanded-state to the originating tile, then
+   transitions to .is-reversing for the 900ms collapse. */
+.kl-hotspot.is-expanded-state {
+  z-index: 100;
+  transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--scale, 8));
+  border-color: oklch(0.10 0.005 148);
+  --glow-l: 0.10; --glow-c: 0.005; --glow-blur: 4px;
+  animation: none;
+  transition: none;
+}
+.kl-hotspot.is-reversing {
+  z-index: 100;
+  transform: translate(0, 0) scale(1);
+  border-color: oklch(0.45 0.08 148);
+  --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+  animation: none;
+  transition:
+    transform 900ms var(--ease-pulse),
+    border-color 900ms var(--ease-pulse),
+    --glow-l 900ms var(--ease-pulse),
+    --glow-c 900ms var(--ease-pulse),
+    --glow-blur 900ms var(--ease-pulse);
+}
+
+/* ============================================================
+   WAKE · pre-wake (void) → b5-wake (chroma-saturation) → rest
+   IntersectionObserver in B5 orchestrator adds .is-woken to
+   .kl-hotspots; CSS handles the rest including the rest-breath
+   chain at +600ms per tile via dual animation-delay values.
+   ============================================================ */
+.kl-hotspots:not(.is-woken) .kl-hotspot {
+  animation: none;
+  border-color: oklch(0.10 0.005 148);
+  --glow-l: 0.10;
+  --glow-c: 0.005;
+  --glow-blur: 0px;
+  --frag-l-mult: 0.08;
+}
+.kl-hotspots.is-woken .kl-hotspot {
+  animation: b5-wake 600ms var(--ease-pulse) forwards,
+             b5-rest-breath 4.8s linear infinite 600ms;
+}
+.kl-hotspots.is-woken .kl-hotspot:nth-child(1 of .kl-hotspot) { animation-delay: 0ms, 600ms; }
+.kl-hotspots.is-woken .kl-hotspot:nth-child(2 of .kl-hotspot) { animation-delay: 180ms, 780ms; }
+.kl-hotspots.is-woken .kl-hotspot:nth-child(3 of .kl-hotspot) { animation-delay: 360ms, 960ms; }
+
+@keyframes b5-wake {
+  0% {
+    border-color: oklch(0.10 0.005 148);
+    --glow-l: 0.10; --glow-c: 0.005; --glow-blur: 0px;
+    --frag-l-mult: 0.08;
+  }
+  100% {
+    border-color: oklch(0.45 0.08 148);
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+    --frag-l-mult: 1;
+  }
+}
+
+/* ============================================================
+   INTERIOR FRAGMENTS · .kl-frag base + per-vibe variants
+   Phase C templates each ship a .kl-frag--[vibe] selector.
+   ============================================================ */
+.kl-frag {
+  position: absolute; inset: 0;
+  display: flex; align-items: stretch; justify-content: stretch;
+  overflow: hidden;
+}
+
+/* ----- Bloomberg vibe · green-on-black monospace ticker rows ----- */
+.kl-frag--bloomberg {
+  background: oklch(0.10 0.01 148);
+  --bloom-green: oklch(calc(0.72 * var(--frag-l-mult)) 0.20 148);
+  --bloom-red:   oklch(calc(0.60 * var(--frag-l-mult)) 0.18 28);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.02em;
+  color: var(--bloom-green);
+  padding: 6px 5px;
+}
+.kl-frag--bloomberg .kl-frag__rows {
+  display: grid; gap: 2px; width: 100%;
+}
+.kl-frag--bloomberg .kl-frag__row {
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 4px; line-height: 1.2;
+}
+.kl-frag--bloomberg .kl-frag__row .neg { color: var(--bloom-red); }
+.kl-frag--bloomberg .kl-frag__cursor {
+  display: inline-block;
+  width: 5px; height: 7px;
+  background: var(--bloom-green);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: bloomberg-blink 1s steps(2) infinite;
+}
+@keyframes bloomberg-blink { 50% { background: transparent; } }
+@keyframes bloomberg-scroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-30px); }
+}
+
+/* ----- Glam Girl vibe · pink gloss orb + sparkle accents ----- */
+.kl-frag--glam {
+  background:
+    radial-gradient(circle at 30% 25%,
+      oklch(calc(0.95 * var(--frag-l-mult)) 0.12 350) 0%,
+      oklch(calc(0.80 * var(--frag-l-mult)) 0.16 350) 35%,
+      oklch(calc(0.55 * var(--frag-l-mult)) 0.18 350) 100%);
+}
+.kl-frag--glam .kl-frag__orb {
+  position: absolute;
+  left: 50%; top: 55%;
+  transform: translate(-50%, -50%);
+  width: 48%; aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%,
+      oklch(calc(0.98 * var(--frag-l-mult)) 0.04 350) 0%,
+      oklch(calc(0.78 * var(--frag-l-mult)) 0.20 350) 50%,
+      oklch(calc(0.42 * var(--frag-l-mult)) 0.22 350) 100%);
+  box-shadow:
+    inset 0 -4px 8px oklch(0.35 0.20 350 / 0.6),
+    inset 0 4px 8px oklch(0.98 0.05 350 / 0.5),
+    0 0 12px oklch(0.85 0.18 350 / 0.5);
+}
+.kl-frag--glam .kl-frag__sparkle {
+  position: absolute;
+  width: 8px; height: 8px;
+  background:
+    linear-gradient(0deg,   transparent 45%, oklch(calc(0.98 * var(--frag-l-mult)) 0.05 350) 50%, transparent 55%),
+    linear-gradient(90deg,  transparent 45%, oklch(calc(0.98 * var(--frag-l-mult)) 0.05 350) 50%, transparent 55%);
+}
+.kl-frag--glam .kl-frag__sparkle--a { top: 12%; left: 22%; }
+.kl-frag--glam .kl-frag__sparkle--b { top: 24%; right: 16%; width: 6px; height: 6px; }
+.kl-frag--glam .kl-frag__sparkle--c { bottom: 16%; left: 14%; width: 5px; height: 5px; }
+@keyframes glam-spin {
+  0%   { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ----- Pending · third slot graceful-degradation default ----- */
+.kl-frag--pending {
+  background:
+    repeating-linear-gradient(45deg,
+      oklch(0.16 0.01 148) 0 4px,
+      oklch(0.13 0.01 148) 4px 8px);
+  display: grid; place-items: center;
+  padding: 8px;
+}
+.kl-frag--pending .kl-frag__label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: oklch(calc(0.50 * var(--frag-l-mult)) 0.04 148);
+  text-align: center;
+  line-height: 1.4;
+}
+.kl-frag--pending .kl-frag__label b {
+  display: block;
+  font-weight: var(--w-bold);
+  color: oklch(calc(0.65 * var(--frag-l-mult)) 0.10 148);
+  margin-top: 2px;
+}
+
+
+/* ============================================================
+   BRIDGE — doorway from landing into the template gallery.
+   B4.BRIDGE rename (.kl-bridge__line → __seam): APPLIED at this
+   consolidated integration (coordination case #1) — Dev A, to keep
+   CSS consistent with Beat-1 markup. CD's v1.1 file shipped __line.
+   ============================================================ */
+.kl-bridge {
+  padding: var(--s-9) var(--s-6) var(--s-10);
+  display: grid;
+  place-items: center;
+  gap: var(--s-3);
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.kl-bridge__seam {
+  width: 1px; height: var(--s-9);
+  background: linear-gradient(to bottom,
+    transparent, var(--accent), transparent);
+  margin-bottom: var(--s-4);
+}
+.kl-bridge__cue {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+.kl-bridge__cta {
+  font-family: var(--font-display);
+  font-size: var(--t-xl);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  text-decoration: none;
+  padding: var(--s-3) var(--s-1);
+  border-bottom: 1px solid var(--accent);
+  transition:
+    color var(--dur-quick) var(--ease-snap),
+    border-color var(--dur-quick) var(--ease-snap);
+}
+.kl-bridge__cta:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent-hover);
+}
+.kl-bridge__cta:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+
+
+/* ============================================================
+   MOBILE RESHAPE
+   - <768px : phone reshape; constellation goes vertical; hero scales
+   - <420px : ultra-narrow refinements
+   Landing is NOT a trimmed desktop view — it reshapes.
+   ============================================================ */
+@media (max-width: 767px) {
+  .kl-nav {
+    padding: var(--s-3) var(--s-4);
+  }
+  .kl-nav__route {
+    padding: 7px 12px;
+  }
+
+  .kl-hero {
+    padding: var(--s-8) var(--s-4) var(--s-6);
+    grid-template-rows: 1fr auto auto auto;
+  }
+  .kl-hero__rip-slot {
+    width: min(220px, 56vmin);
+  }
+  .kl-hero__phrase {
+    font-size: var(--t-3xl);
+  }
+  .kl-hero__copy-slot {
+    margin-top: var(--s-6);
+  }
+
+  .kl-slime-band {
+    height: 32vh;
+    min-height: 220px;
+  }
+
+  /* MOBILE: 3-tile constellation collapses to vertical stack.
+     Aspect-ratio preserved (3:4 portrait — not stretched). */
+  .kl-hotspots {
+    grid-template-columns: minmax(0, 90px);
+    grid-auto-rows: auto;
+    padding: var(--s-7) var(--s-4) var(--s-7);
+    gap: var(--s-4);
+  }
+  .kl-hotspots__title {
+    font-size: var(--t-xl);
+  }
+
+  .kl-bridge {
+    padding: var(--s-7) var(--s-4) var(--s-8);
+  }
+  .kl-bridge__cta {
+    font-size: var(--t-lg);
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   Hard requirement. Animations off; tap commitment still fires
+   the koy:template:enter event (navigation completes) but the
+   visual collapses to a 60ms color flash.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* layout shell — preserve B1 v1.0 reduced-motion canon */
+  @supports (animation-timeline: scroll()) {
+    .kl-scroll-progress::before {
+      animation: none;
+      transform: scaleX(0);
+    }
+  }
+
+  /* hotspot region — B5 reduced-motion handling */
+  .kl-hotspot,
+  .kl-frag__cursor { animation: none !important; }
+  .kl-hotspot.is-tapping,
+  .kl-hotspot.is-expanding,
+  .kl-hotspot.is-dissolving {
+    transition: border-color 60ms linear !important;
+    transform: none !important;
+  }
+  .kl-hotspots:not(.is-woken) .kl-hotspot {
+    border-color: oklch(0.45 0.08 148);
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+    --frag-l-mult: 1;
+  }
+}
+
+/* ============================================================
+   B4 SPREAD · state vocabulary
+   Single value: data-state="settled" on .kl root. Set by JS on
+   video.onended / video.onerror / any fallback path. Absence =
+   pre-settled. See B4-patch-v4.4 for the full contract.
+   ============================================================ */
+
+/* ----- @property registrations for ambient-field chroma reveal -----
+   Chroma-saturation reveal (NOT opacity, Rule #9). Registered so
+   the data-state transition interpolates L/C smoothly. */
+@property --ambient-l {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.13;
+}
+@property --ambient-c {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.010;
+}
+
+/* ----- spread video positioning -----
+   The spread MP4 (when present) covers the slime band. Harmless
+   when absent (B4.08 deferred-asset): no element renders, the
+   ambient field + settled cascade still fire via onerror. */
+.kl-spread {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ----- ambient field overlay · void default ----- */
+.kl-slime-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  --ambient-l: 0.13;
+  --ambient-c: 0.010;
+  background:
+    radial-gradient(120% 90% at 50% 120%,
+      oklch(var(--ambient-l) var(--ambient-c) 148 / 0.55) 0%,
+      oklch(var(--ambient-l) var(--ambient-c) 148 / 0.20) 45%,
+      transparent 72%);
+  transition:
+    --ambient-l 1200ms var(--ease-pulse),
+    --ambient-c 1200ms var(--ease-pulse);
+}
+/* the slime-band slot needs a stacking context so ::after sits
+   behind the dashed placeholder, not over it */
+.kl-slime-band__slot { position: relative; z-index: 2; }
+
+/* ----- ambient field reveal · on settled ----- */
+.kl[data-state="settled"] .kl-slime-band::after {
+  --ambient-l: 0.34;
+  --ambient-c: 0.130;
+}
+
+/* ============================================================
+   WAKE · second parallel cascade (Q5 sign (a))
+   .kl[data-state="settled"] fires the SAME b5-wake → b5-rest-breath
+   chain as .kl-hotspots.is-woken. Either trigger initiates; forwards
+   fill-mode is idempotent regardless of fire order. No JS bridge.
+
+   Specificity: .kl[data-state="settled"] .kl-hotspots .kl-hotspot
+   (0,4,0) outranks pre-wake void .kl-hotspots:not(.is-woken)
+   .kl-hotspot (0,3,0), so the wake overrides the void hold when
+   data-state settles even if .is-woken was never added.
+   ============================================================ */
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot {
+  animation: b5-wake 600ms var(--ease-pulse) forwards,
+             b5-rest-breath 4.8s linear infinite 600ms;
+}
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot:nth-child(1 of .kl-hotspot) { animation-delay: 0ms, 600ms; }
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot:nth-child(2 of .kl-hotspot) { animation-delay: 180ms, 780ms; }
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot:nth-child(3 of .kl-hotspot) { animation-delay: 360ms, 960ms; }
+
+/* ============================================================
+   REDUCED MOTION · ambient reveal collapses to settled value,
+   no transition. (Wake reduced-motion handling already lives in
+   v1.1's @media block and covers the .kl-hotspot animations.)
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .kl-slime-band::after {
+    transition: none !important;
+  }
+  .kl[data-state="settled"] .kl-slime-band::after {
+    --ambient-l: 0.34;
+    --ambient-c: 0.130;
+  }
+}
+
+
+/* ============================================================
+   B4.PULSE — Phase B, integrated independently of Sprint 3 refactor
+   At-rest breath on the B3 v2 settled mark. Lifted from
+   "Koy Landing - B4.PULSE Preview.html" (CD v5 signed).
+   SEAM RESOLUTION (per CD integration note, preview line 893): the
+   preview keyframe carried transform: translate(-50%,-50%) scale()
+   to center its absolutely-positioned demo mark. The production mark
+   is centered by .kl-hero__rip-slot (grid place-items:center), so the
+   keyframe here is scale-only — CD's note describes the keyframe as
+   "transform: scale(...)" and anchoring via transform-origin.
+   Brightness/blur ranges and per-segment timing functions verbatim.
+   Re-lifted after Beat 5's v1.1 wholesale replacement dropped it.
+   ============================================================ */
+.kl-mark-rest {
+  animation: b4-pulse 5.2s linear infinite;
+  transform-origin: center 80%;
+  will-change: transform, filter;
+}
+
+@keyframes b4-pulse {
+  0% {
+    animation-timing-function: var(--ease-pulse);          /* inhale segment */
+    transform: scale(1.000);
+    filter: brightness(0.94) blur(0px);
+  }
+  45% {
+    animation-timing-function: linear;                     /* peak hold */
+    transform: scale(1.012);
+    filter: brightness(1.06) blur(0.4px);
+  }
+  55% {
+    animation-timing-function: cubic-bezier(0.25, 0.65, 0.45, 1);  /* exhale */
+    transform: scale(1.012);
+    filter: brightness(1.06) blur(0.4px);
+  }
+  100% {
+    transform: scale(1.000);
+    filter: brightness(0.94) blur(0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-mark-rest { animation: none; filter: none; }
+}
