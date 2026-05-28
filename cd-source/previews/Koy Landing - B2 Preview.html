@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Koy Landing — B2 Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="koy-tokens.css" />
+<link rel="stylesheet" href="koy-landing.css" />
+
+<style>
+/* ============================================================
+   Preview document scaffolding — same idiom as A1/A2/A3/B1.
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+.aurora {
+  position: fixed; inset: -10vmin -10vmin auto -10vmin; height: 60vh;
+  pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(60vmax 40vmax at 18% 5%,  oklch(0.45 0.20 148 / 0.18), transparent 60%),
+    radial-gradient(50vmax 30vmax at 90% 10%, oklch(0.40 0.20 148 / 0.10), transparent 65%);
+  filter: blur(40px);
+}
+
+.doc {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--s-9) var(--s-6) var(--s-10);
+}
+
+.doc-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: end;
+  gap: var(--s-5);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--s-8);
+}
+.doc-head h1 {
+  font-size: var(--t-3xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  font-weight: var(--w-bold);
+  margin: 0 0 var(--s-3);
+}
+.doc-head h1 .slash { color: var(--accent); }
+.doc-head .crumbs {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 var(--s-3);
+}
+.doc-head p.lede { max-width: 64ch; color: var(--fg-muted); margin: 0; }
+.doc-head .meta {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  text-align: right;
+  white-space: nowrap;
+  line-height: 1.7;
+}
+.doc-head .meta b { color: var(--accent); font-weight: var(--w-bold); }
+
+section { margin-bottom: var(--s-10); }
+.sec-head {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--s-4);
+  align-items: baseline;
+  margin-bottom: var(--s-5);
+}
+.sec-head .num {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  color: var(--accent);
+  padding-top: var(--s-1);
+}
+.sec-head h2 {
+  font-size: var(--t-2xl);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  margin: 0;
+  line-height: var(--lh-tight);
+}
+.sec-head .lede {
+  grid-column: 2;
+  font-size: var(--t-md);
+  color: var(--fg-muted);
+  max-width: 70ch;
+  margin: var(--s-3) 0 0;
+}
+
+.body-grid {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--s-4);
+}
+
+.rationale {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+  margin-bottom: var(--s-5);
+}
+.rationale h3 {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 var(--s-2);
+}
+.rationale p { margin: 0 0 var(--s-2); }
+.rationale p:last-child { margin-bottom: 0; }
+.rationale code, .rationale b {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--fg);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-mono);
+}
+
+.landing-frame {
+  width: 100%;
+  height: 84vh;
+  min-height: 640px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--bg-deep);
+  overflow: hidden;
+  box-shadow: var(--shadow-3);
+}
+.landing-frame iframe {
+  width: 100%; height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* ----------------------------------------------------------------
+   PHRASE CARD — each candidate gets a card with the phrase rendered
+   at display-4xl (the actual landing scale) inside a void box, plus
+   a rationale stack and a test grid.
+   ---------------------------------------------------------------- */
+.phrase-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--s-5);
+  margin-bottom: var(--s-7);
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .phrase-card { grid-template-columns: 1fr; }
+}
+
+.phrase-stage {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  padding: var(--s-7) var(--s-5);
+  overflow: hidden;
+}
+.phrase-stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(50vmax 35vmax at 50% -10%,
+      oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(60vmax 40vmax at 50% 120%,
+      oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.phrase-stage > * { position: relative; z-index: 1; }
+.phrase-stage[data-tag]::after {
+  content: attr(data-tag);
+  position: absolute;
+  top: 10px; right: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 5;
+}
+
+/* the actual hero phrase typography — matches kl-hero__phrase */
+.phrase {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+  color: var(--fg);
+  margin: 0;
+  text-align: center;
+  text-wrap: balance;
+  font-size: clamp(40px, 5.6vw, var(--t-4xl)); /* display-4xl with mobile floor */
+}
+.phrase--recommended {
+  /* the recommended card gets the rip-mark placeholder above for staging */
+  display: grid;
+  justify-items: center;
+  gap: var(--s-7);
+}
+
+/* a small inline placeholder rip-mark for the recommended-card staging */
+.staged-mark {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  border: 1px dashed var(--line-strong);
+  background:
+    radial-gradient(circle at center,
+      oklch(0.20 0.10 148 / 0.5) 0%, transparent 70%);
+  display: grid; place-items: center;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+
+.phrase-meta {
+  display: grid;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.phrase-meta__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--s-2);
+}
+.phrase-meta__head b { color: var(--accent); font-weight: var(--w-bold); }
+
+.phrase-meta__rationale {
+  font-size: var(--t-sm);
+  color: var(--fg-muted);
+  line-height: var(--lh-loose);
+}
+.phrase-meta__rationale strong { color: var(--fg); font-weight: var(--w-medium); }
+
+/* test grid: voice criteria + never-bucket + rejected-pattern checks */
+.test-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-3) var(--s-4);
+}
+.test-grid dt {
+  color: var(--fg-faint);
+  text-transform: uppercase;
+  letter-spacing: var(--track-caps);
+  font-size: 10px;
+  align-self: center;
+}
+.test-grid dd {
+  margin: 0;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.test-grid dd.pass { color: var(--state-success); }
+.test-grid dd.pass::before {
+  content: "✓"; font-weight: var(--w-bold);
+  color: var(--state-success);
+}
+.test-grid dd.refuse { color: var(--state-success); }
+.test-grid dd.refuse::before {
+  /* "refusal" = phrase REFUSES the rejected pattern, which is the
+     desired result. Same green check; label tells the story. */
+  content: "✓"; font-weight: var(--w-bold);
+  color: var(--state-success);
+}
+.test-grid dd.note { color: var(--fg-muted); }
+.test-grid dd.note::before {
+  content: "·"; font-weight: var(--w-bold);
+  color: var(--fg-faint);
+}
+
+/* verdict bar at the foot of each card */
+.phrase-verdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--r-2);
+  background: var(--accent-soft);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--accent);
+}
+.phrase-verdict[data-tone="alt"] {
+  background: var(--bg-deep);
+  border-color: var(--line);
+  color: var(--fg-muted);
+}
+.phrase-verdict[data-tone="alt"] b { color: var(--fg); }
+.phrase-verdict b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* staging proposal — vertical stack diagram */
+.staging-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--s-5);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .staging-grid { grid-template-columns: 1fr; }
+}
+.staging-demo {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  height: 520px;
+  padding: var(--s-7) var(--s-5);
+  display: grid;
+  grid-template-rows: 1fr auto auto auto 1fr;
+  justify-items: center;
+  align-items: center;
+  overflow: hidden;
+}
+.staging-demo::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(50vmax 35vmax at 50% -10%,
+      oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(60vmax 40vmax at 50% 120%,
+      oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.staging-demo > * { position: relative; z-index: 1; }
+.staging-demo .staged-mark {
+  width: 160px; height: 160px;
+  grid-row: 2;
+}
+.staging-demo .phrase {
+  grid-row: 3;
+  margin-top: var(--s-6);
+  font-size: clamp(36px, 4.4vw, 56px);
+}
+.staging-demo .staged-cue {
+  grid-row: 5;
+  align-self: end;
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  padding-bottom: var(--s-1);
+}
+.staging-demo .staged-cue-line {
+  width: 1px; height: 32px;
+  background: linear-gradient(to bottom, transparent, var(--accent));
+}
+.staging-demo .staged-cue-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+/* sequence diagram for the rip → phrase → cue timing */
+.seq {
+  display: grid;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4);
+}
+.seq-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: var(--s-3);
+  align-items: center;
+  color: var(--fg-muted);
+}
+.seq-row b { color: var(--accent); font-weight: var(--w-bold); }
+.seq-row .bar {
+  height: 4px;
+  background: var(--line);
+  border-radius: var(--r-pill);
+  position: relative;
+}
+.seq-row .bar::after {
+  content: "";
+  position: absolute;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  top: 0;
+}
+.seq-row[data-at="0"]   .bar::after { left: 0%;   width: 38%; }
+.seq-row[data-at="0.4"] .bar::after { left: 32%;  width: 30%; }
+.seq-row[data-at="0.7"] .bar::after { left: 62%;  width: 18%; }
+
+/* table for the decisions log */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-chrome);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.table th, .table td {
+  text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.table tr:last-child td { border-bottom: 0; }
+.table th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  font-weight: var(--w-medium);
+  background: var(--bg-deep);
+}
+.table td.k {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--accent);
+  letter-spacing: var(--track-mono);
+  white-space: nowrap;
+}
+.table td b { color: var(--fg); font-weight: var(--w-medium); }
+.table .status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: var(--r-1);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.table .status[data-tone="open"] {
+  background: var(--state-warn-bg); color: var(--state-warn);
+}
+.table .status[data-tone="reserved"] {
+  background: var(--bg-pressed); color: var(--fg-muted);
+}
+
+footer.sign {
+  margin-top: var(--s-10);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+footer.sign b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* the "voice constraints" panel */
+.voice-list {
+  display: grid;
+  gap: var(--s-3);
+  font-size: var(--t-sm);
+  color: var(--fg-muted);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.voice-list li {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px dashed var(--line);
+}
+.voice-list li:last-child { border-bottom: 0; }
+.voice-list li b {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: var(--w-bold);
+}
+.voice-list li span { color: var(--fg); }
+.voice-list li em {
+  font-style: normal;
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  letter-spacing: var(--track-mono);
+  display: block;
+  margin-top: 4px;
+}
+
+/* the rejected-patterns row */
+.rejects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+}
+.rejects li {
+  list-style: none;
+  border: 1px solid var(--state-danger);
+  background: var(--state-danger-bg);
+  color: var(--fg);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-2);
+  position: relative;
+  padding-left: var(--s-5);
+}
+.rejects li::before {
+  content: "✗";
+  position: absolute;
+  left: var(--s-2);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--state-danger);
+  font-weight: var(--w-bold);
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<!-- ============================================================
+     LANDING MARKUP TEMPLATE (B1 substrate, with B2 recommended
+     phrase substituted into the kl-hero__copy-slot).
+     ============================================================ -->
+<template id="landing-markup">
+  <div class="kl">
+    <div class="kl-scroll-progress" aria-hidden="true"></div>
+
+    <nav class="kl-nav" aria-label="Landing">
+      <div class="kl-nav__brand-slot" aria-label="Koy">
+        <div class="placeholder-mark" style="width:36px;height:36px;border-radius:50%;font-size:9px;padding:0;">B3</div>
+      </div>
+      <div></div>
+      <a class="kl-nav__route" href="#">Sign in</a>
+    </nav>
+
+    <section class="kl-hero">
+      <div class="kl-hero__rip-slot">
+        <div class="placeholder-mark rip-mark">
+          <span class="kw">B3 · rip-mark</span>
+          <span>rendered asset</span>
+        </div>
+      </div>
+
+      <div class="kl-hero__copy-slot">
+        <p class="kl-hero__tag">B2 · recommended</p>
+        <h1 class="kl-hero__phrase">this is mine.</h1>
+      </div>
+
+      <div class="kl-hero__cue" aria-hidden="true">
+        <span class="kl-hero__cue-line"></span>
+        <span class="kl-hero__cue-label">Scroll</span>
+      </div>
+    </section>
+
+    <div class="kl-slime-band" aria-hidden="true">
+      <div class="kl-slime-band__slot">
+        <span class="kl-slime-band__slot-label">B4 · slime takeover</span>
+      </div>
+    </div>
+
+    <section class="kl-hotspots" aria-label="Templates">
+      <header class="kl-hotspots__head">
+        <h2 class="kl-hotspots__title">A page for every you.</h2>
+        <span class="kl-hotspots__count">6 · alive hotspots · B5 fills behavior</span>
+      </header>
+      <a class="kl-hotspot" href="#"><div class="kl-hotspot__head"><span class="kl-hotspot__num">01</span><span class="kl-hotspot__tag">Purpose</span></div><div class="kl-hotspot__preview">B5 · mini-preview</div><div class="kl-hotspot__foot"><span class="kl-hotspot__label">the page</span><span class="kl-hotspot__sub">stand-in label · Phase C names</span></div></a>
+      <a class="kl-hotspot" href="#"><div class="kl-hotspot__head"><span class="kl-hotspot__num">02</span><span class="kl-hotspot__tag">Vibe</span></div><div class="kl-hotspot__preview">B5 · mini-preview</div><div class="kl-hotspot__foot"><span class="kl-hotspot__label">the zine</span><span class="kl-hotspot__sub">stand-in label · Phase C names</span></div></a>
+      <a class="kl-hotspot" href="#"><div class="kl-hotspot__head"><span class="kl-hotspot__num">03</span><span class="kl-hotspot__tag">Commerce</span></div><div class="kl-hotspot__preview">B5 · mini-preview</div><div class="kl-hotspot__foot"><span class="kl-hotspot__label">the shop</span><span class="kl-hotspot__sub">stand-in label · Phase C names</span></div></a>
+      <a class="kl-hotspot" href="#"><div class="kl-hotspot__head"><span class="kl-hotspot__num">04</span><span class="kl-hotspot__tag">Purpose</span></div><div class="kl-hotspot__preview">B5 · mini-preview</div><div class="kl-hotspot__foot"><span class="kl-hotspot__label">the link</span><span class="kl-hotspot__sub">stand-in label · Phase C names</span></div></a>
+      <a class="kl-hotspot" href="#"><div class="kl-hotspot__head"><span class="kl-hotspot__num">05</span><span class="kl-hotspot__tag">Vibe</span></div><div class="kl-hotspot__preview">B5 · mini-preview</div><div class="kl-hotspot__foot"><span class="kl-hotspot__label">the manifesto</span><span class="kl-hotspot__sub">stand-in label · Phase C names</span></div></a>
+      <a class="kl-hotspot" href="#"><div class="kl-hotspot__head"><span class="kl-hotspot__num">06</span><span class="kl-hotspot__tag">Commerce</span></div><div class="kl-hotspot__preview">B5 · mini-preview</div><div class="kl-hotspot__foot"><span class="kl-hotspot__label">the pre-order</span><span class="kl-hotspot__sub">stand-in label · Phase C names</span></div></a>
+    </section>
+
+    <section class="kl-bridge" aria-label="Browse all templates">
+      <span class="kl-bridge__line" aria-hidden="true"></span>
+      <span class="kl-bridge__cue">Phase C · gallery handoff</span>
+      <a class="kl-bridge__cta" href="#">Browse every template →</a>
+    </section>
+  </div>
+</template>
+
+<!-- ============================================================
+     DOC
+     ============================================================ -->
+<div class="doc">
+
+  <header class="doc-head">
+    <div>
+      <p class="crumbs">SPRINT 2.5 / PHASE B / DELIVERABLE B2</p>
+      <h1>Koy Landing <span class="slash">/</span> hero copy + voice direction</h1>
+      <p class="lede">One recommended phrase, three alternates, all tested against DC-1/2/3 voice (user claiming territory · concrete · personal · defiant) and the three never-buckets. The recommended phrase is rendered into B1's actual landing substrate — type-on-page is the test, not type-in-doc.</p>
+    </div>
+    <p class="meta">
+      VERSION <b>B2.0</b><br/>
+      PHASE  B · LANDING<br/>
+      RECOMMENDED  <b>this is mine.</b><br/>
+      SUBSTRATE  koy-landing.css (B1)<br/>
+      SIGN  CLAUDESIGN
+    </p>
+  </header>
+
+  <!-- ========================================================
+       00 · RECOMMENDED — LIVE IN B1 SUBSTRATE
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">00</span>
+      <h2>Recommended phrase, in-situ</h2>
+      <p class="lede">"this is mine." rendered into B1's landing layout at the production phrase size (<b>--t-4xl</b>, 72px desktop / 48px mobile). Scroll the frame to see the phrase land in the hero, the void substrate around it, and the rest of the page continue past. The rip-mark and slime band are still placeholders (B3/B4 own those); the phrase is what's being signed off here.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="landing-frame">
+        <iframe id="frame-full" title="Landing — recommended phrase" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       01 · VOICE DIRECTION
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>Voice direction</h2>
+      <p class="lede">What B2 extends from the A1 stand-in ("make it yours.") and what it explicitly refuses. The constraints below are the working sieve every candidate passes through.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <ul class="voice-list">
+          <li><b>Claim</b><span>Reads like the user, not the brand.<em>No "Koy" in the phrase. No platform-positioning ("a place where," "the canvas for").</em></span></li>
+          <li><b>Concrete</b><span>Post-rip context makes the referent specific. "this" / "yours" / "mine" all resolve against the page that just ripped into existence — they are not abstract claims.<em>The rip-mark gives every phrase its referent. The phrase does not need to over-explain.</em></span></li>
+          <li><b>Personal</b><span>First- or second-person, with second-person framed as the user speaking themselves (not the brand speaking to them).<em>The strongest voice is the user inhabiting the words.</em></span></li>
+          <li><b>Defiant</b><span>Terse. No qualification. Sentence case + period — declaration, not tagline.<em>Period is small but load-bearing. It's the difference between announcing and selling.</em></span></li>
+          <li><b>Verb discipline</b><span>No effort verbs (build / create / design / make as labor-framed action).<em>"make it yours." works because the verb serves ownership, not labor. Defiant voice often skips verbs or uses existential imperatives.</em></span></li>
+          <li><b>Rip-target</b><span>Short enough to land in the first second after the void tears open. No subordinate clauses. The strongest version stands alone.<em>"make it yours." length (14 chars) is the ceiling. Two-line subhead allowed only if it strengthens; propose without first.</em></span></li>
+        </ul>
+
+        <div class="rationale" style="margin-top:var(--s-5);">
+          <h3>What B2 explicitly refuses</h3>
+          <ul class="rejects" style="margin:var(--s-2) 0 0;padding:0;">
+            <li>Build your page</li>
+            <li>The world has a page</li>
+            <li>Your rules</li>
+            <li>The Ultimate ___ Experience</li>
+            <li>A place where ___</li>
+            <li>Productivity-tool framing</li>
+            <li>Booking-software framing</li>
+            <li>NSFW framing or innuendo</li>
+            <li>Brand-omniscient voice</li>
+            <li>Coach / motivational pulls ("be the ___")</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       02 · RECOMMENDED — RATIONALE + TESTS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Recommended · "this is mine."</h2>
+      <p class="lede">First-person declaration. The user speaks the words, not the brand. Extends "make it yours." by pushing from second-person observation into first-person claim. Strongest possible reading of "user claiming territory."</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="phrase-card">
+          <div class="phrase-stage" data-tag="rendered · display-4xl · staged with rip-mark">
+            <div class="phrase phrase--recommended">
+              <span class="staged-mark">B3 · mark</span>
+              <span>this is mine.</span>
+            </div>
+          </div>
+
+          <div class="phrase-meta">
+            <div class="phrase-meta__head">
+              <span>12 chars · 3 words · 1 line</span>
+              <b>recommended</b>
+            </div>
+
+            <div class="phrase-meta__rationale">
+              <p><strong>Voice extension.</strong> "make it yours." invites; "this is mine." declares. The user goes from being addressed by the platform to speaking on their own behalf, mid-rip. That's the maximum defiance the form can carry.</p>
+              <p><strong>Referent.</strong> "this" resolves against whatever just ripped into being — the rip-mark, the page, the moment. The phrase has no work to do explaining itself; the rip is the explanation.</p>
+              <p><strong>Mechanics.</strong> "is" is existential, not labor. No verb to second-guess. Sentence case + period reads as overheard, not delivered.</p>
+            </div>
+
+            <dl class="test-grid">
+              <dt>Claim</dt><dd class="pass">user, not brand · first-person possessive</dd>
+              <dt>Concrete</dt><dd class="pass">post-rip "this" resolves to the page</dd>
+              <dt>Personal</dt><dd class="pass">first-person · the user inhabits the words</dd>
+              <dt>Defiant</dt><dd class="pass">no qualification · period as full stop</dd>
+              <dt>Verb</dt><dd class="pass">existential ("is") · no labor pull</dd>
+              <dt>Length</dt><dd class="pass">12 chars · under the "make it yours." ceiling</dd>
+              <dt>"Koy"</dt><dd class="refuse">absent</dd>
+              <dt>Productivity</dt><dd class="refuse">no organize / manage / track</dd>
+              <dt>Booking</dt><dd class="refuse">no schedule / calendar / book</dd>
+              <dt>NSFW</dt><dd class="refuse">none</dd>
+              <dt>Build…</dt><dd class="refuse">no labor verb</dd>
+              <dt>World has</dt><dd class="refuse">no brand-omniscient framing</dd>
+              <dt>Your rules</dt><dd class="refuse">more embodied than the generic version</dd>
+              <dt>Ultimate ___</dt><dd class="refuse">no SaaS supercharger framing</dd>
+            </dl>
+
+            <div class="phrase-verdict">
+              <span>VERDICT</span>
+              <span><b>RECOMMEND</b> · ship as hero</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       03 · ALTERNATES
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Alternates</h2>
+      <p class="lede">Three candidates that survived the voice sieve, ranked by distance from the recommendation. Each is rendered at the same display scale, with rationale + the same test grid. If the recommendation is rejected, the alternates are pre-vetted fall-backs.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+
+        <!-- ALT 1 : make it yours. -->
+        <div class="phrase-card">
+          <div class="phrase-stage" data-tag="alternate · A1 incumbent">
+            <p class="phrase">make it yours.</p>
+          </div>
+          <div class="phrase-meta">
+            <div class="phrase-meta__head">
+              <span>14 chars · 3 words · 1 line</span>
+              <b>alternate · A</b>
+            </div>
+            <div class="phrase-meta__rationale">
+              <p><strong>The incumbent.</strong> Architect-blessed voice reference. Already landed in the A1 vignette at display-4xl. Second-person addressing; "make" serves ownership not labor. Honorable mention; kept as the proven fall-back if the first-person extension is too far.</p>
+            </div>
+            <dl class="test-grid">
+              <dt>Claim</dt><dd class="pass">second-person possessive</dd>
+              <dt>Concrete</dt><dd class="pass">post-rip "it" = the page</dd>
+              <dt>Personal</dt><dd class="note">brand-addresses-user (vs. user-speaks)</dd>
+              <dt>Defiant</dt><dd class="pass">terse · sentence case + period</dd>
+              <dt>Verb</dt><dd class="note">"make" serves ownership, not labor — passes, but at the boundary</dd>
+              <dt>Length</dt><dd class="pass">14 chars · at the ceiling</dd>
+              <dt>Never-buckets</dt><dd class="refuse">all clean</dd>
+              <dt>Rejected patterns</dt><dd class="refuse">all refused</dd>
+            </dl>
+            <div class="phrase-verdict" data-tone="alt">
+              <span>VERDICT</span>
+              <span><b>FALL-BACK</b> · safe; voice reference</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALT 2 : loud, weird, yours. -->
+        <div class="phrase-card">
+          <div class="phrase-stage" data-tag="alternate · maximalist three-beat">
+            <p class="phrase">loud, weird, yours.</p>
+          </div>
+          <div class="phrase-meta">
+            <div class="phrase-meta__head">
+              <span>19 chars · 3 words · 1 line</span>
+              <b>alternate · B</b>
+            </div>
+            <div class="phrase-meta__rationale">
+              <p><strong>Maximalism, encoded.</strong> Three-beat with commas. "loud" and "weird" name the DC-1/2/3 unsupervised-maximalist spirit directly; "yours" closes the triple so the line lands as user-claim, not brand-adjective. Anchored by the period.</p>
+              <p><strong>Risk.</strong> Without the comma rhythm, "loud" and "weird" drift toward brand-adjective slop. The staccato is load-bearing. At the rip-target ceiling on length.</p>
+            </div>
+            <dl class="test-grid">
+              <dt>Claim</dt><dd class="pass">"yours" anchors as user-claim</dd>
+              <dt>Concrete</dt><dd class="pass">attributes resolve against the page</dd>
+              <dt>Personal</dt><dd class="pass">second-person possessive closing</dd>
+              <dt>Defiant</dt><dd class="pass">three-beat staccato · period close</dd>
+              <dt>Verb</dt><dd class="pass">no verb · pure attribute claim</dd>
+              <dt>Length</dt><dd class="note">19 chars · over the ceiling but still rip-survivable</dd>
+              <dt>Never-buckets</dt><dd class="refuse">all clean</dd>
+              <dt>Rejected patterns</dt><dd class="refuse">all refused</dd>
+            </dl>
+            <div class="phrase-verdict" data-tone="alt">
+              <span>VERDICT</span>
+              <span><b>ALTERNATE</b> · if the recommendation reads too quiet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALT 3 : yours, in public. -->
+        <div class="phrase-card">
+          <div class="phrase-stage" data-tag="alternate · creator framing">
+            <p class="phrase">yours, in public.</p>
+          </div>
+          <div class="phrase-meta">
+            <div class="phrase-meta__head">
+              <span>17 chars · 3 words · 1 line</span>
+              <b>alternate · C</b>
+            </div>
+            <div class="phrase-meta__rationale">
+              <p><strong>Creator framing.</strong> Territorial claim with audience implied — "in public" is concrete and creator-coded. No verb. Post-rip, the page is literally in public; the phrase becomes self-explanatory the moment it lands.</p>
+              <p><strong>Risk.</strong> "in public" can read cryptic on first parse if a visitor lands cold. Defiant by compression but loses some legibility for it.</p>
+            </div>
+            <dl class="test-grid">
+              <dt>Claim</dt><dd class="pass">"yours" + audience = territorial</dd>
+              <dt>Concrete</dt><dd class="pass">"in public" is literal post-rip</dd>
+              <dt>Personal</dt><dd class="pass">second-person possessive</dd>
+              <dt>Defiant</dt><dd class="pass">compressed · period close</dd>
+              <dt>Verb</dt><dd class="pass">no verb · noun + prep phrase</dd>
+              <dt>Length</dt><dd class="pass">17 chars · within ceiling</dd>
+              <dt>Never-buckets</dt><dd class="refuse">all clean</dd>
+              <dt>Rejected patterns</dt><dd class="refuse">all refused</dd>
+            </dl>
+            <div class="phrase-verdict" data-tone="alt">
+              <span>VERDICT</span>
+              <span><b>ALTERNATE</b> · pulls toward creator-product framing</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       04 · SPATIAL STAGING — CARRY-FORWARD CALL
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>Spatial staging</h2>
+      <p class="lede">The rip-mark and the phrase share the void. The call: <b>vertical stack — rip-mark above, phrase below, scroll cue at the foot</b>. Reading order is mark → phrase → cue, top-down, eye falling naturally with the rip's gravity. B3 inherits this composition; the rip animation builds INTO this spec, not around it.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="staging-grid">
+        <div class="staging-demo" aria-hidden="true">
+          <div></div>
+          <div class="staged-mark">B3 · mark</div>
+          <p class="phrase" style="margin-top:var(--s-6);">this is mine.</p>
+          <div></div>
+          <div class="staged-cue">
+            <span class="staged-cue-line"></span>
+            <span class="staged-cue-label">Scroll</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="rationale">
+            <h3>Why phrase BELOW mark</h3>
+            <p>The rip-mark is the project's motion soul (DC-11). At hero scale (60vmin square) it is the dominant gravitational element on the screen. Placing the phrase BELOW lets the eye fall naturally — rip explodes, eye locks on the mark, phrase resolves as the consequence.</p>
+            <p>Phrase ABOVE the mark forces the eye UP after the rip — unnatural reading order, weakens the rip's gravity.</p>
+            <p>Mark-as-bullet beside phrase shrinks the mark to a glyph, underselling B3.</p>
+            <p>Mark BEHIND phrase (overlapping) is the boldest option but the hardest to render at hero scale and risks the mark losing individuality.</p>
+          </div>
+
+          <div class="rationale">
+            <h3>Time sequence (spec for B3)</h3>
+            <p>The composition resolves over ~0.9s after first paint. Phrase entry is translate-only — Rule #9 holds. Snap easing, ~80ms after mark settles.</p>
+            <div class="seq" style="margin-top:var(--s-3);">
+              <div class="seq-row" data-at="0">
+                <b>t=0</b><div class="bar"></div><span>mark rips · 0–380ms</span>
+              </div>
+              <div class="seq-row" data-at="0.4">
+                <b>t=0.4s</b><div class="bar"></div><span>mark settles · phrase enters · 380–700ms</span>
+              </div>
+              <div class="seq-row" data-at="0.7">
+                <b>t=0.7s</b><div class="bar"></div><span>cue hairline materializes · 700–880ms</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rationale">
+            <h3>Mobile</h3>
+            <p>Stack survives reshape unchanged — mark scales 320→220, phrase scales 72→48, cue stays. No re-composition needed. Architect's mobile exception (single-column vertical scroll-reveal) applies only below the hero, not within it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       05 · DECISIONS LOG + OPEN ITEMS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Decisions log</h2>
+      <p class="lede">What B2 proposes for sign-off. What carries to B3 / B4. What stays open.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:12%;">ID</th>
+              <th style="width:32%;">Decision</th>
+              <th>Rationale / state</th>
+              <th style="width:13%;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">B2.01</td>
+              <td><b>Hero phrase = "this is mine."</b></td>
+              <td>First-person declaration. Extends "make it yours." into the maximum defiance the form carries. 12 chars; single line; period close.</td>
+              <td><span class="status" data-tone="open">Proposed · Khalid signs</span></td>
+            </tr>
+            <tr>
+              <td class="k">B2.02</td>
+              <td><b>Fall-backs</b> ranked: A) "make it yours." · B) "loud, weird, yours." · C) "yours, in public."</td>
+              <td>All pre-vetted against voice + never-buckets + rejected patterns. A is safest, B is loudest, C is creator-coded.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B2.03</td>
+              <td><b>No subhead.</b></td>
+              <td>The strongest version stands alone. Architect direction; the recommended phrase doesn't earn a subhead.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B2.04</td>
+              <td><b>Spatial staging = vertical stack</b>. Mark above, phrase below, cue at foot.</td>
+              <td>Reading-order falls naturally. Mark holds hero-scale gravity. Mobile reshape unchanged. B3 inherits this composition.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B2.05</td>
+              <td><b>Phrase enters translate-only</b>, snap easing, ~80ms after mark settles.</td>
+              <td>Rule #9 (no fade) holds at landing scale. B3 owns the exact timing; B2 specifies the entry primitive.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B2.06</td>
+              <td><b>Period stays</b> across every candidate.</td>
+              <td>Declaration vs. tagline. Period is load-bearing voice — drop it and the phrase becomes a brand promise.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.SEQ</td>
+              <td>Exact rip-mark animation timing (0–380ms window).</td>
+              <td>Sequence diagram in §04 is the design intent; B3 calibrates frames against the actual rendered asset.</td>
+              <td><span class="status" data-tone="reserved">Reserved · B3</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.SOUND</td>
+              <td>Sound on rip-intro.</td>
+              <td>Default assumption: silent (web autoplay-audio is broken; rip lands before any user gesture). Open for Khalid in B3.</td>
+              <td><span class="status" data-tone="open">Open · B3</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sign">
+    <span>VOICE AUDIT · <b>CLEAN</b> · 0 platform-positioning · 0 labor verbs · 0 brand-omniscient</span>
+    <span>NEVER-BUCKETS · <b>CLEAR</b> · productivity ✗ · booking ✗ · NSFW ✗</span>
+    <span>SIGN · <b>CLAUDESIGN</b> · phase B · deliverable B2</span>
+  </footer>
+
+</div>
+
+<!-- ============================================================
+     IFRAME COMPOSITION — B1 substrate, B2 phrase substituted
+     ============================================================ -->
+<script>
+(function () {
+  var base = location.href.replace(/[^/]*(?:[#?].*)?$/, '');
+  var markup = document.getElementById('landing-markup').innerHTML;
+
+  var html = ''
+    + '<!doctype html>'
+    + '<html lang="en"><head>'
+    + '<meta charset="utf-8">'
+    + '<base href="' + base + '">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">'
+    + '<link rel="stylesheet" href="koy-tokens.css">'
+    + '<link rel="stylesheet" href="koy-landing.css">'
+    + '<style>'
+    + 'html,body{margin:0;background:var(--bg-deep);}'
+    + '.placeholder-mark{display:inline-grid;place-items:center;border:1px dashed var(--line-strong);border-radius:var(--r-2);color:var(--fg-faint);font-family:var(--font-mono);font-size:10px;letter-spacing:var(--track-caps);text-transform:uppercase;text-align:center;line-height:var(--lh-snug);padding:var(--s-3);}'
+    + '.placeholder-mark.rip-mark{width:100%;height:100%;background:radial-gradient(circle at center,oklch(0.20 0.10 148 / 0.5) 0%,transparent 70%);border-radius:50%;}'
+    + '.placeholder-mark.rip-mark .kw{font-size:var(--t-xs);color:var(--accent);margin-bottom:4px;}'
+    + '</style>'
+    + '</head><body>'
+    + markup
+    + '</body></html>';
+
+  var f = document.getElementById('frame-full');
+  if (f) f.srcdoc = html;
+})();
+</script>
+
+</body>
+</html>

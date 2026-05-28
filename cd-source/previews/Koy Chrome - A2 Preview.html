@@ -1,0 +1,1496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Koy Chrome — A2 Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="koy-tokens.css" />
+<link rel="stylesheet" href="koy-chrome.css" />
+
+<style>
+/* ============================================================
+   Preview document scaffolding (NOT part of the chrome spec).
+   Same mono/rail/rationale idiom as the A1 preview.
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+.doc {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--s-9) var(--s-6) var(--s-10);
+}
+.aurora {
+  position: fixed; inset: -10vmin -10vmin auto -10vmin; height: 60vh;
+  pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(60vmax 40vmax at 18% 5%,  oklch(0.45 0.20 148 / 0.18), transparent 60%),
+    radial-gradient(50vmax 30vmax at 90% 10%, oklch(0.40 0.20 148 / 0.10), transparent 65%);
+  filter: blur(40px);
+}
+.doc-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: end;
+  gap: var(--s-5);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--s-8);
+}
+.doc-head h1 {
+  font-size: var(--t-3xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  font-weight: var(--w-bold);
+  margin: 0 0 var(--s-3);
+}
+.doc-head h1 .slash { color: var(--accent); }
+.doc-head .crumbs {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 var(--s-3);
+}
+.doc-head p.lede { max-width: 60ch; color: var(--fg-muted); margin: 0; }
+.doc-head .meta {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  text-align: right;
+  white-space: nowrap;
+}
+.doc-head .meta b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* section frame */
+section { margin-bottom: var(--s-10); }
+.sec-head {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--s-4);
+  align-items: baseline;
+  margin-bottom: var(--s-5);
+}
+.sec-head .num {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  color: var(--accent);
+  padding-top: var(--s-1);
+}
+.sec-head h2 {
+  font-size: var(--t-2xl);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  margin: 0;
+  line-height: var(--lh-tight);
+}
+.sec-head .lede {
+  grid-column: 2;
+  font-size: var(--t-md);
+  color: var(--fg-muted);
+  max-width: 70ch;
+  margin: var(--s-3) 0 0;
+}
+.body-grid {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--s-4);
+}
+.rationale {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+  margin-bottom: var(--s-5);
+}
+.rationale .ref {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  margin-right: var(--s-2);
+}
+.rationale .feeling { color: var(--fg); font-style: italic; }
+.rationale code { font-family: var(--font-mono); color: var(--fg); }
+
+/* small "play with me" hint pill */
+.try {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 3px var(--s-2);
+  border-radius: var(--r-1);
+  margin-left: var(--s-2);
+}
+.try::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* code/token strip */
+.token-strip {
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+  letter-spacing: var(--track-mono);
+  margin-top: var(--s-4);
+}
+.token-strip .k { color: var(--accent); }
+.token-strip .c { color: var(--fg-faint); }
+
+/* the framed chrome surface */
+.surface {
+  background: var(--bg-page);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-3);
+  overflow: hidden;
+  box-shadow: var(--shadow-3);
+}
+.surface .kc-shell { min-height: 480px; }
+.surface[data-tall] .kc-shell { min-height: 560px; }
+
+/* state-matrix grid */
+.matrix {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-3);
+}
+.matrix__cell {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: var(--s-4);
+  display: grid; gap: var(--s-3);
+}
+.matrix__cell .h {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.matrix__cell .b {
+  font-size: var(--t-sm);
+  color: var(--fg-muted);
+}
+.matrix__cell .pad {
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4);
+  display: grid; place-items: center;
+  min-height: 72px;
+}
+
+/* anchor table */
+.anchor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+}
+.anchor-table th, .anchor-table td {
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.anchor-table th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  font-weight: var(--w-medium);
+}
+.anchor-table td.mono {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg);
+  letter-spacing: var(--track-mono);
+}
+.anchor-table tr:hover td { background: var(--bg-chrome); }
+.anchor-table .ex {
+  color: var(--fg-faint); display: block; margin-top: 2px; font-size: var(--t-xs);
+  font-family: var(--font-mono); letter-spacing: var(--track-mono);
+}
+
+/* mobile preview frame */
+.mobile-wrap {
+  display: grid;
+  grid-template-columns: 392px 1fr;
+  gap: var(--s-6);
+  align-items: start;
+}
+.mobile-frame {
+  width: 392px;
+  background: var(--bg-page);
+  border: 1px solid var(--line-strong);
+  border-radius: 36px;
+  box-shadow: var(--shadow-3);
+  padding: 12px;
+  position: relative;
+}
+.mobile-frame::before {
+  content: "";
+  position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
+  width: 110px; height: 24px;
+  background: var(--bg-deep);
+  border-radius: var(--r-pill);
+}
+.mobile-frame__inner {
+  width: 100%;
+  height: 760px;
+  border-radius: 26px;
+  overflow: hidden;
+  background: var(--bg-page);
+  position: relative;
+  /* force mobile breakpoint inside the inner frame */
+  container-type: inline-size;
+}
+.mobile-frame__inner .kc-shell { height: 100%; }
+.mobile-meta {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg-faint);
+  letter-spacing: var(--track-mono);
+}
+.mobile-meta .row { display: flex; justify-content: space-between; padding: var(--s-2) 0; border-bottom: 1px dashed var(--line); }
+.mobile-meta .row .k { color: var(--fg-muted); }
+.mobile-meta .row .v { color: var(--fg); }
+
+/* foot */
+.foot {
+  margin-top: var(--s-10);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+}
+.foot .sign { color: var(--accent); }
+
+/* annotation pin — for diagrammatic call-outs on the chrome surface */
+.pin {
+  position: absolute;
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.pin .dot {
+  width: 8px; height: 8px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  background: var(--bg-deep);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* small inline icon spinner used inside Save button */
+.spinner-svg circle.track { stroke: currentColor; opacity: 0.25; }
+.spinner-svg circle.arc   { stroke: currentColor; }
+
+/* selectable Block list for the live demo */
+.kc-block { user-select: none; }
+
+/* =============================================================
+   MOBILE SIMULATION (preview-only)
+   chrome.css uses @media (max-width: 767px) for the real app.
+   The preview's mobile frame is a constrained container, not a
+   smaller viewport, so we mirror the @media rules under a
+   [data-mobile] attribute scoped to the mobile preview shell.
+   This is preview scaffolding only — production keeps @media.
+   ============================================================= */
+.kc-shell[data-mobile] { grid-template-rows: 44px 1fr 56px; }
+.kc-shell[data-mobile] .kc-shell__body { grid-template-columns: 1fr; }
+.kc-shell[data-mobile] .kc-shell__body .kc-panel { display: none; }
+.kc-shell[data-mobile] .kc-toolbar {
+  height: 44px;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--s-3);
+}
+.kc-shell[data-mobile] .kc-toolbar__tabs,
+.kc-shell[data-mobile] .kc-toolbar__divider,
+.kc-shell[data-mobile] .kc-meta__sub,
+.kc-shell[data-mobile] .kc-meta__status,
+.kc-shell[data-mobile] .kc-toolbar__actions .kc-btn:not(.kc-save):not(.kc-btn--primary),
+.kc-shell[data-mobile] .kc-account__handle { display: none; }
+.kc-shell[data-mobile] .kc-meta { padding: 0; min-width: 0; }
+.kc-shell[data-mobile] .kc-meta__title { max-width: none; font-size: var(--t-sm); }
+.kc-shell[data-mobile] .kc-toolbar__actions { gap: var(--s-1); }
+.kc-shell[data-mobile] .kc-mobilebar { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true"></div>
+
+<main class="doc">
+
+  <header class="doc-head">
+    <div>
+      <p class="crumbs">SPRINT 2.5 · PHASE A · DELIVERABLE A2</p>
+      <h1>Koy Chrome <span class="slash">/</span> v0.1</h1>
+      <p class="lede">
+        The frame around the user canvas: toolbar, panels, modal, toast,
+        navigation. Bloomberg density. Alien chrome. State-comm wired into the
+        live UI, not floating beside it. Mobile is first-class — designed
+        alongside desktop, not after.
+      </p>
+    </div>
+    <div class="meta">
+      <div>theme · <span style="color:var(--fg);">slime</span></div>
+      <div>scope · <span style="color:var(--fg);">chrome only</span></div>
+      <div><b>extends A1 tokens</b></div>
+    </div>
+  </header>
+
+
+  <!-- ====================================================================
+       01 · ARCHITECTURE
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">01</div>
+      <div>
+        <h2>Architecture</h2>
+        <p class="lede">A 48px toolbar + tri-column body. The middle column is canvas (untouched). Both side columns are chrome — Blocks left, Inspector right. The canvas zone keeps the A1 vignette's dashed "not chrome's territory" marker for clarity in spec docs only.</p>
+      </div>
+    </div>
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">DC-4 (Bloomberg half) · § PROTECTION 5</span>
+          <span class="feeling">Dense where it should be · fast · the chrome is a frame, not a stage.</span>
+          Grid is <code>auto 1fr</code> rows, <code>264px / 1fr / 320px</code> columns. The toolbar is 48px because anything taller starts to feel like a SaaS dashboard; anything shorter loses room for the state-comm surfaces the Save button needs to host. The Inspector is slightly wider than Blocks (320 vs 264) because per-block fields and the future Style/Solids/Gradients controls (DC-4) need more horizontal real estate than a list of draggable block types. The canvas zone sits on <code>--bg-deep</code> so the chrome (<code>--bg-chrome</code>) reads as a frame around it — chrome's slightly lighter surface is the visual signal of "this is the frame, not the work."
+        </div>
+
+        <div class="surface" data-tall>
+          <div class="kc">
+            <div class="kc-shell">
+
+              <!-- TOOLBAR ============================================== -->
+              <div class="kc-toolbar">
+                <span class="kc-toolbar__brand"><span class="glyph">●</span>koy</span>
+                <div class="kc-toolbar__divider"></div>
+
+                <div class="kc-tabs" role="tablist" aria-label="Editor mode">
+                  <button class="kc-tab" role="tab" aria-selected="true">Edit</button>
+                  <button class="kc-tab" role="tab" aria-selected="false">Preview</button>
+                  <button class="kc-tab" role="tab" aria-selected="false">Settings</button>
+                </div>
+
+                <div class="kc-meta">
+                  <button class="kc-meta__title" id="page-title" type="button">Notes · May 12</button>
+                  <span class="kc-meta__sep"></span>
+                  <span class="kc-meta__sub">SAVED · 4M AGO · v17</span>
+                  <span class="kc-meta__sep"></span>
+                  <span class="kc-meta__status" data-status="live">live</span>
+                </div>
+
+                <div class="kc-toolbar__actions">
+                  <button class="kc-btn kc-btn--ghost">Share</button>
+                  <button class="kc-btn kc-save" id="save-btn" data-state="idle">
+                    <span class="kc-save__icon" aria-hidden="true"></span>
+                    <span class="kc-save__label">Save</span>
+                  </button>
+                  <button class="kc-btn kc-btn--primary">Publish</button>
+                </div>
+
+                <button class="kc-account" id="account-btn" aria-expanded="false" aria-haspopup="menu">
+                  <span class="kc-account__avatar">K</span>
+                  <span class="kc-account__handle">@khalid</span>
+                </button>
+
+                <!-- account menu (positioned absolutely under .kc-account) -->
+                <nav class="kc-menu" id="account-menu" role="menu" style="right: var(--s-4); top: calc(100% + 6px);">
+                  <div class="kc-menu__group">
+                    <div class="kc-menu__heading">Signed in as</div>
+                    <div style="padding: var(--s-1) var(--s-3) var(--s-2);">
+                      <div style="font-size: var(--t-sm); color: var(--fg);">Khalid</div>
+                      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--fg-faint); letter-spacing: var(--track-mono);">@khalid · koy.gg/khalid</div>
+                    </div>
+                  </div>
+                  <div class="kc-menu__group">
+                    <button class="kc-menu__item" role="menuitem">My pages <span class="kbd">⌘P</span></button>
+                    <button class="kc-menu__item" role="menuitem">Account settings <span class="kbd">⌘,</span></button>
+                    <button class="kc-menu__item" role="menuitem">Templates <span class="kbd">⌘T</span></button>
+                    <button class="kc-menu__item" role="menuitem">What's new</button>
+                  </div>
+                  <div class="kc-menu__group">
+                    <button class="kc-menu__item kc-menu__item--danger" role="menuitem">Sign out</button>
+                  </div>
+                </nav>
+              </div>
+
+              <!-- BODY ============================================== -->
+              <div class="kc-shell__body">
+
+                <!-- LEFT PANEL · Blocks -->
+                <aside class="kc-panel kc-panel--left">
+                  <div class="kc-panel__header">
+                    <span class="kc-panel__title">Blocks</span>
+                    <button class="kc-panel__action">+ Code</button>
+                  </div>
+                  <div class="kc-panel__body">
+                    <div class="kc-search">
+                      <svg class="kc-search__icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3.2"/><path d="M7.5 7.5 L10 10"/></svg>
+                      <input type="search" placeholder="Search blocks" />
+                    </div>
+
+                    <div class="kc-panel__section">
+                      <div class="kc-panel__section-head">Content</div>
+                      <div class="kc-panel__section-body">
+                        <div class="kc-blocklist">
+                          <div class="kc-block" aria-selected="true">
+                            <span class="kc-block__glyph">T</span>
+                            <span class="kc-block__label">Text</span>
+                            <span class="kc-block__hint">⌘1</span>
+                          </div>
+                          <div class="kc-block">
+                            <span class="kc-block__glyph">▦</span>
+                            <span class="kc-block__label">Image</span>
+                            <span class="kc-block__hint">⌘2</span>
+                          </div>
+                          <div class="kc-block">
+                            <span class="kc-block__glyph">▤</span>
+                            <span class="kc-block__label">Gallery</span>
+                            <span class="kc-block__hint">⌘3</span>
+                          </div>
+                          <div class="kc-block">
+                            <span class="kc-block__glyph">⌗</span>
+                            <span class="kc-block__label">Embed</span>
+                            <span class="kc-block__hint">⌘4</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="kc-panel__section">
+                      <div class="kc-panel__section-head">Live</div>
+                      <div class="kc-panel__section-body">
+                        <div class="kc-blocklist">
+                          <div class="kc-block">
+                            <span class="kc-block__glyph">⌘</span>
+                            <span class="kc-block__label">Calendar</span>
+                            <span class="kc-block__hint">⌘5</span>
+                          </div>
+                          <div class="kc-block">
+                            <span class="kc-block__glyph">$</span>
+                            <span class="kc-block__label">Sell</span>
+                            <span class="kc-block__hint">⌘6</span>
+                          </div>
+                          <div class="kc-block">
+                            <span class="kc-block__glyph">⏵</span>
+                            <span class="kc-block__label">Booking</span>
+                            <span class="kc-block__hint">⌘7</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="kc-panel__section">
+                      <div class="kc-panel__section-head">Advanced</div>
+                      <div class="kc-panel__section-body">
+                        <div class="kc-blocklist">
+                          <div class="kc-block">
+                            <span class="kc-block__glyph">{ }</span>
+                            <span class="kc-block__label">Code</span>
+                            <span class="kc-block__hint">⌘/</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </aside>
+
+                <!-- CANVAS -->
+                <div class="kc-shell__canvas">
+                  <div class="kc-shell__canvas-stub">
+                    <div class="frame">
+                      <strong>USER CANVAS</strong>
+                      not chrome's territory · stays untouched
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT PANEL · Inspector empty state -->
+                <aside class="kc-panel kc-panel--right">
+                  <div class="kc-panel__header">
+                    <span class="kc-panel__title">Inspector</span>
+                    <button class="kc-panel__action">page</button>
+                  </div>
+                  <div class="kc-panel__body">
+                    <div class="kc-empty">
+                      <div class="kc-empty__glyph">◇</div>
+                      <div class="kc-empty__title">Nothing selected</div>
+                      <div class="kc-empty__hint">Pick a block on the canvas<br>or press <span style="color:var(--accent);">⌘E</span> to edit page</div>
+                    </div>
+                  </div>
+                </aside>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="token-strip">
+          <span class="c">/* shell grammar */</span><br>
+          <span class="k">.kc-shell</span> &nbsp;rows: <span class="k">auto 1fr</span> &nbsp;|&nbsp; <span class="k">.kc-shell__body</span> cols: <span class="k">264px&nbsp;1fr&nbsp;320px</span> &nbsp;|&nbsp; toolbar height <span class="k">48px</span><br>
+          <span class="c">surfaces:</span> page=<span class="k">--bg-page</span> · chrome=<span class="k">--bg-chrome</span> · raised=<span class="k">--bg-raised</span> · canvas=<span class="k">--bg-deep</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       02 · TOOLBAR
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">02</div>
+      <div>
+        <h2>Editor toolbar</h2>
+        <p class="lede">Five regions across one row: brand · mode tabs · page meta · actions · account. Density tuned to fit on a 13" laptop without crowding; structure stays semantic so screen-readers and keyboard nav read the same chrome.</p>
+      </div>
+    </div>
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">DC-4 · § PROTECTION 5</span>
+          <span class="feeling">Trustworthy, fast, never in the way.</span>
+          Mode tabs use a contained segmented control instead of underlines — segmented reads correctly on dark chrome where underlines disappear, and the slime accent on the selected tab is the only place the brand color enters the toolbar baseline. The page meta strip is a single line because density wins over hierarchy here: <em>title</em> · <em>status (saved/draft/live)</em> · <em>version</em>. The title is editable in place (click → text caret). The live status pulses (only when actually live) — the only ambient motion in chrome at rest; everything else is event-driven. The account chip on the right is a pill-radius because it sits in the densest part of the bar and the pill softens that one corner without rounding the rest of the chrome.
+        </div>
+
+        <p class="t-sm" style="color: var(--fg-muted); margin: 0 0 var(--s-3);">Anatomy <span class="try">try clicking — title edits inline · @khalid opens the account menu</span></p>
+
+        <div class="surface" style="position: relative;">
+          <div class="kc">
+            <div class="kc-toolbar" style="border-radius: var(--r-3) var(--r-3) 0 0;">
+              <span class="kc-toolbar__brand"><span class="glyph">●</span>koy</span>
+              <div class="kc-toolbar__divider"></div>
+              <div class="kc-tabs" role="tablist" aria-label="Editor mode 2">
+                <button class="kc-tab" role="tab" aria-selected="true">Edit</button>
+                <button class="kc-tab" role="tab" aria-selected="false">Preview</button>
+                <button class="kc-tab" role="tab" aria-selected="false">Settings</button>
+              </div>
+              <div class="kc-meta">
+                <button class="kc-meta__title" type="button">Notes · May 12</button>
+                <span class="kc-meta__sep"></span>
+                <span class="kc-meta__sub">SAVED · 4M AGO · v17</span>
+                <span class="kc-meta__sep"></span>
+                <span class="kc-meta__status" data-status="live">live</span>
+              </div>
+              <div class="kc-toolbar__actions">
+                <button class="kc-btn kc-btn--ghost">Share</button>
+                <button class="kc-btn kc-save" data-state="idle">
+                  <span class="kc-save__icon" aria-hidden="true"></span>
+                  <span class="kc-save__label">Save</span>
+                </button>
+                <button class="kc-btn kc-btn--primary">Publish</button>
+              </div>
+              <button class="kc-account" aria-expanded="false">
+                <span class="kc-account__avatar">K</span>
+                <span class="kc-account__handle">@khalid</span>
+              </button>
+            </div>
+            <div style="background: var(--bg-deep); height: 56px; border-radius: 0 0 var(--r-3) var(--r-3);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       03 · SAVE STATE MACHINE
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">03</div>
+      <div>
+        <h2>Save · state machine</h2>
+        <p class="lede">The state-comm primitives live <em>inside</em> the Save button, not floating beside it. Idle → Saving → Saved → Idle, or Idle → Saving → Failed. The button itself is the truth surface for its own action — Invariant I5 made visible at the smallest possible scale.</p>
+      </div>
+    </div>
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">STATE-COMM § 1–3 · INVARIANT I5</span>
+          <span class="feeling">"No lies, no silence" · the action carries its own truth.</span>
+          A floating toast for "Saved" is two problems: it disconnects feedback from the action, and it competes for the same screen position as session-class errors. Wiring the success directly into the button removes both. <em>Saving</em>: the button stays in place (UI does not lock — the user can keep editing other surfaces), shows a spinner, sets <code>cursor: progress</code>; the label changes to "Saving…". <em>Saved</em>: the button takes the success tint (brand-dimmed slime) with a check, auto-collapses to idle after ~1.5s. <em>Failed</em>: the button takes the warn tint, label changes to "Couldn't save", and a small inline panel beneath the button reveals the technical line and a Retry CTA. The error stays sticky — it does not auto-dismiss — because that's a real recoverable error per state-comm primitive #3. Non-recoverable errors (session expired) escalate to the top toast anchor — not this button.
+        </div>
+
+        <p class="t-sm" style="color: var(--fg-muted); margin: 0 0 var(--s-3);">All four states, frozen <span class="try">interactive cycle below</span></p>
+
+        <div class="matrix" style="margin-bottom: var(--s-5);">
+          <div class="matrix__cell">
+            <div class="h">idle</div>
+            <div class="pad">
+              <button class="kc-btn kc-save" data-state="idle">
+                <span class="kc-save__icon" aria-hidden="true"></span>
+                <span class="kc-save__label">Save</span>
+              </button>
+            </div>
+            <div class="b">Default. Border-only chrome surface. No icon. Clicking starts the cycle.</div>
+          </div>
+          <div class="matrix__cell">
+            <div class="h">saving</div>
+            <div class="pad">
+              <button class="kc-btn kc-save" data-state="saving" aria-busy="true">
+                <span class="kc-save__icon" aria-hidden="true">
+                  <svg class="spinner-svg" viewBox="0 0 12 12" fill="none" stroke-width="1.6">
+                    <circle class="track" cx="6" cy="6" r="4.5"/>
+                    <path class="arc" d="M 10.5 6 A 4.5 4.5 0 0 0 6 1.5" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="kc-save__label">Saving…</span>
+              </button>
+            </div>
+            <div class="b">Spinner active. <code>cursor: progress</code>. Button disabled; rest of UI not locked. Pulse-shaped.</div>
+          </div>
+          <div class="matrix__cell">
+            <div class="h">saved</div>
+            <div class="pad">
+              <button class="kc-btn kc-save" data-state="saved">
+                <span class="kc-save__icon" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 2.5 6.5 L 5 9 L 9.5 3.5"/>
+                  </svg>
+                </span>
+                <span class="kc-save__label">Saved</span>
+              </button>
+            </div>
+            <div class="b">Brand-dimmed slime tint. Holds ~1.5s, then collapses to idle. The page meta strip's "SAVED · just now" updates on the same beat.</div>
+          </div>
+          <div class="matrix__cell">
+            <div class="h">failed</div>
+            <div class="pad" style="position: relative; min-height: 168px; align-items: flex-start; padding-top: var(--s-3);">
+              <button class="kc-btn kc-save" data-state="failed">
+                <span class="kc-save__icon" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                    <path d="M 6 2 L 6 7"/>
+                    <circle cx="6" cy="9.5" r="0.8" fill="currentColor" stroke="none"/>
+                  </svg>
+                </span>
+                <span class="kc-save__label">Couldn't save</span>
+              </button>
+              <div class="kc-save-details" style="position: static; margin-top: var(--s-3); animation: none;">
+                Couldn't save — try again in a sec.
+                <span class="kc-save-details__tech">409 · PAGE CONFLICT (someone else edited)</span>
+                <button class="kc-btn kc-btn--ghost kc-save-details__retry">Retry</button>
+              </div>
+            </div>
+            <div class="b">Warn-amber tint. Sticky inline reveal with plain-English + technical line behind it. Per state-comm rules — never silent.</div>
+          </div>
+        </div>
+
+        <p class="t-sm" style="color: var(--fg-muted); margin: 0 0 var(--s-3);">Interactive cycle <span class="try">click → idle · saving · saved · idle. Shift-click → idle · saving · failed.</span></p>
+
+        <div class="surface" style="position: relative;">
+          <div class="kc">
+            <div class="kc-toolbar" style="border-radius: var(--r-3) var(--r-3) 0 0;">
+              <span class="kc-toolbar__brand"><span class="glyph">●</span>koy</span>
+              <div class="kc-toolbar__divider"></div>
+              <div class="kc-tabs">
+                <button class="kc-tab" aria-selected="true">Edit</button>
+                <button class="kc-tab">Preview</button>
+                <button class="kc-tab">Settings</button>
+              </div>
+              <div class="kc-meta">
+                <span class="kc-meta__title" id="page-title-live">Notes · May 12</span>
+                <span class="kc-meta__sep"></span>
+                <span class="kc-meta__sub" id="page-sub-live">SAVED · 4M AGO · v17</span>
+              </div>
+              <div class="kc-toolbar__actions">
+                <button class="kc-btn kc-btn--ghost">Share</button>
+                <button class="kc-btn kc-save" id="save-live" data-state="idle">
+                  <span class="kc-save__icon" aria-hidden="true"></span>
+                  <span class="kc-save__label">Save</span>
+                </button>
+                <button class="kc-btn kc-btn--primary">Publish</button>
+              </div>
+              <button class="kc-account">
+                <span class="kc-account__avatar">K</span>
+                <span class="kc-account__handle">@khalid</span>
+              </button>
+            </div>
+            <div style="background: var(--bg-deep); min-height: 72px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       04 · PANELS
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">04</div>
+      <div>
+        <h2>Side panels</h2>
+        <p class="lede">Sticky 40px header · scrolling body · collapsible sections. Blocks-left has search and grouped categories (Content / Live / Advanced). Inspector-right shows the empty state when nothing is selected — never a blank pane.</p>
+      </div>
+    </div>
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">DC-4 (structural skeleton) · § PROTECTION 3</span>
+          <span class="feeling">Dignified empty states · never punishing.</span>
+          Panel headers stick on scroll because in long block lists or inspector forms, losing the panel title costs more than the 40px it claims. Section heads use a chevron rotation (snap, 160ms) — no fancy accordion collapse animation; instant disclosure preserves Bloomberg pacing. Block items use a 24px square glyph (mono-character placeholder for production icons) — placeholder is intentional and called out so Dev A doesn't ship rendered emoji or stylized icons unless an icon set lands. The Inspector empty state is the most-design-relevant surface here: a creator with nothing selected sees a dignified hint, not "select something" scolding. The hint includes a keyboard hint so the empty state teaches as well as waits — chrome that's a little smarter than it needs to be.
+        </div>
+
+        <div class="surface" data-tall>
+          <div class="kc">
+            <div class="kc-shell">
+              <div class="kc-toolbar" style="border-bottom: 1px solid var(--line);">
+                <span class="kc-toolbar__brand"><span class="glyph">●</span>koy</span>
+                <div class="kc-toolbar__divider"></div>
+                <div class="kc-tabs"><button class="kc-tab" aria-selected="true">Edit</button><button class="kc-tab">Preview</button><button class="kc-tab">Settings</button></div>
+                <div class="kc-meta"><span class="kc-meta__title">Notes · May 12</span></div>
+                <div class="kc-toolbar__actions"><button class="kc-btn">Save</button><button class="kc-btn kc-btn--primary">Publish</button></div>
+                <button class="kc-account"><span class="kc-account__avatar">K</span><span class="kc-account__handle">@khalid</span></button>
+              </div>
+              <div class="kc-shell__body">
+
+                <aside class="kc-panel kc-panel--left">
+                  <div class="kc-panel__header">
+                    <span class="kc-panel__title">Blocks</span>
+                    <button class="kc-panel__action">+ Code</button>
+                  </div>
+                  <div class="kc-panel__body" id="blocks-body">
+                    <div class="kc-search">
+                      <svg class="kc-search__icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3.2"/><path d="M7.5 7.5 L10 10"/></svg>
+                      <input type="search" placeholder="Search blocks" />
+                    </div>
+                    <div class="kc-panel__section">
+                      <div class="kc-panel__section-head">Content</div>
+                      <div class="kc-panel__section-body">
+                        <div class="kc-blocklist">
+                          <div class="kc-block kc-block-demo" aria-selected="false"><span class="kc-block__glyph">T</span><span class="kc-block__label">Text</span><span class="kc-block__hint">⌘1</span></div>
+                          <div class="kc-block kc-block-demo" aria-selected="false"><span class="kc-block__glyph">▦</span><span class="kc-block__label">Image</span><span class="kc-block__hint">⌘2</span></div>
+                          <div class="kc-block kc-block-demo" aria-selected="false"><span class="kc-block__glyph">▤</span><span class="kc-block__label">Gallery</span><span class="kc-block__hint">⌘3</span></div>
+                          <div class="kc-block kc-block-demo" aria-selected="false"><span class="kc-block__glyph">⌗</span><span class="kc-block__label">Embed</span><span class="kc-block__hint">⌘4</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="kc-panel__section">
+                      <div class="kc-panel__section-head">Live</div>
+                      <div class="kc-panel__section-body">
+                        <div class="kc-blocklist">
+                          <div class="kc-block kc-block-demo" aria-selected="false"><span class="kc-block__glyph">⌘</span><span class="kc-block__label">Calendar</span><span class="kc-block__hint">⌘5</span></div>
+                          <div class="kc-block kc-block-demo" aria-selected="false"><span class="kc-block__glyph">$</span><span class="kc-block__label">Sell</span><span class="kc-block__hint">⌘6</span></div>
+                          <div class="kc-block kc-block-demo" aria-selected="false"><span class="kc-block__glyph">⏵</span><span class="kc-block__label">Booking</span><span class="kc-block__hint">⌘7</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="kc-panel__section" data-collapsed="true">
+                      <div class="kc-panel__section-head">Advanced</div>
+                      <div class="kc-panel__section-body">
+                        <div class="kc-blocklist">
+                          <div class="kc-block kc-block-demo"><span class="kc-block__glyph">{ }</span><span class="kc-block__label">Code</span><span class="kc-block__hint">⌘/</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </aside>
+
+                <div class="kc-shell__canvas">
+                  <div class="kc-shell__canvas-stub">
+                    <div class="frame">
+                      <strong>USER CANVAS</strong>
+                      not chrome's territory · stays untouched
+                    </div>
+                  </div>
+                </div>
+
+                <aside class="kc-panel kc-panel--right">
+                  <div class="kc-panel__header">
+                    <span class="kc-panel__title">Inspector</span>
+                    <button class="kc-panel__action">page</button>
+                  </div>
+                  <div class="kc-panel__body">
+                    <div class="kc-empty">
+                      <div class="kc-empty__glyph">◇</div>
+                      <div class="kc-empty__title">Nothing selected</div>
+                      <div class="kc-empty__hint">Pick a block on the canvas<br>or press <span style="color:var(--accent);">⌘E</span> to edit page</div>
+                    </div>
+                  </div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="t-sm" style="color: var(--fg-muted); margin: var(--s-3) 0 0;">
+          Click any block to select it (single-select demo). Click a section heading to collapse / expand.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       05 · MODAL
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">05</div>
+      <div>
+        <h2>Modal · destructive confirm only</h2>
+        <p class="lede">Modals are reserved for the one thing that genuinely needs to interrupt: destructive confirms. Everything informational lives inline or in a toast (§ 06). Snap entrance; backdrop-blur scrim; Esc + click-outside + explicit Cancel all dismiss; focus traps in, returns to invoker.</p>
+      </div>
+    </div>
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">STATE-COMM § 5 · § PROTECTION 5 (Modern UX Discipline)</span>
+          <span class="feeling">Interruption costs trust · spend it only on real loss.</span>
+          The modal's entrance uses <code>snap</code> (160ms, ease-out hard) — it's a UI landing, not an ambient settle, so it arrives definitively. The scrim uses <code>backdrop-filter: blur</code> + a void-tinted overlay so the underlying chrome doesn't disappear — the modal sits over a softened reality, not in darkness. Focus management is non-negotiable: focus moves to the safest action (typically Cancel) on open, traps within the dialog, returns to the invoker on close. Esc dismisses (with Cancel semantics, not destructive). Click-outside dismisses. The destructive action stays as a plain <code>--btn--danger</code> — no shake, no big red — because the dignity of the affordance matters at the moment a user is about to lose something. The InlineConfirm pattern from A1 covers smaller destructive moments inline; full modal is reserved for irreversibles where the consequence merits the interruption.
+        </div>
+
+        <div style="display: flex; gap: var(--s-3); align-items: center; margin-bottom: var(--s-3);">
+          <button class="kc-btn kc-btn--danger" id="open-modal">Delete "Notes · May 12"</button>
+          <span class="try">opens the live modal — esc / click-outside dismiss</span>
+        </div>
+
+        <!-- frozen modal visual reference -->
+        <div class="surface" style="position: relative;">
+          <div style="position: relative; height: 320px; background: var(--bg-deep); display: grid; place-items: center;">
+            <!-- frozen scrim and dialog (no overlay state) -->
+            <div style="position: absolute; inset: 0; background: oklch(0.04 0.01 148 / 0.55); backdrop-filter: blur(6px);"></div>
+            <div class="kc-modal" style="opacity: 1; transform: none; position: relative;">
+              <div class="kc-modal__head">
+                <div class="kc-modal__icon">!</div>
+                <div class="kc-modal__title">Delete this page?</div>
+              </div>
+              <div class="kc-modal__body">
+                This permanently removes <strong>"Notes · May 12"</strong> and everything on it. Visitors hit a 404. Your other pages are untouched.
+              </div>
+              <div class="kc-modal__actions">
+                <span class="kc-modal__hint">esc · click-outside · cancel</span>
+                <button class="kc-btn">Cancel</button>
+                <button class="kc-btn kc-btn--danger">Delete page</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       06 · TOAST + STATE-COMM ANCHORS
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">06</div>
+      <div>
+        <h2>Toast &amp; state-comm anchors</h2>
+        <p class="lede">Three canonical positions for state communication — inline-at-action, toast-top, modal-center. Production code references the named anchor, not pixel coordinates. A3 will spec the full primitives; A2 locks the chrome positions they live inside so A3 can't redecide layout.</p>
+      </div>
+    </div>
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">STATE-COMM § ROLE RULES</span>
+          <span class="feeling">Truth at the action · never two channels for the same event.</span>
+          The toast anchor sits centered, just below the toolbar. Anchoring centered (not top-right) is deliberate — a session-class error needs to be acknowledged, not dismissed reflexively from the corner. Glide entry (ambient surface), not snap (which is reserved for the foreground "this landed" feeling). Toasts never auto-dismiss for non-recoverable errors — Sign-back-in and Reconnect carry CTAs the user must act on. Background events ("Auto-saved", "Refresh fired") may auto-dismiss after 4s with a success tone. The table below names every state-comm event and where its chrome anchor lives. A3 inherits this without redeciding.
+        </div>
+
+        <div style="display: flex; gap: var(--s-3); align-items: center; margin-bottom: var(--s-3);">
+          <button class="kc-btn" id="toast-danger">Trigger session-expired toast</button>
+          <button class="kc-btn kc-btn--ghost" id="toast-warn">Trigger "offline" toast</button>
+          <button class="kc-btn kc-btn--ghost" id="toast-success">Trigger background save toast</button>
+        </div>
+
+        <!-- frozen toast visual for the spec doc -->
+        <div class="surface" style="position: relative;">
+          <div class="kc">
+            <div class="kc-toolbar" style="border-radius: var(--r-3) var(--r-3) 0 0;">
+              <span class="kc-toolbar__brand"><span class="glyph">●</span>koy</span>
+              <div class="kc-toolbar__divider"></div>
+              <div class="kc-tabs"><button class="kc-tab" aria-selected="true">Edit</button><button class="kc-tab">Preview</button><button class="kc-tab">Settings</button></div>
+              <div class="kc-meta"><span class="kc-meta__title">Notes · May 12</span></div>
+              <div class="kc-toolbar__actions"><button class="kc-btn">Save</button><button class="kc-btn kc-btn--primary">Publish</button></div>
+              <button class="kc-account"><span class="kc-account__avatar">K</span><span class="kc-account__handle">@khalid</span></button>
+            </div>
+            <div style="background: var(--bg-deep); height: 200px; position: relative; padding: var(--s-3);">
+              <!-- frozen toast for the spec doc (not the live one) -->
+              <div class="kc-toast" data-tone="danger" style="position: static; max-width: 520px; margin: 0 auto; animation: none;">
+                <span class="kc-toast__icon"></span>
+                <div>
+                  <div class="kc-toast__title">You're signed out.</div>
+                  <div class="kc-toast__sub">SESSION EXPIRED · LAST SAVE 4M AGO IS SAFE</div>
+                </div>
+                <button class="kc-toast__cta">Sign back in</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size: var(--t-lg); margin: var(--s-7) 0 var(--s-3); letter-spacing: var(--track-tight);">Canonical anchors</h3>
+        <table class="anchor-table">
+          <thead><tr>
+            <th>Event class</th>
+            <th>Anchor</th>
+            <th>Motion</th>
+            <th>Examples</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Foreground action</td>
+              <td class="mono">kc-anchor--inline-at-action</td>
+              <td class="mono">snap</td>
+              <td>Save (in the button) · Delete (in InlineConfirm)<br><span class="ex">truth lives next to / inside the invoking element</span></td>
+            </tr>
+            <tr>
+              <td>Background event</td>
+              <td class="mono">kc-anchor--toast-top</td>
+              <td class="mono">snap</td>
+              <td>Auto-saved · Refreshed · "We saved that for you"<br><span class="ex">brief, dismissible, success-tone — never both inline + toast</span></td>
+            </tr>
+            <tr>
+              <td>Session-class</td>
+              <td class="mono">kc-anchor--toast-top</td>
+              <td class="mono">snap</td>
+              <td>Session expired · Offline · Reconnecting<br><span class="ex">sticky · carries action CTA · never silent</span></td>
+            </tr>
+            <tr>
+              <td>Destructive confirm</td>
+              <td class="mono">kc-anchor--modal-center</td>
+              <td class="mono">snap</td>
+              <td>Delete page · Discard unsaved · Unpublish<br><span class="ex">reserved — informational never escalates here</span></td>
+            </tr>
+            <tr>
+              <td>Loading (foreground)</td>
+              <td class="mono">kc-anchor--inline-at-action</td>
+              <td class="mono">pulse</td>
+              <td>Spinner inside the action button · disabled state<br><span class="ex">UI is not locked — user can keep working elsewhere</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       07 · NAV FRAME
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">07</div>
+      <div>
+        <h2>Navigation frame</h2>
+        <p class="lede">Two affordances: the account menu (right end of toolbar) and the page switcher (clicking the page title). Landing nav is Phase B — A2 only covers in-app movement.</p>
+      </div>
+    </div>
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">DC-1/2/3 soul · § PROTECTION 6 (policy stability)</span>
+          <span class="feeling">Movement that respects how possessive a creator gets about their pages.</span>
+          The account menu is dropdown-shaped, not a slide-in drawer — drawer animations on a non-mobile surface tax for nothing. The page switcher mounts from the title (not a separate "switch page" button) because the title is the strongest signifier of "the page I'm in"; clicking it to see siblings reads as a creator gesture, not a navigation widget. Status badges (LIVE / DRAFT) in the switcher tell the truth at-a-glance — no clicking through to find out which version visitors actually see, which was the wound Sprint 2's B12 was about. Sign-out lives in its own group at the bottom of the menu, with the destructive tint reserved for it.
+        </div>
+
+        <p class="t-sm" style="color: var(--fg-muted); margin: 0 0 var(--s-3);">Both menus live · click the toolbar's account chip or page title <span class="try">esc / click-outside dismisses</span></p>
+
+        <div class="surface" data-tall style="position: relative;">
+          <div class="kc">
+            <div class="kc-shell">
+
+              <div class="kc-toolbar">
+                <span class="kc-toolbar__brand"><span class="glyph">●</span>koy</span>
+                <div class="kc-toolbar__divider"></div>
+                <div class="kc-tabs"><button class="kc-tab" aria-selected="true">Edit</button><button class="kc-tab">Preview</button><button class="kc-tab">Settings</button></div>
+                <div class="kc-meta" style="position: relative;">
+                  <button class="kc-meta__title" id="page-title-nav" type="button">Notes · May 12</button>
+                  <span class="kc-meta__sep"></span>
+                  <span class="kc-meta__sub">SAVED · 4M AGO</span>
+                  <span class="kc-meta__sep"></span>
+                  <span class="kc-meta__status" data-status="live">live</span>
+
+                  <!-- page picker (positioned under title) -->
+                  <div class="kc-pagepicker" id="pagepicker" style="display: none; left: 0; top: calc(100% + 8px);">
+                    <div style="padding: var(--s-2) var(--s-3); font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--fg-faint);">Your pages</div>
+                    <button class="kc-pagepicker__item" style="background: var(--bg-accent-soft);">
+                      <div><div class="kc-pagepicker__name">Notes · May 12</div><div class="kc-pagepicker__sub">koy.gg/khalid/notes-may-12 · 4m ago</div></div>
+                      <span class="kc-pagepicker__badge">live</span>
+                    </button>
+                    <button class="kc-pagepicker__item">
+                      <div><div class="kc-pagepicker__name">After Hours</div><div class="kc-pagepicker__sub">koy.gg/khalid/after-hours · 2d ago</div></div>
+                      <span class="kc-pagepicker__badge">live</span>
+                    </button>
+                    <button class="kc-pagepicker__item">
+                      <div><div class="kc-pagepicker__name">untitled draft</div><div class="kc-pagepicker__sub">unpublished · 6d ago</div></div>
+                      <span class="kc-pagepicker__badge" style="color: var(--fg-muted); background: var(--bg-pressed);">draft</span>
+                    </button>
+                    <button class="kc-pagepicker__item">
+                      <div><div class="kc-pagepicker__name">tattoo · book</div><div class="kc-pagepicker__sub">koy.gg/khalid/book · 11d ago</div></div>
+                      <span class="kc-pagepicker__badge">live</span>
+                    </button>
+                    <div style="border-top: 1px solid var(--line); margin-top: var(--s-1); padding-top: var(--s-1);">
+                      <button class="kc-pagepicker__item">
+                        <div><div class="kc-pagepicker__name" style="color: var(--accent);">+ New page</div></div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="kc-toolbar__actions">
+                  <button class="kc-btn kc-btn--ghost">Share</button>
+                  <button class="kc-btn">Save</button>
+                  <button class="kc-btn kc-btn--primary">Publish</button>
+                </div>
+                <button class="kc-account" id="account-btn-nav" aria-expanded="true" aria-haspopup="menu">
+                  <span class="kc-account__avatar">K</span>
+                  <span class="kc-account__handle">@khalid</span>
+                </button>
+                <nav class="kc-menu" id="account-menu-nav" data-open="true" role="menu" style="right: var(--s-4); top: calc(100% + 6px);">
+                  <div class="kc-menu__group">
+                    <div class="kc-menu__heading">Signed in as</div>
+                    <div style="padding: var(--s-1) var(--s-3) var(--s-2);">
+                      <div style="font-size: var(--t-sm); color: var(--fg);">Khalid</div>
+                      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--fg-faint); letter-spacing: var(--track-mono);">@khalid · koy.gg/khalid</div>
+                    </div>
+                  </div>
+                  <div class="kc-menu__group">
+                    <button class="kc-menu__item">My pages <span class="kbd">⌘P</span></button>
+                    <button class="kc-menu__item">Account settings <span class="kbd">⌘,</span></button>
+                    <button class="kc-menu__item">Templates <span class="kbd">⌘T</span></button>
+                    <button class="kc-menu__item">What's new</button>
+                  </div>
+                  <div class="kc-menu__group">
+                    <button class="kc-menu__item kc-menu__item--danger">Sign out</button>
+                  </div>
+                </nav>
+              </div>
+              <div style="background: var(--bg-deep); flex: 1; min-height: 440px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       08 · MOBILE CHROME
+       ==================================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="num">08</div>
+      <div>
+        <h2>Mobile chrome &nbsp;<span style="font-family:var(--font-mono); font-size:var(--t-sm); color:var(--accent); letter-spacing: var(--track-caps);">&lt; 768PX</span></h2>
+        <p class="lede">Single-column. Drag DISABLED per the bible — same blocks, different rendering. The toolbar condenses to brand + title + Publish. Mode tabs descend to a bottom bar. Blocks and Inspector become bottom action sheets.</p>
+      </div>
+    </div>
+
+    <div class="body-grid">
+      <div></div>
+      <div>
+        <div class="rationale">
+          <span class="ref">§ TECHNICAL FACTS · § PROTECTION 5</span>
+          <span class="feeling">A phone is a real medium, not a smaller desktop.</span>
+          The mobile breakpoint forces a real reshape, not a CSS-truncated desktop. The toolbar's mode tabs migrate down because a thumb reaches up less comfortably than across; the mode bar at the bottom keeps the most-frequent gesture (Edit ↔ Preview) one tap away. Inspector and Blocks promote to action sheets sliding up from the bottom — glide easing, snapping into a max-80vh height. The grip handle is non-functional decoration in v1 but reserves real-estate for swipe-to-dismiss in the sandbox sprint downstream. The "live" status pulses still — it's the only ambient motion that survives the mobile reshape, because a creator on mobile especially needs to know what visitors are seeing.
+        </div>
+
+        <div class="mobile-wrap">
+          <div class="mobile-frame">
+            <div class="mobile-frame__inner">
+              <div class="kc">
+                <div class="kc-shell" id="mobile-shell" data-mobile>
+                  <div class="kc-toolbar">
+                    <span class="kc-toolbar__brand"><span class="glyph">●</span>koy</span>
+                    <div class="kc-meta">
+                      <button class="kc-meta__title" type="button">Notes · May 12</button>
+                    </div>
+                    <div class="kc-toolbar__actions">
+                      <button class="kc-btn kc-btn--primary">Publish</button>
+                    </div>
+                  </div>
+
+                  <div style="background: var(--bg-deep); display: grid; place-items: center; color: var(--fg-faint); font-family: var(--font-mono); font-size: var(--t-xs); letter-spacing: var(--track-caps); text-align: center; padding: var(--s-5);">
+                    <div style="border: 1px dashed var(--line-strong); padding: var(--s-5) var(--s-4); border-radius: var(--r-3);">
+                      <strong style="color: var(--fg-muted); display: block; margin-bottom: var(--s-1);">USER CANVAS</strong>
+                      single-column · drag disabled
+                    </div>
+                  </div>
+
+                  <nav class="kc-mobilebar" id="mobile-bar">
+                    <button class="kc-mobilebar__tab" aria-selected="true">
+                      <span class="kc-mobilebar__glyph"></span>Edit
+                    </button>
+                    <button class="kc-mobilebar__tab" data-sheet="blocks">
+                      <span class="kc-mobilebar__glyph"></span>Blocks
+                    </button>
+                    <button class="kc-mobilebar__tab" data-sheet="inspector">
+                      <span class="kc-mobilebar__glyph"></span>Page
+                    </button>
+                    <button class="kc-mobilebar__tab">
+                      <span class="kc-mobilebar__glyph"></span>Preview
+                    </button>
+                  </nav>
+
+                  <!-- mobile action sheet (lives inside the frame) -->
+                  <div class="kc-sheet-root" id="mobile-sheet-root">
+                    <div class="kc-scrim"></div>
+                    <div class="kc-sheet">
+                      <div class="kc-sheet__grip"></div>
+                      <div class="kc-sheet__head">
+                        <span class="kc-sheet__title" id="sheet-title">Blocks</span>
+                        <button class="kc-btn kc-btn--ghost" id="sheet-close">Done</button>
+                      </div>
+                      <div class="kc-sheet__body" id="sheet-body">
+                        <!-- populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="mobile-meta">
+              <div class="row"><span class="k">Toolbar height</span><span class="v">44px</span></div>
+              <div class="row"><span class="k">Mode bar height</span><span class="v">56px</span></div>
+              <div class="row"><span class="k">Action sheet</span><span class="v">max 80vh</span></div>
+              <div class="row"><span class="k">Drag</span><span class="v">disabled</span></div>
+              <div class="row"><span class="k">Panels</span><span class="v">→ bottom sheets</span></div>
+              <div class="row"><span class="k">Sheet entry</span><span class="v">glide · 280ms</span></div>
+              <div class="row"><span class="k">Hit target floor</span><span class="v">44px</span></div>
+            </div>
+
+            <p class="t-sm" style="color: var(--fg-muted); margin: var(--s-5) 0 0;">
+              Tap <span class="mono" style="color: var(--accent); font-family: var(--font-mono);">BLOCKS</span> or <span class="mono" style="color: var(--accent); font-family: var(--font-mono);">PAGE</span> in the bottom bar to open the action sheet. Esc dismisses; tapping the scrim does too. The mobile chrome shown is a real-pixel render — the inner frame is constrained to 368px so the live mobile breakpoint engages.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       LIVE OVERLAYS — modal & toasts mounted at body level
+       ==================================================================== -->
+  <div class="kc-modal-root" id="modal-root">
+    <div class="kc-scrim" id="modal-scrim"></div>
+    <div class="kc-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="modal-dialog">
+      <div class="kc-modal__head">
+        <div class="kc-modal__icon">!</div>
+        <div class="kc-modal__title" id="modal-title">Delete this page?</div>
+      </div>
+      <div class="kc-modal__body">
+        This permanently removes <strong>"Notes · May 12"</strong> and everything on it. Visitors hit a 404. Your other pages are untouched.
+      </div>
+      <div class="kc-modal__actions">
+        <span class="kc-modal__hint">esc · click-outside · cancel</span>
+        <button class="kc-btn" id="modal-cancel">Cancel</button>
+        <button class="kc-btn kc-btn--danger" id="modal-confirm">Delete page</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="kc-toast-stack" id="toast-stack" aria-live="polite"></div>
+
+
+  <footer class="foot">
+    <span>KOY · CHROME A2 · v0.1 · 2026-05-19</span>
+    <span class="sign">— Claudesign</span>
+  </footer>
+
+</main>
+
+
+<script>
+/* =============================================================
+   Preview interaction wiring.
+   Demonstrates chrome state behavior — NOT a chrome dependency.
+   Production wiring lives in app code; this only proves the spec.
+   ============================================================= */
+
+// ---------- SAVE BUTTON STATE MACHINE ----------
+(function () {
+  var btn = document.getElementById('save-live');
+  var sub = document.getElementById('page-sub-live');
+  if (!btn) return;
+
+  var iconHTML = {
+    idle: '',
+    saving: '<svg class="spinner-svg" viewBox="0 0 12 12" fill="none" stroke-width="1.6"><circle class="track" cx="6" cy="6" r="4.5"/><path class="arc" d="M 10.5 6 A 4.5 4.5 0 0 0 6 1.5" stroke-linecap="round"/></svg>',
+    saved: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M 2.5 6.5 L 5 9 L 9.5 3.5"/></svg>',
+    failed: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M 6 2 L 6 7"/><circle cx="6" cy="9.5" r="0.8" fill="currentColor" stroke="none"/></svg>'
+  };
+  var labels = {
+    idle: 'Save', saving: 'Saving…', saved: 'Saved', failed: "Couldn't save"
+  };
+
+  function setState (s) {
+    btn.setAttribute('data-state', s);
+    btn.querySelector('.kc-save__icon').innerHTML = iconHTML[s];
+    btn.querySelector('.kc-save__label').textContent = labels[s];
+    btn.setAttribute('aria-busy', s === 'saving' ? 'true' : 'false');
+
+    // tear down any stale details
+    var stale = btn.parentElement.querySelector('.kc-save-details');
+    if (stale) stale.remove();
+
+    if (s === 'failed') {
+      var det = document.createElement('div');
+      det.className = 'kc-save-details';
+      det.innerHTML =
+        "Couldn't save — try again in a sec." +
+        '<span class="kc-save-details__tech">409 · PAGE CONFLICT</span>' +
+        '<button class="kc-btn kc-btn--ghost kc-save-details__retry">Retry</button>';
+      btn.parentElement.appendChild(det);
+      det.querySelector('.kc-save-details__retry').addEventListener('click', function () { run(false); });
+    }
+    if (s === 'saved') {
+      sub.textContent = 'SAVED · JUST NOW · v18';
+      setTimeout(function () { setState('idle'); }, 1500);
+    }
+  }
+
+  function run (shouldFail) {
+    if (btn.getAttribute('data-state') === 'saving') return;
+    setState('saving');
+    setTimeout(function () { setState(shouldFail ? 'failed' : 'saved'); }, 900);
+  }
+
+  btn.addEventListener('click', function (ev) { run(ev.shiftKey); });
+}());
+
+
+// ---------- ACCOUNT MENU ----------
+(function () {
+  var btn = document.getElementById('account-btn');
+  var menu = document.getElementById('account-menu');
+  if (!btn || !menu) return;
+
+  function open () { btn.setAttribute('aria-expanded', 'true'); menu.setAttribute('data-open', 'true'); }
+  function close () { btn.setAttribute('aria-expanded', 'false'); menu.removeAttribute('data-open'); }
+
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    btn.getAttribute('aria-expanded') === 'true' ? close() : open();
+  });
+  document.addEventListener('click', function (e) {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+}());
+
+
+// ---------- PAGE TITLE → PICKER ----------
+(function () {
+  var title = document.getElementById('page-title-nav');
+  var picker = document.getElementById('pagepicker');
+  if (!title || !picker) return;
+  picker.style.display = 'block'; // shown by default in section 07 demo
+
+  title.addEventListener('click', function (e) {
+    e.stopPropagation();
+    picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+  });
+  document.addEventListener('click', function (e) {
+    if (!picker.contains(e.target) && e.target !== title) picker.style.display = 'none';
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') picker.style.display = 'none';
+  });
+}());
+
+
+// ---------- MODAL ----------
+(function () {
+  var root = document.getElementById('modal-root');
+  var openBtn = document.getElementById('open-modal');
+  var scrim = document.getElementById('modal-scrim');
+  var cancel = document.getElementById('modal-cancel');
+  var confirm = document.getElementById('modal-confirm');
+  var dialog = document.getElementById('modal-dialog');
+  if (!root || !openBtn) return;
+
+  var lastFocus = null;
+  function open () {
+    lastFocus = document.activeElement;
+    root.setAttribute('data-open', 'true');
+    // focus the safe action on entry
+    setTimeout(function () { cancel.focus(); }, 50);
+    document.addEventListener('keydown', onKey);
+  }
+  function close () {
+    root.removeAttribute('data-open');
+    document.removeEventListener('keydown', onKey);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  function onKey (e) {
+    if (e.key === 'Escape') { close(); return; }
+    if (e.key === 'Tab') {
+      // basic focus trap between the two actions + scrim
+      var focusable = dialog.querySelectorAll('button');
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  openBtn.addEventListener('click', open);
+  scrim.addEventListener('click', close);
+  cancel.addEventListener('click', close);
+  confirm.addEventListener('click', function () {
+    // simulate destructive action then dismiss
+    confirm.textContent = 'Deleting…';
+    confirm.setAttribute('aria-busy', 'true');
+    setTimeout(function () {
+      confirm.textContent = 'Delete page';
+      confirm.removeAttribute('aria-busy');
+      close();
+      toast({ tone: 'success', title: 'Page deleted.', sub: 'NOTES · MAY 12 IS GONE', cta: null, sticky: false });
+    }, 800);
+  });
+}());
+
+
+// ---------- TOASTS ----------
+function toast (opts) {
+  var stack = document.getElementById('toast-stack');
+  if (!stack) return;
+  var el = document.createElement('div');
+  el.className = 'kc-toast';
+  el.setAttribute('data-tone', opts.tone || 'danger');
+  el.innerHTML =
+    '<span class="kc-toast__icon"></span>' +
+    '<div><div class="kc-toast__title">' + (opts.title || '') + '</div>' +
+    (opts.sub ? '<div class="kc-toast__sub">' + opts.sub + '</div>' : '') + '</div>' +
+    (opts.cta ? '<button class="kc-toast__cta">' + opts.cta + '</button>' : '<button class="kc-toast__cta">Dismiss</button>');
+  stack.appendChild(el);
+  el.querySelector('.kc-toast__cta').addEventListener('click', function () { el.remove(); });
+  if (!opts.sticky) setTimeout(function () { if (el.parentNode) el.remove(); }, 4000);
+}
+(function () {
+  var d = document.getElementById('toast-danger');
+  var w = document.getElementById('toast-warn');
+  var s = document.getElementById('toast-success');
+  if (d) d.addEventListener('click', function () {
+    toast({ tone: 'danger', title: "You're signed out.", sub: 'SESSION EXPIRED · LAST SAVE 4M AGO IS SAFE', cta: 'Sign back in', sticky: true });
+  });
+  if (w) w.addEventListener('click', function () {
+    toast({ tone: 'warn', title: "You're offline.", sub: 'CHANGES WILL SAVE WHEN YOU RECONNECT', cta: 'Got it', sticky: true });
+  });
+  if (s) s.addEventListener('click', function () {
+    toast({ tone: 'success', title: 'Auto-saved.', sub: 'v18 · just now', cta: null, sticky: false });
+  });
+}());
+
+
+// ---------- BLOCK SELECTION DEMO (Section 04) ----------
+(function () {
+  var blocks = document.querySelectorAll('#blocks-body .kc-block-demo');
+  blocks.forEach(function (b) {
+    b.addEventListener('click', function () {
+      blocks.forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+      b.setAttribute('aria-selected', 'true');
+    });
+  });
+
+  // section collapse
+  document.querySelectorAll('#blocks-body .kc-panel__section-head').forEach(function (h) {
+    h.addEventListener('click', function () {
+      var s = h.parentElement;
+      var c = s.getAttribute('data-collapsed') === 'true';
+      s.setAttribute('data-collapsed', c ? 'false' : 'true');
+    });
+  });
+}());
+
+
+// ---------- MOBILE ACTION SHEET ----------
+(function () {
+  var root = document.getElementById('mobile-sheet-root');
+  var title = document.getElementById('sheet-title');
+  var body = document.getElementById('sheet-body');
+  var close = document.getElementById('sheet-close');
+  if (!root) return;
+
+  var content = {
+    blocks: '\
+      <div class="kc-search"><input type="search" placeholder="Search blocks" /></div>\
+      <div class="kc-blocklist">\
+        <div class="kc-block"><span class="kc-block__glyph">T</span><span class="kc-block__label">Text</span><span class="kc-block__hint">Tap to add</span></div>\
+        <div class="kc-block"><span class="kc-block__glyph">▦</span><span class="kc-block__label">Image</span><span class="kc-block__hint">Tap to add</span></div>\
+        <div class="kc-block"><span class="kc-block__glyph">▤</span><span class="kc-block__label">Gallery</span><span class="kc-block__hint">Tap to add</span></div>\
+        <div class="kc-block"><span class="kc-block__glyph">⌗</span><span class="kc-block__label">Embed</span><span class="kc-block__hint">Tap to add</span></div>\
+        <div class="kc-block"><span class="kc-block__glyph">⌘</span><span class="kc-block__label">Calendar</span><span class="kc-block__hint">Tap to add</span></div>\
+        <div class="kc-block"><span class="kc-block__glyph">$</span><span class="kc-block__label">Sell</span><span class="kc-block__hint">Tap to add</span></div>\
+        <div class="kc-block"><span class="kc-block__glyph">{ }</span><span class="kc-block__label">Code</span><span class="kc-block__hint">Tap to add</span></div>\
+      </div>',
+    inspector: '\
+      <div class="kc-empty">\
+        <div class="kc-empty__glyph">◇</div>\
+        <div class="kc-empty__title">Nothing selected</div>\
+        <div class="kc-empty__hint">Tap a block on the canvas<br>to style it</div>\
+      </div>'
+  };
+
+  document.querySelectorAll('[data-sheet]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var which = b.getAttribute('data-sheet');
+      title.textContent = which === 'inspector' ? 'Page' : 'Blocks';
+      body.innerHTML = content[which] || '';
+      root.setAttribute('data-open', 'true');
+    });
+  });
+  function dismiss () { root.removeAttribute('data-open'); }
+  close.addEventListener('click', dismiss);
+  root.querySelector('.kc-scrim').addEventListener('click', dismiss);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dismiss(); });
+}());
+</script>
+
+</body>
+</html>

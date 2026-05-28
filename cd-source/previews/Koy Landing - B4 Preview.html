@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Koy Landing — B4 Preview · slime spread (v4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="koy-tokens.css" />
+<link rel="stylesheet" href="koy-landing.css" />
+
+<style>
+/* ============================================================
+   Preview scaffolding — A1/A2/A3/B1/B2/B3 idiom.
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+.aurora {
+  position: fixed; inset: -10vmin -10vmin auto -10vmin; height: 60vh;
+  pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(60vmax 40vmax at 18% 5%,  oklch(0.45 0.20 148 / 0.18), transparent 60%),
+    radial-gradient(50vmax 30vmax at 90% 10%, oklch(0.40 0.20 148 / 0.10), transparent 65%);
+  filter: blur(40px);
+}
+.doc { max-width: 1240px; margin: 0 auto; padding: var(--s-9) var(--s-6) var(--s-10); }
+.doc-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: end;
+  gap: var(--s-5);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--s-8);
+}
+.doc-head h1 {
+  font-size: var(--t-3xl); line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight); font-weight: var(--w-bold);
+  margin: 0 0 var(--s-3);
+}
+.doc-head h1 .slash { color: var(--accent); }
+.doc-head .crumbs {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); margin: 0 0 var(--s-3);
+}
+.doc-head p.lede { max-width: 64ch; color: var(--fg-muted); margin: 0; }
+.doc-head .meta {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  text-align: right; white-space: nowrap; line-height: 1.7;
+}
+.doc-head .meta b { color: var(--accent); font-weight: var(--w-bold); }
+
+section { margin-bottom: var(--s-10); }
+.sec-head {
+  display: grid; grid-template-columns: 56px 1fr;
+  gap: var(--s-4); align-items: baseline; margin-bottom: var(--s-5);
+}
+.sec-head .num {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); color: var(--accent); padding-top: var(--s-1);
+}
+.sec-head h2 {
+  font-size: var(--t-2xl); font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight); margin: 0; line-height: var(--lh-tight);
+}
+.sec-head .lede {
+  grid-column: 2; font-size: var(--t-md); color: var(--fg-muted);
+  max-width: 70ch; margin: var(--s-3) 0 0;
+}
+.body-grid { display: grid; grid-template-columns: 56px 1fr; gap: var(--s-4); }
+.rationale {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+  margin-bottom: var(--s-5);
+}
+.rationale h3 {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: var(--w-medium); letter-spacing: var(--track-caps);
+  text-transform: uppercase; color: var(--accent); margin: 0 0 var(--s-2);
+}
+.rationale p { margin: 0 0 var(--s-2); }
+.rationale p:last-child { margin-bottom: 0; }
+.rationale code, .rationale b {
+  font-family: var(--font-mono); font-size: 0.92em;
+  color: var(--fg); font-weight: var(--w-medium); letter-spacing: var(--track-mono);
+}
+.rationale ul { margin: var(--s-2) 0; padding-left: var(--s-5); }
+.rationale li { margin-bottom: 4px; }
+
+footer.sign {
+  margin-top: var(--s-10);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+}
+footer.sign b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* ============================================================
+   B4 · INHERIT-CHAIN — visual ledger of what carries from
+   B1/B2/B3 into this deliverable.
+   ============================================================ */
+.inherit-chain {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+@media (max-width: 880px) { .inherit-chain { grid-template-columns: repeat(2, 1fr); } }
+.inherit-card {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-3) var(--s-4);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+}
+.inherit-card[data-from="B4"] { border-color: var(--accent); }
+.inherit-card__tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: var(--r-1);
+  background: var(--bg-deep);
+  color: var(--fg-muted);
+  margin-bottom: var(--s-2);
+}
+.inherit-card[data-from="B4"] .inherit-card__tag {
+  background: var(--accent-soft); color: var(--accent);
+}
+.inherit-card b { color: var(--fg); font-family: var(--font-mono); font-weight: var(--w-medium); letter-spacing: var(--track-mono); font-size: 0.92em; }
+.inherit-card p { margin: 0; color: var(--fg-muted); }
+
+/* ============================================================
+   B4 · SPREAD STAGE — a vertical hero-strip canvas showing the
+   slime spread descending from the settled rip-mark into the
+   bridge zone. Phase-driven via data-phase-id, exactly the
+   shape of B3's storyboard idiom.
+   ============================================================ */
+.spread-stage {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  aspect-ratio: 9 / 16;          /* tall — landing scroll strip, not square */
+  overflow: hidden;
+  display: block;
+}
+.spread-stage::before {
+  /* void substrate, same idiom as B3 */
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 50% -10%, oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80% 70% at 50% 120%, oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.spread-stage::after {
+  content: attr(data-phase);
+  position: absolute;
+  top: 8px; right: 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 5;
+}
+
+/* the rip-mark inherited from B3 — settled state at top of strip */
+.spread-mark {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(70% 60% at 50% 45%,
+      oklch(0.92 0.290 148 / 0.95) 0%,
+      oklch(0.82 0.260 148 / 0.85) 28%,
+      oklch(0.55 0.210 148 / 0.55) 62%,
+      transparent 78%);
+  filter: blur(3px);
+  border-radius: 48% 52% 56% 44% / 50% 46% 54% 50%;
+  z-index: 3;
+  box-shadow:
+    0 0 32px -4px var(--accent-glow),
+    0 0 80px -16px oklch(0.85 0.29 148 / 0.4);
+}
+
+/* the spread — slime descending from the mark. A radial-fade
+   blob that scales vertically per phase. */
+.spread-flow {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, 0);
+  width: 18%;
+  height: 0;
+  background: linear-gradient(180deg,
+    oklch(0.85 0.270 148 / 0.85) 0%,
+    oklch(0.70 0.240 148 / 0.65) 35%,
+    oklch(0.55 0.220 148 / 0.40) 70%,
+    transparent 100%);
+  filter: blur(6px);
+  z-index: 2;
+  border-radius: 50% 50% 60% 40% / 30% 30% 70% 70%;
+}
+
+/* the disperse — soft halo at flow tip, takes over as spread widens */
+.spread-tip {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, 0);
+  width: 0;
+  height: 0;
+  background: radial-gradient(60% 60% at 50% 30%,
+    oklch(0.78 0.260 148 / 0.55) 0%,
+    oklch(0.55 0.210 148 / 0.30) 45%,
+    transparent 80%);
+  filter: blur(28px);
+  z-index: 1;
+  border-radius: 50%;
+}
+
+/* the bridge hairline (inherited from B1) — survives the spread */
+.spread-bridge {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 50%;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    oklch(0.85 0.29 148 / 0.30) 25%,
+    oklch(0.85 0.29 148 / 0.45) 60%,
+    oklch(0.85 0.29 148 / 0.30) 88%,
+    transparent 100%);
+  z-index: 1;
+  box-shadow: 0 0 6px oklch(0.85 0.29 148 / 0.30);
+}
+
+/* faint hotspot anchors at bottom — six dots in a constellation
+   shape (mirrors B1's grid positions, scaled into the strip).
+   Absence is via box-shadow: none, NEVER opacity. */
+.spread-hotspot {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: oklch(0.22 0.030 148);
+  box-shadow: 0 0 0 1px oklch(0.42 0.10 148 / 0.40);
+  z-index: 1;
+}
+.spread-hotspot[data-hot="1"] { left: 14%; top: 68%; }
+.spread-hotspot[data-hot="2"] { left: 60%; top: 76%; }
+.spread-hotspot[data-hot="3"] { left: 86%; top: 64%; }
+.spread-hotspot[data-hot="4"] { left: 22%; top: 88%; }
+.spread-hotspot[data-hot="5"] { left: 58%; top: 92%; }
+.spread-hotspot[data-hot="6"] { left: 88%; top: 82%; }
+
+/* per-phase configuration. Phase 0 = pre-spread (just B3 settled state) */
+.spread-stage[data-phase-id="0"] .spread-flow { height: 0; }
+.spread-stage[data-phase-id="0"] .spread-tip  { width: 0; height: 0; }
+
+/* Phase 1 = pour begins — slime starts dripping downward, narrow */
+.spread-stage[data-phase-id="1"] .spread-flow {
+  height: 28%;
+  width: 16%;
+}
+.spread-stage[data-phase-id="1"] .spread-tip {
+  width: 22%; height: 16%;
+  top: 38%;
+}
+
+/* Phase 2 = mid-spread — flow elongates, tip blooms wider */
+.spread-stage[data-phase-id="2"] .spread-flow {
+  height: 56%;
+  width: 22%;
+}
+.spread-stage[data-phase-id="2"] .spread-tip {
+  width: 56%; height: 34%;
+  top: 50%;
+  background: radial-gradient(60% 60% at 50% 30%,
+    oklch(0.78 0.260 148 / 0.42) 0%,
+    oklch(0.55 0.210 148 / 0.22) 55%,
+    transparent 85%);
+}
+
+/* Phase 3 = dispersed — flow remains as a residue trace; tip has
+   widened into an ambient field around the hotspots */
+.spread-stage[data-phase-id="3"] .spread-flow {
+  height: 70%;
+  width: 14%;
+  filter: blur(10px);
+  background: linear-gradient(180deg,
+    oklch(0.85 0.260 148 / 0.55) 0%,
+    oklch(0.55 0.210 148 / 0.18) 60%,
+    transparent 100%);
+}
+.spread-stage[data-phase-id="3"] .spread-tip {
+  width: 92%; height: 58%;
+  top: 50%;
+  background: radial-gradient(60% 60% at 50% 40%,
+    oklch(0.65 0.220 148 / 0.20) 0%,
+    oklch(0.45 0.180 148 / 0.10) 60%,
+    transparent 90%);
+  filter: blur(40px);
+}
+.spread-stage[data-phase-id="3"] .spread-hotspot {
+  box-shadow: 0 0 0 1px oklch(0.85 0.29 148 / 0.70),
+              0 0 12px oklch(0.85 0.29 148 / 0.40);
+  background: oklch(0.45 0.15 148);
+}
+
+/* ============================================================
+   STORYBOARD — 4 phases side-by-side
+   ============================================================ */
+.spread-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-3);
+}
+.spread-board__cell { display: grid; gap: var(--s-2); }
+.spread-board__cell-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-muted);
+  text-align: center;
+}
+.spread-board__cell-label b { color: var(--accent); font-weight: var(--w-bold); }
+@media (max-width: 760px) {
+  .spread-board { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
+   SCROLL DRIVER · visual diagram of the 0→100% scroll window
+   and which phase falls where on it.
+   ============================================================ */
+.scroll-driver {
+  display: grid; gap: var(--s-3);
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+}
+.scroll-driver__bar {
+  position: relative;
+  height: 36px;
+  border-radius: var(--r-pill);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: flex;
+}
+.scroll-driver__seg {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  border-right: 1px solid var(--line);
+}
+.scroll-driver__seg:last-child { border-right: 0; }
+.scroll-driver__seg b { color: var(--accent); font-weight: var(--w-bold); }
+.scroll-driver__seg[data-phase="0"] { flex: 18; background: oklch(0.16 0.04 148 / 0.15); }
+.scroll-driver__seg[data-phase="1"] { flex: 30; background: oklch(0.20 0.06 148 / 0.20); }
+.scroll-driver__seg[data-phase="2"] { flex: 32; background: oklch(0.26 0.10 148 / 0.30); }
+.scroll-driver__seg[data-phase="3"] { flex: 20; background: oklch(0.32 0.14 148 / 0.40); }
+.scroll-driver__legend {
+  display: grid; grid-template-columns: 120px 1fr; gap: var(--s-3);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-muted);
+}
+.scroll-driver__legend b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* ============================================================
+   DECISIONS TABLE (B3 idiom)
+   ============================================================ */
+.table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-chrome);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.table th, .table td {
+  text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.table tr:last-child td { border-bottom: 0; }
+.table th {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); font-weight: var(--w-medium);
+  background: var(--bg-deep);
+}
+.table td.k {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  color: var(--accent); letter-spacing: var(--track-mono); white-space: nowrap;
+}
+.table td b { color: var(--fg); font-weight: var(--w-medium); }
+.table .status {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-1);
+  background: var(--accent-soft); color: var(--accent);
+  display: inline-block;
+}
+.table .status[data-tone="open"]      { background: var(--state-warn-bg); color: var(--state-warn); }
+.table .status[data-tone="reserved"]  { background: var(--bg-pressed);    color: var(--fg-muted); }
+.table .status[data-tone="draft"]     { background: var(--bg-pressed);    color: var(--fg-muted); }
+
+/* Render box — callout for the founder-renders production path */
+.render-callout {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-5);
+  background: var(--bg-chrome);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-2);
+  margin-bottom: var(--s-4);
+}
+.render-callout h3 {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: var(--w-bold); letter-spacing: var(--track-caps);
+  text-transform: uppercase; color: var(--accent);
+  margin: 0 0 var(--s-2);
+}
+.render-callout p { margin: 0 0 var(--s-2); font-size: var(--t-sm); line-height: var(--lh-loose); color: var(--fg-muted); }
+.render-callout p:last-child { margin-bottom: 0; }
+.render-callout code, .render-callout b {
+  font-family: var(--font-mono); font-size: 0.92em;
+  color: var(--fg); font-weight: var(--w-medium); letter-spacing: var(--track-mono);
+}
+.render-callout__file {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  background: var(--bg-deep);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-1);
+  color: var(--accent);
+  white-space: nowrap;
+  align-self: start;
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="doc">
+
+  <header class="doc-head">
+    <div>
+      <p class="crumbs">SPRINT 2.5 / PHASE B / DELIVERABLE B4 · v4.2 SPEC-PASS</p>
+      <h1>Koy Landing <span class="slash">/</span> slime spread</h1>
+      <p class="lede">B3 ended with the rip-mark settled — slime resolved into a landing-state form. B4 is what happens next: the same slime, no longer momentarily resolved, pours <em>downward</em> from the mark into the bridge zone B1 reserved, then disperses across the constellation. One entity, three modes (motion-formless · landing-resolved · spread-formless). B4 is the third mode. <b>Production canon (v4.2): architect writes Seedance 2.0 text-to-video prompts; founder iterates renders in Seedance until tonality lands; CD specs the visual target and fits the MP4.</b> Three-way lane. ChatGPT is out of the pipeline. Keyframe-stills production path is dead — Seedance 2.0 is text-to-video.</p>
+    </div>
+    <p class="meta">
+      VERSION <b>B4.2</b> · v4.2 spec-pass<br/>
+      PHASE  B · LANDING<br/>
+      DRIVER  <b>scroll-triggered</b> · once<br/>
+      ASSET  founder · Seedance 2.0 text-to-video · flat MP4<br/>
+      SIGN  CLAUDESIGN · v4.2
+    </p>
+  </header>
+
+  <!-- ========================================================
+       00 · v4 RECONCILIATION — what changed from the v3 draft
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">00</span>
+      <h2>v4 reconciliation</h2>
+      <p class="lede">The v3 B4 draft predated production-path canon shifts that landed mid-cycle. v4.1 reconciled the founder-renders pivot; <b>v4.2 reconciles the Seedance-is-text-to-video discovery</b> (founder confirmed two-keyframe input failed in B3 v2 iteration). Two canon shifts force the v4.2 re-spec; nothing else in the v4.1 bundle is touched. Backup of the v3 file preserved as <code>Koy Landing - B4 Preview v3.html</code>.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>Shift 1 · Render path (v4.2: pipeline corrected)</h3>
+          <p><b>v4 said:</b> founder renders motion via Higgsfield/Seedance 2.0 from ChatGPT-generated start + end keyframes. <b>v4.2 says:</b> Seedance 2.0 is text-to-video, not image-to-video &mdash; founder confirmed two-keyframe input failed in B3 v2 iteration. ChatGPT is OUT of the production pipeline entirely. New three-way lane: <b>architect writes the Seedance text prompt; founder iterates renders in Seedance until tonality lands; CD specs the visual target and fits the MP4.</b> Two-render pattern (landscape 16:9 + portrait 9:16) carries unchanged from v4.1 — the multi-aspect rationale doesn&rsquo;t depend on the input shape. CD lane on motion: <b>spec + fit</b>, still never produce.</p>
+        </div>
+        <div class="rationale">
+          <h3>Shift 2 · Driver (forced by shift 1)</h3>
+          <p>Seedance produces a forward-time MP4 between two keyframes. v3 specced the driver as <b>scroll-scrubbed</b> (CSS <code>animation-timeline: view()</code> playing rendered frames at scroll progress). CSS scroll-driven animation cannot drive <code>HTMLVideoElement.currentTime</code>, and scrubbing a flat MP4 frame-accurately is a JS pattern (Rule #2 violation). The v3 driver is incompatible with the v4 asset.</p>
+          <p><b>v4 resolution:</b> driver becomes <b>scroll-triggered</b>, not scroll-scrubbed. The bridge zone fires the spread once on viewport entry (small <code>IntersectionObserver</code> calling <code>video.play()</code> at threshold 0.6 &mdash; not an animation library, not a scroll listener, so Rule #2 holds). After settle, end-state ambient field holds via CSS gradients / SVG. Reverse-on-scroll-up becomes &ldquo;held&rdquo; once seen, not retract. <b>Spread fires every page-visit</b>, no storage hook &mdash; different motion class from B3's rip. Architect call (v4): scroll-scrubbed flirts with &ldquo;responsive interactive web app&rdquo; energy &mdash; productivity-tool reframing leak risk (Rule #4). Trigger-once = product asserts its own pacing; visitor witnesses. See §04.</p>
+        </div>
+        <div class="rationale">
+          <h3>Shift 3 · B4.PULSE split out</h3>
+          <p>v3 absorbed the at-rest mark pulse (the B3.B4.PULSE reservation) into B4 as §06. v4 splits it: <b>B4 ships spread only.</b> B4.PULSE becomes its own deliverable after B4 closes &mdash; different motion class (subtle perpetual rhythm vs one-shot spread), different timing logic, different production path (PULSE is pure CSS keyframe on the static B3 final frame; no Seedance render needed). Splitting matches the pause-and-report discipline in CLAUDESIGN.md v4. Sequence: B4 (spread) → pause → B4.PULSE → pause → B5.</p>
+        </div>
+        <div class="rationale">
+          <h3>Shift 4 · Starting-state geometry lock (v4.2)</h3>
+          <p>The B3 settled mark exists in two reference versions: <b>v1</b> (wide horizontal mass spanning the frame width, dense throughout) and <b>v2</b> (vertical pour with widening base, denser at the bottom, narrower above). <b>v4.2 locks the geometry against v2.</b> The v3 draft's spread language &mdash; &ldquo;pour, downward, narrow at origin, widening toward dispersal&rdquo; &mdash; composes against v2's vertical-with-widening-base, not v1's horizontal mass. v4.1 absorbed that shape language without naming the v1/v2 distinction; v4.2 names it explicitly so the geometry lock is on the record. <b>The spread's start state is the v2 settled mark; the start state geometry is locked.</b> If founder produces a v3 B3 asset later, the spread keyframe-equivalent (the visual-target start state in §07) needs a v4.3 reconciliation.</p>
+        </div>
+        <div class="rationale">
+          <h3>What survives unchanged</h3>
+          <ul>
+            <li><b>Shape of the spread</b> (§03) &mdash; pour, downward, narrow at origin, blooms at tip, disperses into ambient field. Liquid grammar holds.</li>
+            <li><b>Destination = ambient field</b>, not individual tendrils (§05). The discovery-vs-delivery argument is unaffected by the driver change.</li>
+            <li><b>Mark persists</b>, does not deplete (§05). Fallback chain (§06) &mdash; in fact the fallback-on-no-scroll-driven branch becomes the <em>primary</em> pre-baseline path under v4.</li>
+            <li><b>No fade primitive.</b> Every transition continues via translate / scale / box-shadow / chroma.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       01 · WHAT CARRIES FROM B1 / B2 / B3
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>What carries forward</h2>
+      <p class="lede">B4 is downstream of three locked deliverables. Touching their canon is out of lane; B4 builds <em>between</em> them. The ledger:</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="inherit-chain">
+          <div class="inherit-card" data-from="B1">
+            <span class="inherit-card__tag">from B1</span>
+            <p>The <b>bridge slot</b> between hero and hotspot constellation. Currently a static vertical linear-gradient hairline (<b>kl-bridge__line</b>). B4 fills this slot with the spread motion; the hairline becomes the seam slime tracks down.</p>
+          </div>
+          <div class="inherit-card" data-from="B2">
+            <span class="inherit-card__tag">from B2</span>
+            <p>Hero phrase &ldquo;<b>make it yours.</b>&rdquo; sits at <b>t=840</b>, mark above. Spread begins below the phrase, not behind it. Phrase typography remains the visual anchor; slime is the background presence pouring past it.</p>
+          </div>
+          <div class="inherit-card" data-from="B3">
+            <span class="inherit-card__tag">from B3</span>
+            <p>Mark <b>settled</b>. Slime is in landing-resolved form. B4 begins from that exact final-frame state; the resolved blob is the source the spread originates from. No re-arrival, no new entrance.</p>
+          </div>
+          <div class="inherit-card" data-from="B4">
+            <span class="inherit-card__tag">B4 owns</span>
+            <p>The <b>third mode</b>: spread-formless. The slime loses its momentarily-resolved shape and becomes a directional flow downward, then a diffuse ambient field around the hotspots. One continuous gesture, three modes.</p>
+          </div>
+        </div>
+
+        <div class="rationale">
+          <h3>The single-thread arrival narrative · completed</h3>
+          <p>B3 specced this and B4 fulfils it: <b>slime tears into existence (B3 motion) &rarr; resolves into the mark (B3 settle) &rarr; spreads downward (B4)</b>. One continuous gesture across the hero into the constellation. The visitor sees one entity acting in three modes and recognises the platform's avatar; everything else is just the page. The editor chrome's typographic <code>koy</code> mark (Phase A) is the threshold-crossed fourth state &mdash; not part of the landing motion sequence, but the same identity expressed once the user crosses into the product.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       02 · STORYBOARD
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Storyboard</h2>
+      <p class="lede">Four keyframes resolving the spread. Tall 9:16 strips because the spread lives in vertical scroll space &mdash; mark at top, constellation at bottom, bridge between. Unlike B3, the phases are <b>not time-driven</b>; they are <b>scroll-driven</b>. The visitor's scroll position from the hero to the constellation IS the timeline. Storyboard frames pin the visual at four points along that scroll.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spread-board">
+        <div class="spread-board__cell">
+          <div class="spread-stage" data-phase="scroll 0%" data-phase-id="0" aria-hidden="true">
+            <div class="spread-bridge"></div>
+            <div class="spread-tip"></div>
+            <div class="spread-flow"></div>
+            <div class="spread-mark"></div>
+            <div class="spread-hotspot" data-hot="1"></div>
+            <div class="spread-hotspot" data-hot="2"></div>
+            <div class="spread-hotspot" data-hot="3"></div>
+            <div class="spread-hotspot" data-hot="4"></div>
+            <div class="spread-hotspot" data-hot="5"></div>
+            <div class="spread-hotspot" data-hot="6"></div>
+          </div>
+          <p class="spread-board__cell-label"><b>00 · at rest</b><br/>scroll 0% · B3 final-frame</p>
+        </div>
+        <div class="spread-board__cell">
+          <div class="spread-stage" data-phase="scroll 30%" data-phase-id="1" aria-hidden="true">
+            <div class="spread-bridge"></div>
+            <div class="spread-tip"></div>
+            <div class="spread-flow"></div>
+            <div class="spread-mark"></div>
+            <div class="spread-hotspot" data-hot="1"></div>
+            <div class="spread-hotspot" data-hot="2"></div>
+            <div class="spread-hotspot" data-hot="3"></div>
+            <div class="spread-hotspot" data-hot="4"></div>
+            <div class="spread-hotspot" data-hot="5"></div>
+            <div class="spread-hotspot" data-hot="6"></div>
+          </div>
+          <p class="spread-board__cell-label"><b>01 · pour begins</b><br/>scroll ~30% · slime breaks form, drips downward along the bridge</p>
+        </div>
+        <div class="spread-board__cell">
+          <div class="spread-stage" data-phase="scroll 60%" data-phase-id="2" aria-hidden="true">
+            <div class="spread-bridge"></div>
+            <div class="spread-tip"></div>
+            <div class="spread-flow"></div>
+            <div class="spread-mark"></div>
+            <div class="spread-hotspot" data-hot="1"></div>
+            <div class="spread-hotspot" data-hot="2"></div>
+            <div class="spread-hotspot" data-hot="3"></div>
+            <div class="spread-hotspot" data-hot="4"></div>
+            <div class="spread-hotspot" data-hot="5"></div>
+            <div class="spread-hotspot" data-hot="6"></div>
+          </div>
+          <p class="spread-board__cell-label"><b>02 · mid-spread</b><br/>scroll ~60% · flow elongates, tip blooms into ambient field <span style="color:var(--accent);">← load-bearing</span></p>
+        </div>
+        <div class="spread-board__cell">
+          <div class="spread-stage" data-phase="scroll 100%" data-phase-id="3" aria-hidden="true">
+            <div class="spread-bridge"></div>
+            <div class="spread-tip"></div>
+            <div class="spread-flow"></div>
+            <div class="spread-mark"></div>
+            <div class="spread-hotspot" data-hot="1"></div>
+            <div class="spread-hotspot" data-hot="2"></div>
+            <div class="spread-hotspot" data-hot="3"></div>
+            <div class="spread-hotspot" data-hot="4"></div>
+            <div class="spread-hotspot" data-hot="5"></div>
+            <div class="spread-hotspot" data-hot="6"></div>
+          </div>
+          <p class="spread-board__cell-label"><b>03 · dispersed</b><br/>scroll 100% · constellation reached · hotspots <b>woken</b> by passing slime</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       03 · SHAPE OF THE SPREAD
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Shape of the spread</h2>
+      <p class="lede">Downward, narrow at origin, widening toward dispersal. Not radial-from-mark (would re-centre attention on the mark when attention should be moving past it). Not horizontal-sweep (wrong axis &mdash; scroll is vertical). Not particle-burst (too retail-FX). <b>Slime pours</b> &mdash; gravity-aware, liquid, formless, with a leading tip that softens as it widens.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>The four moves of the spread shape</h3>
+          <ul>
+            <li><b>Break.</b> The resolved mark loses its perimeter integrity at the bottom edge. Edge softens, then begins to thread downward. Slime is no longer a body; it is becoming a flow.</li>
+            <li><b>Pour.</b> A narrow vertical stream descends along the bridge axis B1 reserved. Width ~14&ndash;22% of the mark; not a sheet, not a drip. The bridge hairline becomes the seam it tracks.</li>
+            <li><b>Bloom.</b> Past the bridge midpoint, the leading tip widens. The flow itself stays narrow; the tip is where the spread happens &mdash; a soft circular bloom expanding ahead of the descent.</li>
+            <li><b>Disperse.</b> By the time the bloom reaches the constellation region, it has lost its locus and become an ambient field &mdash; a low-chroma slime-tint that suffuses the space around the hotspots. The hotspots are inside the field; the field is what wakes them.</li>
+          </ul>
+        </div>
+        <div class="rationale">
+          <h3>Rejected shapes (and why)</h3>
+          <ul>
+            <li><b>Radial-from-mark</b> &mdash; re-centres attention on the mark. The whole point of the spread is to <em>release</em> the visitor downward into the constellation. The mark must become source, not destination.</li>
+            <li><b>Horizontal sweep</b> &mdash; wrong axis. The scroll is vertical; horizontal motion fights the scroll direction.</li>
+            <li><b>Particle burst / spark trail</b> &mdash; reads as retail product FX or game-engine sparkle. Wrong register; slime is wet and formless, not granular.</li>
+            <li><b>Multiple streams</b> &mdash; too organised. Two streams reads as a fork; three reads as a logo. Single stream stays formless.</li>
+            <li><b>Mark fades into ambient field</b> &mdash; Rule #9. Mark stays at its B3 settled state, anchored at the top of the bridge; the spread is a new layer descending from it, not the mark dissolving.</li>
+          </ul>
+        </div>
+        <div class="rationale">
+          <h3>What &ldquo;wet&rdquo; means here</h3>
+          <p>The spread reads as <em>liquid behaviour</em>, not particles, not gas. Soft-edged at every scale. Edges blur, never crisp. The flow's silhouette deforms continuously as it descends &mdash; no held shapes, no rigid contours. Where it pools at the tip, surface tension reads as <em>swell</em>. Where it disperses around the hotspots, it reads as <em>ambient saturation</em>, not vapor. The aesthetic ancestor (DC-12) is alien biological liquid, not retail neon.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       04 · DRIVER · SCROLL-TRIGGERED (v4)
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>Driver: scroll-triggered, once</h2>
+      <p class="lede">B3 was time-driven on page entry. B4 is <b>scroll-triggered</b> — the spread fires once when the bridge zone enters the viewport as the visitor moves past the hero. After settle, the end-state holds; no retract on scroll-up. Spread fires <b>every page-visit</b>, not once-per-session. <em>(v4 revision: v3 specced scroll-scrubbed; that conflicts with the v4 founder-renders-MP4 asset shape. See §00.)</em></p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="scroll-driver">
+          <div class="scroll-driver__bar">
+            <div class="scroll-driver__seg" data-phase="0">00 · armed</div>
+            <div class="scroll-driver__seg" data-phase="1">01 · pour begins</div>
+            <div class="scroll-driver__seg" data-phase="2"><b>02 · mid-spread</b></div>
+            <div class="scroll-driver__seg" data-phase="3">03 · dispersed (held)</div>
+          </div>
+          <div class="scroll-driver__legend">
+            <span><b>before trigger</b></span><span>armed — bridge zone not yet 60% in viewport. B3 final-frame held; mark static (pulse deferred to B4.PULSE).</span>
+            <span><b>trigger · once</b></span><span><code>IntersectionObserver</code> threshold 0.6 fires <code>video.play()</code>. Observer disconnects. No re-fire on subsequent scroll passes.</span>
+            <span><b>play · ~2.4s</b></span><span>pour → mid-spread → disperse. Internally eased per phase (snap-like → glide-like → pulse-like). Asset is silent, flat, founder-rendered MP4.</span>
+            <span><b>settle · held</b></span><span>video's native <code>ended</code> sets <code>data-state="settled"</code>. CSS ambient-field layer reveals. Hotspot wake cascade fires. <b>Held on scroll-up</b> — no retract.</span>
+          </div>
+        </div>
+
+        <div class="rationale" style="margin-top:var(--s-4);">
+          <h3>Why scroll-triggered, not scrubbed</h3>
+          <p>Scrubbing would tie every frame of the spread to scroll position — cinematic, but it forces the asset shape to be a CSS-driven scene (transforms / gradients / masks), not a rendered video. v4 canon is the opposite: founder-rendered video outperforms CSS hand-animation for violent organic motion. Trigger-once preserves the rendered-asset advantage and still lets the spread feel like the page's response to the visitor scrolling past the hero — the spread doesn't fire until the visitor moves.</p>
+          <p><b>Deeper read (architect v4):</b> scroll-scrubbed motion has &ldquo;responsive interactive web app&rdquo; energy — the visitor steering the brand mascot frame-by-frame with their trackpad. That flirts with productivity-tool reframing (Rule #4 leak risk). Koy's identity is the product asserting its own pacing; the visitor witnesses, doesn't steer. Fire-once at bridge-zone-enters-viewport is the right grammar.</p>
+          <p>It also avoids a subtle UX failure mode: scroll-scrubbed motion feels fidgety on trackpad scroll (small reversals cause micro-shudders in the asset). A one-shot trigger plays clean.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Why &ldquo;held,&rdquo; not &ldquo;retract&rdquo;</h3>
+          <p>v3 proposed reversibility — scroll back up, spread retracts, mark recomposes. That was natural under scroll-scrubbing. Under trigger-once it would mean firing the asset in reverse on scroll-up, which Seedance output doesn't guarantee — organic liquid motion is not bidirectionally symmetric. <b>v4 picks &ldquo;held.&rdquo;</b> Once the visitor has seen the spread, the ambient field stays. Scrolling back up reveals the hero with the mark intact <em>and</em> the field already established below. This resolves the v3 open item B4.PERSIST in favor of persistence.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Gating · fires every page-visit (no storage hook)</h3>
+          <p>B3's rip has <code>koy.landing.rip.seen</code> — first-impression violence, protected from over-tax by once-per-session gating. <b>B4 spread is a different motion class:</b> transitional ambient, not first-impression. It earns its re-fire on every visit; refreshing the page re-plays it. <b>No storage hook.</b> The page-visit IS the gate — the IntersectionObserver fires the first time the bridge zone enters viewport on that load and disconnects. Subsequent scrolls past the bridge during the same load do nothing.</p>
+          <p>Architect v4 call. Documented here so future instances don't accumulate spread under a session-storage hook by reflex.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Implementation · the two timelines</h3>
+          <ul>
+            <li><b>Trigger</b> = tiny <code>IntersectionObserver</code> on the bridge zone, <code>threshold: 0.6</code>. Fires <code>video.play()</code> once on entry; <code>observer.disconnect()</code> immediately after. NOT a scroll listener, NOT an animation library — Rule #2 holds (the rule bans CSS-in-JS frameworks and JS animation libraries, not the platform observer API). Dev A integration: ~8 lines, no dependency.</li>
+            <li><b>Internal motion</b> = rendered into the asset itself. Phase easing (pour = snap-like, mid-spread = glide-like, disperse = pulse-like) is baked into the keyframes founder feeds to Seedance and the interpolation it produces. <code>--ease-rip</code> is NOT reused — that curve belongs to landing-scale arrivals only (B0 reservation).</li>
+            <li><b>Settle</b> = video element's native <code>ended</code> event. One inline <code>onended</code> handler sets <code>data-state="settled"</code> on the bridge zone. CSS attribute selector reveals the ambient-field overlay (gradient + soft halos, <code>position: absolute</code> over the same zone). Video stays as last-frame poster underneath; field overlays on top. No JS animation, no <code>setTimeout</code> chain.</li>
+            <li><b>Hotspot wake</b> = pure CSS choreography cascading from <code>[data-state="settled"]</code> on the bridge zone, via per-hotspot CSS animations with staggered <code>animation-delay</code> (§05). No JS.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       05 · DESTINATION · DOES SLIME TOUCH THE HOTSPOTS?
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Destination: the ambient field</h2>
+      <p class="lede">Does the slime reach the hotspots? <b>Yes &mdash; as an ambient field, not as individual touches.</b> The spread's leading tip widens into a soft saturation that fills the constellation region; the hotspots sit <em>inside</em> the field, not at the end of trails. The field is what wakes them.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>Why ambient field, not individual trails</h3>
+          <p>Six tendrils reaching for six hotspots is too organised &mdash; reads as a mind-map or skill-tree. Worse, it makes the hotspot positions feel <em>predetermined by the slime</em>; the visitor reads the spread as &ldquo;the slime is delivering me to these six specific things,&rdquo; which is brand-positioning, not arrival. The ambient field is the opposite: the slime arrives, the constellation is <em>already there inside it</em>, the visitor's eye finds the hotspots because the field illuminates them. The hotspots feel discovered, not delivered.</p>
+        </div>
+        <div class="rationale">
+          <h3>Hotspot wake state · frame, never fill</h3>
+          <p><b>Architect v4 call:</b> hotspot wake is slime-tinted at the <em>edge</em>, chrome-neutral at the <em>fill</em>. The wake acts as a frame around the template thumbnail, never as a tint over it. Phase C templates (Bloomberg-dense, Glam Girl Y2K, others TBD) each ship their own aesthetic identity; the chrome's wake must announce &ldquo;alive&rdquo; without imposing alien-techno-green onto a hot-pink Glam Girl thumbnail. Museum-wall logic: white walls, any paintings.</p>
+          <ul>
+            <li><b>Dormant ring</b> · <code>1px solid oklch(0.40 0.05 148 / 0.30)</code> at the hotspot tile boundary. Present but low-key — not invisible (Rule #9 has no opacity 0).</li>
+            <li><b>Woken ring</b> · <code>1px solid oklch(0.65 0.12 148 / 0.70)</code> at the same boundary. Phosphor outline, low chroma, narrow band. Transition is a chroma + lightness shift on the existing border, NOT an opacity ramp.</li>
+            <li><b>Outer wake halo</b> · <code>box-shadow: 0 0 12px oklch(0.85 0.09 148 / 0.30)</code> on woken, <code>0 0 0 oklch(0.85 0.09 148 / 0)</code> on dormant. Driven by the box-shadow spread + alpha animating together (alpha goes 0 → 0.3, not 0 → 1; the shadow's <em>presence</em> is what fades up via radius growth, not via opacity). Read as soft alive-glow at the frame, not a fill.</li>
+            <li><b>Slime tendril</b> · the spread's connection point at each hotspot. Bright slime, <code>oklch(0.85 0.09 148 / 0.85)</code> (clamped-reality hue, matching B3 sampled values — see §08). Width 8% of tile width at hotspot attach, tapering to ~2% toward the spread origin. Does NOT cross the tile boundary into the content area. Enters via translate-from-spread-origin, NEVER opacity ramp.</li>
+            <li><b>Tile interior</b> · <em>untouched</em>. No overlay, no tint, no shadow on the content. The template's own aesthetic full-bleed inside the ring. This is the rule that lets Phase C templates breathe.</li>
+          </ul>
+        </div>
+        <div class="rationale">
+          <h3>Wake choreography · CSS cascade from <code>[data-state="settled"]</code></h3>
+          <p>The wake cascade fires together at the asset's <code>ended</code> event — not at scroll position. Under trigger-once, the field arrives all at once at settle; sequential awakening is preserved as a baked-in CSS choreography rather than scroll-driven staggering.</p>
+          <ul>
+            <li><b>Trigger</b> · CSS attribute selector <code>.kl-bridge[data-state="settled"] .kl-hotspot</code> activates the woken-state animation on each hotspot.</li>
+            <li><b>Stagger</b> · <code>animation-delay</code> per hotspot, derived from each hotspot's distance from the spread origin (top-center). Hotspot 1 (closest, top-left at 14% / 68%) wakes first; hotspot 5 (farthest, bottom-center at 58% / 92%) wakes last. Stagger interval ~140ms. Total cascade window ~700ms.</li>
+            <li><b>Curve</b> · <code>--ease-pulse</code> on each hotspot's wake animation. Asymmetric organic — reads biological, not mechanical.</li>
+            <li><b>Duration</b> · <code>--dur-base</code> = 480ms per hotspot for the ring chroma shift + halo bloom. Tendril translate-in arrives ~80ms after the ring activates (the field reaches the boundary, then the connection threads in).</li>
+          </ul>
+        </div>
+        <div class="rationale">
+          <h3>B4's wake spec hands off cleanly to B5</h3>
+          <p>B4 owns the <em>wake transition</em> (dormant → woken) and the <em>resting woken state</em> (ring + halo at static intensity). B5 will own the <em>interactive woken state</em> (hover, focus, click, navigation, template-gallery bridge). The frame-vs-fill rule locks now and B5 inherits it: B5's hover and click states must continue to leave the tile interior untouched. Tendril behavior on hover (does it brighten? pull back?) is B5's call, not B4's.</p>
+        </div>
+        <div class="rationale">
+          <h3>What happens to the mark during the spread?</h3>
+          <p>The mark stays at its B3 settled state, anchored at the top of the bridge zone. It does not deform, it does not deplete (the spread does not <em>drain</em> the mark; slime is not finite). At scroll 100% the mark is still at the top of the hero, visible if the visitor scrolls back up. The mark is the spring; the spread is the water; the spring does not empty.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       06 · FALLBACK CHAIN
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Fallback chain</h2>
+      <p class="lede">Four failure modes. All resolve to the same end-state: constellation visible, hotspots woken, mark held above. No spread motion, no wake cascade — just the resolved scene. The fallback path is a quieter landing, not a broken one.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:24%;">Trigger</th>
+              <th style="width:32%;">Detection</th>
+              <th>Behavior</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">prefers-reduced-motion</td>
+              <td>CSS media query (Phase A canon).</td>
+              <td>Spread asset NOT loaded. Bridge zone immediately renders <code>data-state="settled"</code>. Ambient-field overlay shown directly. Hotspots in woken state from page load — no wake cascade. Mark held at B3 settled state.</td>
+            </tr>
+            <tr>
+              <td class="k">no-autoplay (mobile Safari quirk)</td>
+              <td><code>video.play()</code> returns rejected promise.</td>
+              <td><code>.catch()</code> handler in the IntersectionObserver fires the same settled-path: <code>data-state="settled"</code> attribute set, ambient-field + woken hotspots revealed without playing the asset. The visitor on a strict autoplay-blocked browser sees the resolved scene at bridge-zone-entry, not nothing.</td>
+            </tr>
+            <tr>
+              <td class="k">asset-load-fail</td>
+              <td>Video <code>onerror</code>.</td>
+              <td>Same as no-autoplay path. Bridge zone goes to <code>data-state="settled"</code>; field + wake cascade still fires.</td>
+            </tr>
+            <tr>
+              <td class="k">low-bandwidth</td>
+              <td>600ms timeout race (same contract as B3).</td>
+              <td>Same as asset-load-fail. Static field-still PNG (§07) substitutes for the video frame.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="rationale" style="margin-top:var(--s-4);">
+          <h3>The fallback principle</h3>
+          <p>The spread is the gift; its absence costs nothing. Constellation works without it. Hotspots wake without it (different trigger, same end state). Mark is the same in either case. The visitor on a fallback path sees a quieter landing, not a broken one.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       07 · RENDER PATH (v4.2 — Seedance text-to-video, three-way lane)
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">07</span>
+      <h2>Render path</h2>
+      <p class="lede"><b>Three-way lane.</b> Architect writes the Seedance 2.0 text-to-video prompt. Founder iterates renders in Seedance until tonality lands. CD specs the visual target (§08) and fits the rendered MP4 into the landing chrome. Two renders ship: landscape (16:9) + portrait (9:16). <b>v4.2 correction:</b> Seedance 2.0 is text-to-video, not image-to-video — founder confirmed two-keyframe input failed in B3 v2 iteration. ChatGPT is OUT of the pipeline.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="render-callout">
+          <div>
+            <h3>Production pattern · three-way lane</h3>
+            <p><b>Step 1 — CD (this doc, §08):</b> writes the visual target. Start state, end state, tonality, what to avoid. CD-voice, NOT a Seedance prompt.</p>
+            <p><b>Step 2 — Architect:</b> converts CD's visual target into a Seedance 2.0 text prompt. Likely two prompts — one per aspect ratio. Architect shows CD the prompts before founder runs them, so CD can flag tonality drift.</p>
+            <p><b>Step 3 — Founder:</b> runs Seedance with each prompt. Iterates the prompt with architect until tonality lands. Exports MP4. ~5 min per generation; iteration count unknown — depends on how cleanly Seedance reads &ldquo;biological wet liquid&rdquo; vs slipping into particle FX or stylized organic.</p>
+            <p><b>Step 4 — CD (later deliverable):</b> integrates the two MP4s into landing chrome. Fits, doesn't alter.</p>
+            <p><b>Why two renders, not one + CSS-crop</b> (carries from v4.1): portrait crop of a horizontal landscape spread either crops the reach (kills the spreading feeling), letterboxes (reads cheap), or scale-distorts (reads AI-cheap). Two correctly-composed motions preserve the spread's silhouette at each aspect. This is the right pattern for any future per-aspect motion — locks at B4.</p>
+            <p><b>CD lane on motion (v4.2 canon):</b> spec + fit. CD writes the visual target, never the Seedance prompt itself. CD never runs Seedance.</p>
+          </div>
+          <div class="render-callout__file">koy-spread-motion-landscape-v1.mp4<br/>koy-spread-motion-portrait-v1.mp4<br/><span style="color:var(--fg-muted); font-size: 0.92em;">on sign-off → -CANON suffix (B3 pattern)</span></div>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:18%;">Asset</th>
+              <th style="width:14%;">Aspect</th>
+              <th style="width:18%;">Spec</th>
+              <th>Used at · format</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">spread-motion · landscape</td>
+              <td>16:9</td>
+              <td>1920×1080 · 24fps · ~2.4s · silent · H.264</td>
+              <td>Desktop bridge zone (≥768px). <code>&lt;video muted playsinline preload="auto"&gt;</code>. Triggered by <code>IntersectionObserver</code> at threshold 0.6. Same transcoding pipeline as B3 canonical (<code>koy-rip-motion-v2-CANON.mp4</code>).</td>
+            </tr>
+            <tr>
+              <td class="k">spread-motion · portrait</td>
+              <td>9:16</td>
+              <td>1080×1920 · 24fps · ~2.4s · silent · H.264</td>
+              <td>Mobile bridge zone (&lt;768px). Same trigger. Spread composes as vertical channel rather than horizontal field (mobile constellation collapses to single-column per B1).</td>
+            </tr>
+            <tr>
+              <td class="k">spread-static · landscape</td>
+              <td>16:9</td>
+              <td>1920×1080 · JPG @85 quality</td>
+              <td>Final frame extracted from landscape MP4 (t=2.4s). Used for: reduced-motion path, no-autoplay fallback, asset-load-fail. Same extraction pattern as B3's static frame.</td>
+            </tr>
+            <tr>
+              <td class="k">spread-static · portrait</td>
+              <td>9:16</td>
+              <td>1080×1920 · JPG @85 quality</td>
+              <td>Final frame of portrait MP4. Mobile reduced-motion / fallback path.</td>
+            </tr>
+            <tr>
+              <td class="k">ambient-field · CSS</td>
+              <td>any</td>
+              <td>CSS gradient + box-shadow stack</td>
+              <td>End-state overlay revealed on <code>[data-state="settled"]</code>. Not a separate asset — defined in <code>koy-landing.css</code> spread block. Soft-edge radial-gradient field tinted with clamped slime values (§08).</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="rationale" style="margin-top:var(--s-4);">
+          <h3>Format calls (carry from v4.1)</h3>
+          <ul>
+            <li><b>H.264 MP4, not WebM-alpha.</b> Match B3's canonical format. WebM-alpha would let us composite over the void substrate without baking the substrate in, but: (a) Safari pre-16 doesn't support VP9-alpha cleanly, (b) the substrate is identical across landing and asset so baking it in costs nothing, (c) single-format pipeline is simpler for founder. The asset includes the void substrate; the live page's bridge zone matches.</li>
+            <li><b>Silent.</b> Same as B3. Confirmed.</li>
+            <li><b>No Lottie, no APNG, no live shader.</b> Phase A Rule #2 + #3. Two MP4s ship. That's it.</li>
+            <li><b>Ambient field is CSS, not a render.</b> The end-state is simple enough (radial-gradient + soft box-shadow halos) to live as Phase A token compositions. Keeps the asset budget at two MP4s; lets the field respond to viewport changes natively without re-render.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       08 · VISUAL TARGET (v4.2 — for architect to convert to Seedance prompt)
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">08</span>
+      <h2>Visual target</h2>
+      <p class="lede">CD-voice description of what the rendered spread should be. <b>Not a Seedance prompt.</b> Architect converts this into Seedance 2.0 text-to-video prompts (one per aspect) and shows CD before founder runs them. Hue values reference <b>clamped-reality</b> sampled from the B3 canonical asset (sampled <code>oklch(0.92 0.09 150)</code> peak / <code>oklch(0.72 0.13 150)</code> mid), NOT the aspirational token (148° / 0.26 / 0.82). Continuity with B3 wins over token-purity. Hex equivalents for paste-readiness: peak <code>#A6F2A1</code>, body <code>#6FCB6A</code>, edge <code>#2E6B30</code>, void <code>#0A0F0B</code>.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="render-callout" style="border-color:var(--accent);">
+          <div>
+            <h3>Start state (both aspects)</h3>
+            <p>The B3 settled mark at v2 geometry — vertical pour with widening base, denser at the bottom, narrower above (NOT v1's horizontal mass; geometry locked in §00 Shift 4). The mark sits at upper-center over the void substrate. The mark is biological wet slime: bright core fading through body to deep edge halo. Soft edges throughout — no crisp contours, no rigid silhouette. The mark is alive but held; pregnant with motion. Below the mark, void extends downward. A faint vertical phosphor seam runs from the mark's bottom edge straight down the center — this is the B1 bridge, the spread will track it.</p>
+          </div>
+          <div class="render-callout__file">visual · start<br/><span style="color:var(--fg-muted); font-size: 0.92em;">v2 mark settled · seam visible</span></div>
+        </div>
+
+        <div class="render-callout" style="border-color:var(--accent);">
+          <div>
+            <h3>End state · landscape (16:9)</h3>
+            <p>Mark unchanged at upper-center — it persists, does not deform, does not deplete. Below it, slime has poured downward along the seam. The seam itself has thickened into a slime vein: a narrow vertical column of body-green slime descending the center axis. The column terminates roughly mid-frame in a soft horizontal bloom — an ambient field of low-chroma slime that spreads laterally across the lower portion of the frame, fading toward the corners. The field is NOT a defined shape; it's a saturation of the void with slime hue. The frame reads: mark above (settled), seam below (now a slime vein), field at the bottom (slime has descended and saturated). Held, not held-still.</p>
+          </div>
+          <div class="render-callout__file">visual · end · landscape<br/><span style="color:var(--fg-muted); font-size: 0.92em;">horizontal field bottom</span></div>
+        </div>
+
+        <div class="render-callout" style="border-color:var(--accent);">
+          <div>
+            <h3>End state · portrait (9:16)</h3>
+            <p>Mark unchanged at upper-center. The slime vein descends further than in landscape — down to roughly 80% of frame height — because mobile hotspots stack vertically and the spread must travel further to cover them. The vein does NOT terminate in a horizontal bloom; instead, it widens slightly into a soft vertical field that occupies the central column of the lower frame. Mobile-native composition: a vertical channel of slime saturation, not a portrait crop of landscape. The frame reads: mark above, vein descending the center, vertical field along the bottom column. Same tonality as landscape; different geometry.</p>
+          </div>
+          <div class="render-callout__file">visual · end · portrait<br/><span style="color:var(--fg-muted); font-size: 0.92em;">vertical channel bottom</span></div>
+        </div>
+
+        <div class="rationale">
+          <h3>Tonality (architect: this is the load-bearing read)</h3>
+          <ul>
+            <li><b>Biological wet liquid.</b> Reads as a living organism that happens to be liquid — not as paint, not as water, not as goo. Surface looks moist. Edges deform softly as the body moves.</li>
+            <li><b>Slow, decisive, alive.</b> Internal pacing: sharp break at start (the pour begins decisively), calm widening through middle (the descent breathes), organic gentle settle at end (the field saturates without splashing). Internal easing is the asset's job — Seedance bakes it.</li>
+            <li><b>Silent.</b> No audio. The asset is mute even at the source.</li>
+            <li><b>Mark is the spring, not the drain.</b> The mark above stays full while slime descends. Slime is not finite. The viewer should never read the mark as emptying.</li>
+            <li><b>The void substrate is present from start to end.</b> The substrate is the canvas the slime saturates; it never goes black-on-black, never disappears.</li>
+          </ul>
+        </div>
+
+        <div class="rationale">
+          <h3>What to avoid (architect: these are the failure modes)</h3>
+          <ul>
+            <li><b>No particle FX.</b> No spray, no dust, no glitter, no specks. The slime is a continuous body of liquid; it does not atomize.</li>
+            <li><b>No splash, no splatter.</b> When the column meets the field, the field saturates outward smoothly — no impact, no droplets, no ring-shock.</li>
+            <li><b>No rigid contours.</b> Edges stay soft throughout. The slime never reads as a CGI 3D-modeled object with hard silhouette.</li>
+            <li><b>No mark deformation.</b> The mark above the seam stays motionless. If Seedance starts to drift the mark, it's an iteration target.</li>
+            <li><b>No camera motion.</b> Frame is static. No pan, no zoom, no rotation. The slime moves; the camera doesn't.</li>
+            <li><b>No additional characters or imagery.</b> Just slime + void + seam. No hotspots in the rendered asset — the constellation arrives via CSS overlay, not via the render (this prevents the hotspot positions from being baked into the asset and going stale if B1 grid shifts later).</li>
+            <li><b>No fade.</b> Asset has no opacity ramps anywhere. (Rule #9 applies even inside the rendered asset — the field arrives via chroma saturation against void, not via opacity 0 → 1.)</li>
+            <li><b>No granular texture.</b> The slime reads as continuous liquid body, not as voxel/pixel/grain effect.</li>
+          </ul>
+        </div>
+
+        <div class="rationale">
+          <h3>Aspect-specific notes</h3>
+          <ul>
+            <li><b>Landscape</b> — the field is the bottom horizontal band. Spread reach is lateral. Hotspots will overlay across the field's width.</li>
+            <li><b>Portrait</b> — the field is the central vertical column at the bottom. Spread reach is depth, not lateral. Hotspots will overlay stacked down the column.</li>
+            <li><b>Both</b> — same start mark (the v2 settled mark), same tonality, same hue stack, same duration target (~2.4s), same internal pacing. The two renders differ only in where the slime goes after it leaves the seam.</li>
+          </ul>
+        </div>
+
+        <div class="rationale">
+          <h3>Reference assets</h3>
+          <ul>
+            <li><code>koy-rip-static-final-frame-v2.jpg</code> — IN PK. The B3 v2 settled mark; this IS the spread's start state. Pixel reference for mark geometry, tonality, hue.</li>
+            <li><code>koy-rip-motion-FRAME-STRIP-v2.jpg</code> — IN PK. Frame strip of the B3 v2 motion; reference for how the mark arrives at the settled state (the spread continues this trajectory, doesn't restart it).</li>
+            <li><code>koy-rip-motion-v2-CANON.mp4</code> — hosted at <code>https://koy-calendar-z2kf.vercel.app/koy-rip-motion-v2-CANON.mp4</code> (MP4s exceed PK fit per v4.1 asset-reference pattern). The full B3 v2 motion.</li>
+            <li><b>Sampled descriptors</b> (from CLAUDESIGN B3 section, pixel-accurate fallback if assets don't load): vertical pour, widening base, shadow-within-green, writhing seam, <code>L=0.78 / C=0.18 / H=144°</code>.</li>
+            <li><em>v1 horizontal-mass asset is archived as <code>koy-rip-motion-v1-horizontal-superseded.mp4</code>, lineage only. Do not reference for B4 composition.</em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       09 · DECISIONS LOG + OPEN ITEMS (v4.2 canon)
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">09</span>
+      <h2>Decisions log</h2>
+      <p class="lede">v4.2 canon. v3 → v4.1 → v4.2 lineage preserved in the LINEAGE row. Locked decisions are sign-ready; open items wait on architect call. <code>Koy Landing - B4 Preview v3.html</code> preserved as backup for future-instance reference.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:11%;">ID</th>
+              <th style="width:30%;">Proposal · v4.2 canon</th>
+              <th>Rationale</th>
+              <th style="width:13%;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">B4.LINEAGE</td>
+              <td><b>v3 → v4.1 → v4.2 file lineage.</b> v3 draft preserved as <code>Koy Landing - B4 Preview v3.html</code>. v4.1 re-authored §00 (reconciliation), §04 (driver), §05 (wake), §07 (render path); removed v3 §06 (at-rest pulse); added §08 (keyframe briefs). <b>v4.2:</b> Seedance text-to-video correction — §08 keyframe briefs DELETED, replaced by §08 visual target (CD-voice); §07 render path rewritten (three-way lane: architect prompt → founder render → CD fit); §00 Shift 4 added (starting-state geometry locked against v2 settled mark, not v1).</td>
+              <td>Future instances can see what changed and why without re-reading earlier drafts. Survived v3 → v4.2 intact: spread shape (§03), ambient-field destination (§05), mark persistence (§05), driver shape (v4.1+), frame-vs-fill wake (v4.1+).</td>
+              <td><span class="status">v4.2 logged</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.01 · shape</td>
+              <td><b>Direction: downward</b>, narrow at origin, widening at tip. Pour — not radial-burst, not horizontal-sweep, not particle-FX, not multi-stream.</td>
+              <td>Spread serves the hero→constellation transition. Downward is scroll-aligned; pour is liquid-true to slime; narrow origin keeps mark as source not destination. Survives v3 → v4 unchanged.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.02 · driver</td>
+              <td><b>Driver: scroll-triggered, fire-once at bridge-zone-enters-viewport (threshold 0.6).</b> Internally timed ~2.4s. End-state held on scroll-up. Fires every page-visit (no storage hook). <code>IntersectionObserver</code> + native <code>video.play()</code> + <code>onended</code>. No JS animation library, no scroll listener.</td>
+              <td>v3 had scroll-scrubbed (CSS <code>animation-timeline</code>). Incompatible with v4's Seedance-MP4 asset (CSS can't drive <code>HTMLVideoElement.currentTime</code>). Architect call: scrubbed also has &ldquo;responsive web app&rdquo; energy — Rule #4 leak risk. Trigger-once = product asserts its own pacing.</td>
+              <td><span class="status">Locked · v4 pivot</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.03 · destination</td>
+              <td><b>Destination: ambient field</b>, not individual hotspot trails. Field saturates the constellation region; hotspots sit inside it.</td>
+              <td>Tendrils reach for things; ambient field <em>contains</em> things. Hotspots feel discovered, not delivered. Refuses brand-positioning read. Survives v3 → v4 unchanged.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.04 · mark</td>
+              <td><b>Mark persists</b> at B3 settled state through the spread. Does not deform, does not deplete.</td>
+              <td>Slime is not finite. The mark is the spring; the spread is the water; the spring does not empty. Survives v3 → v4 unchanged.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.05 · wake</td>
+              <td><b>Hotspot wake = frame, never fill.</b> Slime-tinted at the edge (ring + halo + tendril); chrome-neutral at the fill (tile interior untouched). Driven by CSS cascade from <code>[data-state="settled"]</code> on the bridge, staggered via <code>animation-delay</code> (~140ms interval, ~700ms total cascade). Curve: <code>--ease-pulse</code>. Transition via chroma + box-shadow, NEVER opacity.</td>
+              <td>Phase C templates ship radically different vibes (Bloomberg dense-data, Glam Girl Y2K, etc.). Chrome's wake must announce alive without imposing alien-techno onto the template. Museum-wall-white-walls-any-paintings logic. Architect call. v3 had scroll-driven staggering by hotspot position; v4 swaps to CSS-cascade stagger at settle (forced by trigger-once driver).</td>
+              <td><span class="status">Locked · v4 pivot</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.06 · easing</td>
+              <td><b>Internal easing baked into the rendered asset.</b> Pour = snap-like sharpness; mid-spread = glide-like calm; disperse = pulse-like organic give. Seedance interpolation carries it.</td>
+              <td>--ease-rip stays reserved for landing-scale arrivals only (B0). The asset carries the perceptual easing; the trigger is mechanical.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.07 · fallback</td>
+              <td><b>Fallback chain</b>: reduced-motion / no-autoplay / asset-fail / low-bandwidth all resolve to the same end-state via <code>data-state="settled"</code> set directly (no asset play). Hotspots wake cascade still fires. Mark held.</td>
+              <td>Spread is the gift; its absence costs nothing. Fallback = quieter landing, not a broken one. The <code>video.play()</code> promise-rejection branch handles the iOS-strict-autoplay case cleanly.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.RENDER</td>
+              <td><b>Three-way lane:</b> architect writes Seedance 2.0 text-to-video prompt; founder iterates Seedance renders until tonality lands; CD specs visual target (§08) and fits MP4s. Two renders: landscape (16:9) + portrait (9:16). CD writes no Seedance prompts and runs no generators.</td>
+              <td>v4.1 had founder-renders-from-ChatGPT-keyframes. v4.2 corrects: Seedance 2.0 is text-to-video, not image-to-video (founder confirmed two-keyframe input failed in B3 v2 iteration). ChatGPT removed from pipeline. Three-way lane locks production discipline. Multi-render pattern carries unchanged.</td>
+              <td><span class="status">Locked · v4.2 pivot</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.GATING</td>
+              <td><b>Spread fires every page-visit, not once-per-session.</b> No storage hook. Page-load IS the gate; <code>IntersectionObserver</code> fires once on that load and disconnects.</td>
+              <td>B3's rip is first-impression violence (protected by <code>koy.landing.rip.seen</code>). B4 spread is transitional ambient — different motion class, earns its re-fire on every visit. Architect call. Documented so future instances don't reflex into session-storage gating.</td>
+              <td><span class="status">Locked · v4 pivot</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.HUE</td>
+              <td><b>Production briefs use clamped-reality hue values</b> (sampled <code>oklch(0.92 0.09 150)</code> peak, <code>oklch(0.72 0.13 150)</code> mid, hex equivalents in §08), not the aspirational token (148° / 0.26 / 0.82).</td>
+              <td>The aspirational token sits outside sRGB at that lightness; browsers clamp. B3 canonical asset matches the clamp. The spread composes against B3 — continuity with B3 wins over token-purity. Documented as a project pattern: <b>aspirational-vs-clamped-render-truth split</b> is now canon; tokens stay aspirational, production briefs match what's actually on screen.</td>
+              <td><span class="status">Locked · pattern</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.PERSIST</td>
+              <td><b>Held, not retract.</b> Once seen, ambient field stays through scroll-up.</td>
+              <td>Scroll-up + reverse-play requires Seedance output to be bidirectionally symmetric, which it isn't (organic liquid). Resolved in favor of persistence per architect v4 call. Was open in v3.</td>
+              <td><span class="status">Resolved · v4</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.PULSE</td>
+              <td><b>Split out.</b> At-rest mark breathing pulse becomes its own deliverable after B4 closes — different motion class, different production path (pure CSS keyframe on the static B3 frame, no Seedance render needed).</td>
+              <td>Architect v4 call. Matches the pause-and-report discipline in CLAUDESIGN.md v4. Sequence: B4 (spread, this doc) → pause → B4.PULSE → pause → B5. v3 absorbed pulse into B4 §06; v4 separates the deliverables.</td>
+              <td><span class="status" data-tone="reserved">Reserved · B4.PULSE</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.BRIDGE</td>
+              <td><b>TAKE.</b> Rename <code>kl-bridge__line</code> → <code>kl-bridge__seam</code> in <code>koy-landing.css</code>. The bridge becoming a slime vein reads as the seam extending, not a separate line.</td>
+              <td>Architect v4.2 call. &ldquo;Seam&rdquo; matches B3's phosphor-seam grammar; lexical consistency B3 → B4. Was open in v4.1; resolved in v4.2. Dev A: simple class rename in the landing CSS; no behavior change.</td>
+              <td><span class="status">Resolved · v4.2</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.GEOMETRY</td>
+              <td><b>Starting-state geometry locked against B3 v2 settled mark</b> (vertical pour with widening base, denser at the bottom, narrower above), NOT v1 (wide horizontal mass). See §00 Shift 4. The v3 draft's &ldquo;pour, downward, narrow at origin, widening toward dispersal&rdquo; language composes against v2.</td>
+              <td>v4.1 absorbed the shape language without naming the v1/v2 distinction. v4.2 names it explicitly. Architect v4.2 call. If founder produces a v3 B3 asset later, geometry needs a v4.3 reconciliation pass.</td>
+              <td><span class="status">Locked · v4.2</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.NAMING</td>
+              <td><b>Asset working-file names KEPT</b>: <code>koy-spread-motion-landscape-v1.mp4</code> + <code>koy-spread-motion-portrait-v1.mp4</code>. On sign-off, append <code>-CANON</code> (B3 pattern: <code>koy-rip-motion-v2-CANON.mp4</code>).</td>
+              <td>Architect v4.2 call: working-file shape is right; canon-suffix on sign-off is the established B3 pattern. No change. Was open in v4.1; resolved in v4.2.</td>
+              <td><span class="status">Resolved · v4.2</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5</td>
+              <td>Interactive woken-state hotspot behavior (hover, focus, click, navigation, template-gallery bridge).</td>
+              <td>Out of B4 lane. B4 ships the wake transition + resting woken state; B5 inherits the frame-vs-fill rule and specs the interactive layer. Must continue to leave tile interior untouched.</td>
+              <td><span class="status" data-tone="reserved">Reserved · B5</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sign">
+    <span>STATUS · <b>v4.2 SPEC-PASS</b> · awaiting architect sign-off · then architect writes Seedance text prompts</span>
+    <span>INHERITS · B3 mark settled · B1 bridge slot · B2 phrase placed · v4.2 founder-renders canon (text-to-video)</span>
+    <span>SIGN · <b>CLAUDESIGN · v4.2</b> · phase B · deliverable B4.2</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

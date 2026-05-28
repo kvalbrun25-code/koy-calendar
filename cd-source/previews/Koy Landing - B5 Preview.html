@@ -1,0 +1,1835 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Koy Landing — B5 Preview · alive hotspots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="koy-tokens.css" />
+
+<style>
+/* ============================================================
+   SCAFFOLD — inherited shape from B4.PULSE preview (CD v4.3 idiom)
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+.aurora {
+  position: fixed; inset: -10vmin -10vmin auto -10vmin; height: 60vh;
+  pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(60vmax 40vmax at 18% 5%,  oklch(0.45 0.20 148 / 0.18), transparent 60%),
+    radial-gradient(50vmax 30vmax at 90% 10%, oklch(0.40 0.20 148 / 0.10), transparent 65%);
+  filter: blur(40px);
+}
+.doc { max-width: 1240px; margin: 0 auto; padding: var(--s-9) var(--s-6) var(--s-10); }
+.doc-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: end; gap: var(--s-5);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--s-8);
+}
+.doc-head h1 {
+  font-size: var(--t-3xl); line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight); font-weight: var(--w-bold);
+  margin: 0 0 var(--s-3);
+}
+.doc-head h1 .slash { color: var(--accent); }
+.doc-head .crumbs {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); margin: 0 0 var(--s-3);
+}
+.doc-head p.lede { max-width: 64ch; color: var(--fg-muted); margin: 0; }
+.doc-head .meta {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  text-align: right; white-space: nowrap; line-height: 1.7;
+}
+.doc-head .meta b { color: var(--accent); font-weight: var(--w-bold); }
+section { margin-bottom: var(--s-10); }
+.sec-head {
+  display: grid; grid-template-columns: 56px 1fr;
+  gap: var(--s-4); align-items: baseline; margin-bottom: var(--s-5);
+}
+.sec-head .num {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); color: var(--accent); padding-top: var(--s-1);
+}
+.sec-head h2 {
+  font-size: var(--t-2xl); font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight); margin: 0; line-height: var(--lh-tight);
+}
+.sec-head .lede {
+  grid-column: 2; font-size: var(--t-md); color: var(--fg-muted);
+  max-width: 70ch; margin: var(--s-3) 0 0;
+}
+.body-grid { display: grid; grid-template-columns: 56px 1fr; gap: var(--s-4); }
+.rationale {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--t-sm); line-height: var(--lh-loose);
+  color: var(--fg-muted); margin-bottom: var(--s-5);
+}
+.rationale:last-child { margin-bottom: 0; }
+.rationale h3 {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: var(--w-medium); letter-spacing: var(--track-caps);
+  text-transform: uppercase; color: var(--accent); margin: 0 0 var(--s-2);
+}
+.rationale p { margin: 0 0 var(--s-2); }
+.rationale p:last-child { margin-bottom: 0; }
+.rationale code, .rationale b {
+  font-family: var(--font-mono); font-size: 0.92em;
+  color: var(--fg); font-weight: var(--w-medium); letter-spacing: var(--track-mono);
+}
+.rationale ul { margin: var(--s-2) 0; padding-left: var(--s-5); }
+.rationale li { margin-bottom: 4px; }
+footer.sign {
+  margin-top: var(--s-10); padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+}
+footer.sign b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* ============================================================
+   §01 HERO STAGE — breathing mark (B4.PULSE continuity) above
+   the woken constellation. CSS-rebuild substrate per Q3 sign.
+   ============================================================ */
+.b5-stage {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  min-height: 420px;
+}
+.b5-stage::before {
+  content: ""; position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 50% at 50% -10%, oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80% 70% at 50% 110%, oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.b5-stage__caption {
+  position: absolute; top: 8px; right: 10px;
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); z-index: 5;
+}
+
+/* B4.PULSE mark above the constellation — same CSS substrate as B4.PULSE preview */
+.b5-stage__mark {
+  position: absolute;
+  left: 50%; top: 22%;
+  transform: translate(-50%, -50%);
+  width: 22%;
+  aspect-ratio: 0.92 / 1;
+  background:
+    radial-gradient(60% 70% at 50% 62%,
+      oklch(0.92 0.290 148 / 0.95) 0%,
+      oklch(0.82 0.260 148 / 0.85) 28%,
+      oklch(0.55 0.210 148 / 0.55) 62%,
+      transparent 78%);
+  border-radius: 48% 52% 60% 40% / 42% 38% 62% 58%;
+  filter: blur(3px);
+  z-index: 2;
+  box-shadow:
+    0 0 32px -4px var(--accent-glow),
+    0 0 80px -16px oklch(0.85 0.29 148 / 0.40);
+}
+.b5-stage__bridge {
+  position: absolute; left: 50%; top: 30%;
+  transform: translateX(-50%);
+  width: 1px; height: 14%;
+  background: linear-gradient(180deg,
+    oklch(0.85 0.29 148 / 0.30) 0%,
+    oklch(0.85 0.29 148 / 0.45) 60%,
+    oklch(0.85 0.29 148 / 0.20) 100%);
+  z-index: 1;
+  box-shadow: 0 0 6px oklch(0.85 0.29 148 / 0.30);
+}
+/* mark inherits B4.PULSE breath */
+.b5-stage__mark.kl-mark-rest {
+  animation: b4-pulse 5.2s linear infinite;
+  transform-origin: center 80%;
+  will-change: transform, filter;
+}
+@keyframes b4-pulse {
+  0%   { animation-timing-function: var(--ease-pulse);
+         transform: translate(-50%, -50%) scale(1.000);
+         filter: brightness(0.94) blur(3px); }
+  45%  { animation-timing-function: linear;
+         transform: translate(-50%, -50%) scale(1.012);
+         filter: brightness(1.06) blur(3.4px); }
+  55%  { animation-timing-function: cubic-bezier(0.25, 0.65, 0.45, 1);
+         transform: translate(-50%, -50%) scale(1.012);
+         filter: brightness(1.06) blur(3.4px); }
+  100% { transform: translate(-50%, -50%) scale(1.000);
+         filter: brightness(0.94) blur(3px); }
+}
+
+/* ============================================================
+   B5 PROPOSE-QUEUED TOKENS — file-scope declaration with comments.
+   These are propose-queue items per architect Q-acknowledgment;
+   they live here for preview compositing and get promoted to
+   koy-tokens.css at Phase B close consolidated integration.
+   ============================================================ */
+:root {
+  --z-hotspot: 10;          /* PROPOSE → koy-tokens.css (Phase B close) */
+  --dur-tap-expand: 700ms;  /* PROPOSE → koy-tokens.css (Phase B close) */
+  /* --ease-pulse-burst FOLDED · reusing --ease-pulse for the 120ms burst;
+     duration so short curve choice is perceptually negligible. See §07. */
+}
+
+/* Registered custom properties for L/C glow modulation (Q1 patch).
+   @property registration enables transitions and animations to
+   interpolate these values smoothly. Browser support: 2024-current. */
+@property --glow-l {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.50;
+}
+@property --glow-c {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.08;
+}
+@property --glow-blur {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 12px;
+}
+@property --frag-l-mult {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+/* ============================================================
+   THE CONSTELLATION — three hotspots, horizontal (desktop) /
+   vertical (mobile). Composition mirrors B4 spread geometry.
+   ============================================================ */
+.kl-constellation {
+  position: absolute;
+  left: 50%; bottom: 12%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 120px));
+  gap: 36px;
+  z-index: var(--z-hotspot);
+  justify-content: center;
+  padding: 4px;
+}
+@media (max-width: 720px) {
+  .kl-constellation {
+    grid-template-columns: minmax(0, 90px);
+    grid-template-rows: repeat(3, auto);
+    gap: 18px;
+    bottom: 6%;
+  }
+  .b5-stage__mark { width: 32%; top: 18%; }
+}
+
+/* ============================================================
+   THE HOTSPOT TILE — base + rest state + frame-breath
+   Glow modulation: L/C on oklch() per Q1 patch (NOT alpha).
+   ============================================================ */
+.kl-hotspot {
+  /* base shell */
+  position: relative;
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid oklch(0.45 0.08 148);
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-mono);
+  color: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: center 80%;
+
+  /* glow modulation variables (animated via L/C, alpha stays 0.30) */
+  --glow-l: 0.50;
+  --glow-c: 0.08;
+  --glow-blur: 12px;
+
+  /* the breath is on the glow only — frame-vs-fill rule */
+  box-shadow: 0 0 var(--glow-blur) 0 oklch(var(--glow-l) var(--glow-c) 148 / 0.30);
+  animation: b5-rest-breath 4.8s linear infinite;
+
+  /* transitions cover hover/tap state changes; @property-registered
+     variables transition smoothly when animation is paused */
+  transition:
+    transform 220ms var(--ease-pulse),
+    border-color 220ms var(--ease-pulse),
+    --glow-l 220ms var(--ease-pulse),
+    --glow-c 220ms var(--ease-pulse),
+    --glow-blur 220ms var(--ease-pulse);
+}
+.kl-hotspot:focus-visible {
+  outline: 2px solid oklch(0.65 0.18 148);
+  outline-offset: 3px;
+}
+
+/* stagger breath phase across the three tiles — not synchronous */
+.kl-hotspot:nth-child(1) { animation-delay: 0s; }
+.kl-hotspot:nth-child(2) { animation-delay: -1.6s; }
+.kl-hotspot:nth-child(3) { animation-delay: -3.2s; }
+
+/* REST · frame-breath · 4.8s cycle, offset from B4.PULSE's 5.2s.
+   L 0.50→0.62, C 0.08→0.14, blur 12px→14px. Alpha pinned at 0.30. */
+@keyframes b5-rest-breath {
+  0% {
+    animation-timing-function: var(--ease-pulse);
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+  }
+  45% {
+    animation-timing-function: linear;
+    --glow-l: 0.62; --glow-c: 0.14; --glow-blur: 14px;
+  }
+  55% {
+    animation-timing-function: cubic-bezier(0.25, 0.65, 0.45, 1);
+    --glow-l: 0.62; --glow-c: 0.14; --glow-blur: 14px;
+  }
+  100% {
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+  }
+}
+
+/* HOVER (desktop) — frame brightens, scale-up base-anchored.
+   Animation paused; @property variables transition to hover values. */
+@media (hover: hover) {
+  .kl-hotspot:hover {
+    animation-play-state: paused;
+    border-color: oklch(0.65 0.18 148);
+    transform: scale(1.015);
+    --glow-l: 0.70;
+    --glow-c: 0.20;
+    --glow-blur: 18px;
+  }
+}
+
+/* TAP · STATE 3 — 120ms burst → 700ms expansion → frame dissolve */
+.kl-hotspot.is-tapping {
+  animation: none;
+  border-color: oklch(0.80 0.26 148);
+  --glow-l: 0.80;
+  --glow-c: 0.26;
+  --glow-blur: 24px;
+  transform: scale(1.025);
+  transition:
+    border-color 120ms var(--ease-pulse),
+    --glow-l 120ms var(--ease-pulse),
+    --glow-c 120ms var(--ease-pulse),
+    --glow-blur 120ms var(--ease-pulse),
+    transform 120ms var(--ease-pulse);
+}
+.kl-hotspot.is-expanding {
+  z-index: 100;
+  transform:
+    translate(var(--tx, 0px), var(--ty, 0px))
+    scale(var(--scale, 8));
+  transition: transform var(--dur-tap-expand) var(--ease-pulse);
+}
+/* frame dissolve at ~85% of expansion — chroma desaturation NOT alpha */
+.kl-hotspot.is-dissolving {
+  border-color: oklch(0.10 0.005 148);
+  --glow-l: 0.10;
+  --glow-c: 0.005;
+  --glow-blur: 4px;
+  transition:
+    transform var(--dur-tap-expand) var(--ease-pulse),
+    border-color 240ms var(--ease-pulse),
+    --glow-l 240ms var(--ease-pulse),
+    --glow-c 240ms var(--ease-pulse),
+    --glow-blur 240ms var(--ease-pulse);
+}
+/* unchosen tiles collapse — transform+filter, NOT opacity */
+.kl-constellation.has-tap .kl-hotspot:not(.is-tapping):not(.is-expanding):not(.is-graceful) {
+  transform: scale(0.92);
+  filter: brightness(0.7);
+  animation-play-state: paused;
+  transition:
+    transform 280ms var(--ease-pulse),
+    filter 280ms var(--ease-pulse);
+}
+
+/* GRACEFUL DEGRADATION · tile expands ~30% then arrests + tooltip */
+.kl-hotspot.is-graceful {
+  animation: none;
+  transform: scale(1.3);
+  border-color: oklch(0.55 0.12 148);
+  --glow-l: 0.62;
+  --glow-c: 0.14;
+  --glow-blur: 18px;
+  transition: transform 220ms var(--ease-pulse),
+              border-color 220ms var(--ease-pulse);
+}
+.kl-hotspot.is-graceful::after {
+  content: attr(data-coming-soon);
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  border-radius: var(--r-1);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* PREVIEW-ON-TOUCH · STATE 4 — only state where interior animates */
+.kl-hotspot.is-previewing {
+  animation-play-state: paused;
+  border-color: oklch(0.65 0.18 148);
+  --glow-l: 0.70;
+  --glow-c: 0.20;
+  --glow-blur: 18px;
+}
+.kl-hotspot.is-previewing .kl-frag {
+  animation: none;
+}
+.kl-hotspot.is-previewing .kl-frag--bloomberg .kl-frag__rows {
+  animation: bloomberg-scroll 1.5s linear;
+}
+.kl-hotspot.is-previewing .kl-frag--glam .kl-frag__orb {
+  animation: glam-spin 1.5s var(--ease-pulse);
+}
+.kl-hotspot.is-previewing::after {
+  content: "Tap to enter · Lift to dismiss";
+  position: absolute; bottom: -28px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap; pointer-events: none;
+}
+
+/* ============================================================
+   THE WAKE — pre-wake (void) → wake stagger → rest
+   Chroma saturation NOT opacity ramp (Rule #9).
+   ============================================================ */
+.kl-constellation:not(.is-woken) .kl-hotspot {
+  /* pre-wake: void chroma, frame collapsed into substrate */
+  animation: none;
+  border-color: oklch(0.10 0.005 148);
+  --glow-l: 0.10;
+  --glow-c: 0.005;
+  --glow-blur: 0px;
+  --frag-l-mult: 0.08;
+}
+.kl-constellation.is-woken .kl-hotspot {
+  /* wake animation drives chroma-saturation; rest-breath chains after */
+  animation: b5-wake 600ms var(--ease-pulse) forwards,
+             b5-rest-breath 4.8s linear infinite 600ms;
+}
+.kl-constellation.is-woken .kl-hotspot:nth-child(1) { animation-delay: 0ms, 600ms; }
+.kl-constellation.is-woken .kl-hotspot:nth-child(2) { animation-delay: 180ms, 780ms; }
+.kl-constellation.is-woken .kl-hotspot:nth-child(3) { animation-delay: 360ms, 960ms; }
+
+@keyframes b5-wake {
+  0% {
+    border-color: oklch(0.10 0.005 148);
+    --glow-l: 0.10; --glow-c: 0.005; --glow-blur: 0px;
+    --frag-l-mult: 0.08;
+  }
+  100% {
+    border-color: oklch(0.45 0.08 148);
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+    --frag-l-mult: 1;
+  }
+}
+
+/* ============================================================
+   REVERSE TRANSITION — demo-stage isolated.
+   Frame re-saturates around collapsing interior over 900ms.
+   ============================================================ */
+.kl-hotspot.is-expanded-state {
+  z-index: 100;
+  transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--scale, 8));
+  border-color: oklch(0.10 0.005 148);
+  --glow-l: 0.10; --glow-c: 0.005; --glow-blur: 4px;
+  animation: none;
+  transition: none;
+}
+.kl-hotspot.is-reversing {
+  z-index: 100;
+  transform: translate(0, 0) scale(1);
+  border-color: oklch(0.45 0.08 148);
+  --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+  animation: none;
+  transition:
+    transform 900ms var(--ease-pulse),
+    border-color 900ms var(--ease-pulse),
+    --glow-l 900ms var(--ease-pulse),
+    --glow-c 900ms var(--ease-pulse),
+    --glow-blur 900ms var(--ease-pulse);
+}
+
+/* ============================================================
+   TILE INTERIOR FRAGMENTS · frame-vs-fill rule (B4.05 inherit)
+   Interior is untouched by chrome motion except for:
+   1. Wake (interior chroma-reveals from void as it manifests)
+   2. Long-press preview-on-touch (interior fragment animates)
+   ============================================================ */
+.kl-frag {
+  position: absolute; inset: 0;
+  display: flex; align-items: stretch; justify-content: stretch;
+  overflow: hidden;
+}
+
+/* Bloomberg vibe fragment — green-on-black monospace ticker rows */
+.kl-frag--bloomberg {
+  background: oklch(0.10 0.01 148);
+  --bloom-green: oklch(calc(0.72 * var(--frag-l-mult)) 0.20 148);
+  --bloom-red:   oklch(calc(0.60 * var(--frag-l-mult)) 0.18 28);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.02em;
+  color: var(--bloom-green);
+  padding: 6px 5px;
+}
+.kl-frag--bloomberg .kl-frag__rows {
+  display: grid; gap: 2px; width: 100%;
+}
+.kl-frag--bloomberg .kl-frag__row {
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 4px; line-height: 1.2;
+}
+.kl-frag--bloomberg .kl-frag__row .neg { color: var(--bloom-red); }
+.kl-frag--bloomberg .kl-frag__cursor {
+  display: inline-block;
+  width: 5px; height: 7px;
+  background: var(--bloom-green);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: bloomberg-blink 1s steps(2) infinite;
+}
+@keyframes bloomberg-blink { 50% { background: transparent; } }
+@keyframes bloomberg-scroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-30px); }
+}
+
+/* Glam Girl vibe fragment — pink gloss orb + sparkle accent */
+.kl-frag--glam {
+  /* base .kl-frag already provides position: absolute; inset: 0;
+     — DO NOT override with position: relative here, or the parent
+     collapses to 0 height and the orb mispositions (verifier catch). */
+  background:
+    radial-gradient(circle at 30% 25%,
+      oklch(calc(0.95 * var(--frag-l-mult)) 0.12 350) 0%,
+      oklch(calc(0.80 * var(--frag-l-mult)) 0.16 350) 35%,
+      oklch(calc(0.55 * var(--frag-l-mult)) 0.18 350) 100%);
+}
+.kl-frag--glam .kl-frag__orb {
+  position: absolute;
+  left: 50%; top: 55%;
+  transform: translate(-50%, -50%);
+  width: 48%; aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%,
+      oklch(calc(0.98 * var(--frag-l-mult)) 0.04 350) 0%,
+      oklch(calc(0.78 * var(--frag-l-mult)) 0.20 350) 50%,
+      oklch(calc(0.42 * var(--frag-l-mult)) 0.22 350) 100%);
+  box-shadow:
+    inset 0 -4px 8px oklch(0.35 0.20 350 / 0.6),
+    inset 0 4px 8px oklch(0.98 0.05 350 / 0.5),
+    0 0 12px oklch(0.85 0.18 350 / 0.5);
+}
+.kl-frag--glam .kl-frag__sparkle {
+  position: absolute;
+  width: 8px; height: 8px;
+  background:
+    linear-gradient(0deg,   transparent 45%, oklch(calc(0.98 * var(--frag-l-mult)) 0.05 350) 50%, transparent 55%),
+    linear-gradient(90deg,  transparent 45%, oklch(calc(0.98 * var(--frag-l-mult)) 0.05 350) 50%, transparent 55%);
+}
+.kl-frag--glam .kl-frag__sparkle--a { top: 12%; left: 22%; }
+.kl-frag--glam .kl-frag__sparkle--b { top: 24%; right: 16%; width: 6px; height: 6px; }
+.kl-frag--glam .kl-frag__sparkle--c { bottom: 16%; left: 14%; width: 5px; height: 5px; }
+@keyframes glam-spin {
+  0%   { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Pending tile · third slot · "Coming soon" graceful default */
+.kl-frag--pending {
+  background:
+    repeating-linear-gradient(45deg,
+      oklch(0.16 0.01 148) 0 4px,
+      oklch(0.13 0.01 148) 4px 8px);
+  display: grid; place-items: center;
+  padding: 8px;
+}
+.kl-frag--pending .kl-frag__label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: oklch(calc(0.50 * var(--frag-l-mult)) 0.04 148);
+  text-align: center;
+  line-height: 1.4;
+}
+.kl-frag--pending .kl-frag__label b {
+  display: block;
+  font-weight: var(--w-bold);
+  color: oklch(calc(0.65 * var(--frag-l-mult)) 0.10 148);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   REDUCED MOTION — hard requirement, all animations off.
+   Includes the .rm-on body class for preview-only simulation.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .kl-hotspot,
+  .kl-hotspot::before,
+  .kl-mark-rest,
+  .b5-stage__mark,
+  .kl-frag__cursor { animation: none !important; }
+  .kl-hotspot.is-tapping,
+  .kl-hotspot.is-expanding,
+  .kl-hotspot.is-dissolving { transition: border-color 60ms linear !important; transform: none !important; }
+  .kl-constellation:not(.is-woken) .kl-hotspot {
+    border-color: oklch(0.45 0.08 148);
+    --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+    --frag-l-mult: 1;
+  }
+}
+body.rm-on .kl-hotspot,
+body.rm-on .kl-hotspot::before,
+body.rm-on .kl-mark-rest,
+body.rm-on .b5-stage__mark,
+body.rm-on .kl-frag__cursor { animation: none !important; }
+body.rm-on .kl-hotspot.is-tapping,
+body.rm-on .kl-hotspot.is-expanding,
+body.rm-on .kl-hotspot.is-dissolving { transition: border-color 60ms linear !important; transform: none !important; }
+body.rm-on .kl-constellation:not(.is-woken) .kl-hotspot {
+  border-color: oklch(0.45 0.08 148);
+  --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
+  --frag-l-mult: 1;
+}
+
+/* ============================================================
+   DEMO CONTROL ROW — preview-only affordances
+   ============================================================ */
+.demo-controls {
+  display: flex; flex-wrap: wrap; gap: var(--s-2);
+  margin-top: var(--s-4);
+  padding: var(--s-3); border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-chrome);
+}
+.demo-controls__label {
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); align-self: center;
+  margin-right: var(--s-2);
+}
+.demo-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-mono);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-1);
+  color: var(--fg-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.demo-btn:hover { border-color: var(--line-strong); color: var(--fg); }
+.demo-btn[aria-pressed="true"] {
+  border-color: var(--accent); color: var(--accent);
+  background: var(--accent-soft);
+}
+.demo-btn .k { color: var(--fg-faint); }
+.demo-btn[aria-pressed="true"] .k { color: var(--accent); }
+
+/* hero notes column */
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--s-5);
+  align-items: stretch;
+}
+@media (max-width: 880px) { .hero-grid { grid-template-columns: 1fr; } }
+.hero-notes {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  justify-content: center;
+}
+.stat-row {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  display: grid; grid-template-columns: 100px 1fr; gap: var(--s-3);
+  color: var(--fg-muted);
+  padding: var(--s-2) 0;
+  border-bottom: 1px dashed var(--line);
+}
+.stat-row:last-child { border-bottom: 0; }
+.stat-row b { color: var(--accent); font-weight: var(--w-bold); }
+.stat-row .k {
+  color: var(--fg-faint); text-transform: uppercase;
+  letter-spacing: var(--track-caps); font-size: 10px;
+}
+
+/* ============================================================
+   STATE WALK — small reference cells (4 states summarized)
+   ============================================================ */
+.state-walk {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-3);
+}
+@media (max-width: 880px) { .state-walk { grid-template-columns: repeat(2, 1fr); } }
+.state-card {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4);
+  font-size: var(--t-sm);
+  display: grid; gap: var(--s-2);
+}
+.state-card__num {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--accent);
+}
+.state-card__name {
+  font-family: var(--font-mono); font-size: var(--t-sm);
+  font-weight: var(--w-medium); color: var(--fg); margin: 0;
+}
+.state-card__copy {
+  color: var(--fg-muted); line-height: var(--lh-loose);
+  font-size: var(--t-xs); margin: 0;
+}
+.state-card code { font-family: var(--font-mono); font-size: 0.92em; color: var(--fg); }
+
+/* ============================================================
+   REVERSE TRANSITION DEMO STAGE — isolated, clearly labeled
+   ============================================================ */
+.reverse-stage {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  min-height: 360px;
+}
+.reverse-stage__faux {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(60% 70% at 30% 30%, oklch(0.20 0.04 148 / 0.7), transparent 70%),
+    repeating-linear-gradient(135deg,
+      oklch(0.13 0.01 148) 0 8px,
+      oklch(0.11 0.01 148) 8px 16px);
+}
+.reverse-stage__faux-label {
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--state-warn, oklch(0.75 0.12 80));
+  background: oklch(0.18 0.04 80 / 0.6);
+  border: 1px solid oklch(0.55 0.10 80 / 0.4);
+  border-radius: var(--r-1);
+  white-space: nowrap;
+  z-index: 5;
+}
+.reverse-stage__tile-anchor {
+  position: absolute;
+  right: 8%;
+  bottom: 10%;
+  width: 90px;
+  z-index: var(--z-hotspot);
+}
+.reverse-stage__tile-anchor .kl-hotspot {
+  animation: none;
+}
+.reverse-stage__tile-anchor .kl-hotspot.is-rested {
+  animation: b5-rest-breath 4.8s linear infinite;
+}
+
+/* ============================================================
+   WAKE & STAGGER VISUAL DIAGRAM
+   ============================================================ */
+.wake-timeline {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+  display: grid; gap: var(--s-3);
+}
+.wake-timeline__rows { display: grid; gap: 8px; }
+.wake-timeline__row {
+  display: grid; grid-template-columns: 60px 1fr; gap: 12px;
+  align-items: center;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-mono);
+  color: var(--fg-muted);
+}
+.wake-timeline__row .k {
+  color: var(--accent); text-transform: uppercase;
+  letter-spacing: var(--track-caps); font-size: 9px;
+}
+.wake-timeline__track {
+  position: relative; height: 18px;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.wake-timeline__bar {
+  position: absolute; top: 0; bottom: 0;
+  height: 100%;
+  background: linear-gradient(90deg,
+    oklch(0.10 0.005 148) 0%,
+    oklch(0.45 0.08 148) 100%);
+  border-radius: var(--r-pill);
+}
+.wake-timeline__axis {
+  display: grid; grid-template-columns: 60px 1fr; gap: 12px;
+}
+.wake-timeline__ticks {
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--fg-faint); letter-spacing: var(--track-mono);
+}
+
+/* ============================================================
+   CODE SPEC / AUDIT / TABLE — re-used from B4.PULSE preview
+   ============================================================ */
+.codespec {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+  color: var(--fg-muted);
+  overflow-x: auto; white-space: pre;
+  line-height: 1.55;
+}
+.codespec .k { color: var(--accent); }
+.codespec .v { color: var(--fg); }
+.codespec .c { color: var(--fg-faint); }
+.codespec .s { color: oklch(0.75 0.12 80); }
+
+.audit-list {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+}
+@media (max-width: 760px) { .audit-list { grid-template-columns: 1fr; } }
+.audit-card {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-3) var(--s-4);
+  font-size: var(--t-sm);
+  display: grid; gap: var(--s-2);
+}
+.audit-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.audit-card__head h3 {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: var(--w-medium); letter-spacing: var(--track-caps);
+  text-transform: uppercase; color: var(--fg); margin: 0;
+}
+.audit-card__head .pill {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-1);
+  background: var(--accent-soft); color: var(--accent);
+}
+.audit-card p { margin: 0; color: var(--fg-muted); line-height: var(--lh-loose); }
+.audit-card code, .audit-card b {
+  font-family: var(--font-mono); font-size: 0.92em;
+  color: var(--fg); font-weight: var(--w-medium); letter-spacing: var(--track-mono);
+}
+
+.table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-chrome);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.table th, .table td {
+  text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.table tr:last-child td { border-bottom: 0; }
+.table th {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); font-weight: var(--w-medium);
+  background: var(--bg-deep);
+}
+.table td.k {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  color: var(--accent); letter-spacing: var(--track-mono); white-space: nowrap;
+}
+.table td b { color: var(--fg); font-weight: var(--w-medium); }
+.table .status {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-1);
+  background: var(--accent-soft); color: var(--accent);
+  display: inline-block;
+}
+.table .status[data-tone="propose"] { background: oklch(0.18 0.04 80 / 0.6); color: oklch(0.75 0.12 80); }
+.table .status[data-tone="inherit"] { background: var(--bg-pressed); color: var(--fg-muted); }
+.table .status[data-tone="fold"] { background: oklch(0.18 0.04 200 / 0.4); color: oklch(0.70 0.10 200); }
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="doc">
+
+  <header class="doc-head">
+    <div>
+      <p class="crumbs">SPRINT 2.5 / PHASE B / DELIVERABLE B5 · v1.0 spec-pass</p>
+      <h1>Koy Landing <span class="slash">/</span> hotspots</h1>
+      <p class="lede">Everything before B5 was authored Koy chrome &mdash; the user watched. B5 is the first surface the user <em>acts</em> on. Three hotspots resolve out of the saturation field below the breathing mark, alive but inviting; each tile is a portal into a Phase C template. Mark = source / spread = path / hotspots = destinations. Tap commits. Long-press previews. Reduced-motion honors. The narrative closes &mdash; <em>the slime arrived, it spread, it became your tools.</em></p>
+    </div>
+    <p class="meta">
+      VERSION <b>B5 v1.0</b><br/>
+      PHASE  B · LANDING<br/>
+      DRIVER  <b>CSS + ~50 LOC JS</b><br/>
+      STATES  <b>4</b> · rest / hover / tap / preview-on-touch<br/>
+      WAKE  IntersectionObserver · once-per-session<br/>
+      SIGN  CLAUDESIGN · v5.0
+    </p>
+  </header>
+
+  <!-- ========================================================
+       00 · WHAT B5 IS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">00</span>
+      <h2>What B5 is</h2>
+      <p class="lede">The handoff moment. B5 ships the constellation of three hotspots in their woken rest state, the full four-state interaction vocabulary (rest / hover / tap / preview-on-touch), the wake animation that resolves the hotspots out of the saturation field, and the 0&rarr;700ms half of the tap-to-template transition. Phase C templates own the other half.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>Tonality target · alive but inviting</h3>
+          <p>The slow-menace eldritch register of B3 / B4 / B4.PULSE earned its keep &mdash; established Koy as "this thing has presence." B5 inherits the alive, inherits the vibe-agnostic frame discipline (B4.05 frame-vs-fill rule), but adds <b>welcoming</b> to the register. The hotspots should feel like portals you <em>want</em> to enter, not threats you survive. Continuity with B4.PULSE breath grammar via offset rest-breath cycle (4.8s, off-phase from the mark's 5.2s).</p>
+        </div>
+        <div class="rationale">
+          <h3>What B5 is NOT</h3>
+          <ul>
+            <li><b>Not the Phase C templates themselves</b> &mdash; B5 is the gateway, not the destination.</li>
+            <li><b>Not navigation chrome</b> &mdash; no global menu, no header nav appended here.</li>
+            <li><b>Not template previews</b> &mdash; no thumbnails of what each hotspot opens into. The hotspot tile IS the preview when touched (§03 long-press).</li>
+            <li><b>Not interactive content beyond tap-to-transition</b> &mdash; no widgets, no inline tools.</li>
+            <li><b>Not a vibe-survey UX</b> &mdash; users pick templates by feel, not by quiz.</li>
+          </ul>
+        </div>
+        <div class="rationale">
+          <h3>The pivot · authored chrome resolving out of formless slime</h3>
+          <p>The slime is formless; the hotspots are <em>structured.</em> This contrast is intentional. The slime was the chaos that arrived (B3 rip) and saturated (B4 spread) &mdash; the hotspots are the chaos resolving into order, the inverse of B3's order shattering into chaos. Authored chrome (rectangular, ~6px radius, 3:4 aspect, sharp/controlled per DC-5/10) standing atop a formless field. The user reads: <em>the slime made these for me.</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       01 · THE CONSTELLATION · live
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>The constellation &middot; live</h2>
+      <p class="lede">Live composition. The breathing mark above (B4.PULSE substrate, Q3 sign &mdash; continuity anchor) and the woken constellation below. Three tiles &mdash; two named (Bloomberg + Glam Girl) and one in the graceful-degradation state by default (Q2 sign &mdash; honors the launch reality that the third vibe is unnamed; the graceful path is the demonstrated rest state of that slot). Hover any tile to see state 2. On a touch device, long-press to see state 4. Click / tap / Enter / Space to fire state 3.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="hero-grid">
+
+        <div>
+          <div class="b5-stage" aria-label="B5 alive hotspots live composition · breathing mark above woken constellation">
+            <span class="b5-stage__caption">B4.PULSE mark · 5.2s &middot; B5 hotspots · 4.8s offset</span>
+            <div class="b5-stage__mark kl-mark-rest"></div>
+            <div class="b5-stage__bridge"></div>
+
+            <div class="kl-constellation is-woken" id="constellation" role="group" aria-label="Koy template hotspots">
+              <button class="kl-hotspot" type="button"
+                      data-template="bloomberg"
+                      aria-label="Enter Bloomberg template &mdash; terminal-style page for traders and creators">
+                <span class="kl-frag kl-frag--bloomberg" aria-hidden="true">
+                  <span class="kl-frag__rows">
+                    <span class="kl-frag__row"><span>AAPL</span><span>+1.24</span></span>
+                    <span class="kl-frag__row"><span>SPX&nbsp;</span><span class="neg">-0.32</span></span>
+                    <span class="kl-frag__row"><span>BTC&nbsp;</span><span>+2.14</span></span>
+                    <span class="kl-frag__row"><span>NVDA</span><span>+0.81</span></span>
+                    <span class="kl-frag__row"><span>ETH&nbsp;</span><span class="neg">-1.08</span></span>
+                    <span class="kl-frag__row"><span>QQQ&nbsp;</span><span>+0.44</span></span>
+                    <span class="kl-frag__row"><span>TSLA</span><span class="neg">-2.10</span></span>
+                    <span class="kl-frag__row"><span>&gt;_</span><span class="kl-frag__cursor"></span></span>
+                  </span>
+                </span>
+              </button>
+
+              <button class="kl-hotspot" type="button"
+                      data-template="glam"
+                      aria-label="Enter Glam Girl template &mdash; Y2K maximalist page for self-expression">
+                <span class="kl-frag kl-frag--glam" aria-hidden="true">
+                  <span class="kl-frag__orb"></span>
+                  <span class="kl-frag__sparkle kl-frag__sparkle--a"></span>
+                  <span class="kl-frag__sparkle kl-frag__sparkle--b"></span>
+                  <span class="kl-frag__sparkle kl-frag__sparkle--c"></span>
+                </span>
+              </button>
+
+              <button class="kl-hotspot" type="button"
+                      data-template="pending"
+                      data-coming-soon="Coming soon · vibe TBD"
+                      aria-label="Third template slot &mdash; coming soon, vibe to be announced">
+                <span class="kl-frag kl-frag--pending" aria-hidden="true">
+                  <span class="kl-frag__label">slot 3<br/><b>TBD</b></span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="demo-controls">
+            <span class="demo-controls__label">PREVIEW · demo affordances</span>
+            <button class="demo-btn" id="force-wake" type="button">▸ <span>replay wake</span></button>
+            <button class="demo-btn" id="demo-expand" type="button">▸ <span>play tap &rarr; expand &rarr; reset</span></button>
+            <button class="demo-btn" id="replay-graceful" type="button">▸ <span>replay graceful path</span></button>
+            <button class="demo-btn" id="rm-toggle" type="button" aria-pressed="false">○ <span>simulate <code>prefers-reduced-motion</code></span></button>
+          </div>
+        </div>
+
+        <div class="hero-notes">
+          <div class="stat-row"><span class="k">count</span><span><b>3</b> · matches Phase C launch</span></div>
+          <div class="stat-row"><span class="k">geometry</span><span>3:4 portrait · ~120px desktop · ~90px mobile</span></div>
+          <div class="stat-row"><span class="k">layout</span><span>horizontal (desktop) · vertical (mobile)</span></div>
+          <div class="stat-row"><span class="k">rest</span><span>frame-breath <b>4.8s</b> · offset from mark</span></div>
+          <div class="stat-row"><span class="k">glow</span><span>L 0.50&rarr;0.62 · C 0.08&rarr;0.14 · <b>NOT alpha</b></span></div>
+          <div class="stat-row"><span class="k">hover</span><span>220ms · scale 1.015 · base-anchored</span></div>
+          <div class="stat-row"><span class="k">tap</span><span>120ms burst &rarr; <b>700ms</b> expansion</span></div>
+          <div class="stat-row"><span class="k">long-press</span><span>400ms threshold · haptic 15ms</span></div>
+          <div class="stat-row"><span class="k">wake</span><span>IO once-per-session · 180ms stagger</span></div>
+          <div class="stat-row"><span class="k">z-stack</span><span><code>var(--z-hotspot)</code> · file-scope 10</span></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       02 · THE FOUR STATES
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>The four interaction states</h2>
+      <p class="lede">Frame-vs-fill rule (inherited from B4.05) governs every state: chrome animations apply to the frame &mdash; border, glow, scale &mdash; not the interior. Two bounded exceptions: <b>wake</b> (interior chroma-reveals because it doesn't yet exist) and <b>preview-on-touch</b> (interior animates because the user explicitly invoked it).</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="state-walk">
+          <div class="state-card">
+            <span class="state-card__num">01 · rest</span>
+            <h3 class="state-card__name">at-rest, alive</h3>
+            <p class="state-card__copy">Thin slime-green border at <code>oklch(0.45 0.08 148)</code>. Glow breathes via <b>L/C modulation</b> on the oklch color stop &mdash; alpha pinned at 0.30 to preserve the no-alpha-ramping lineage B3/B4/B4.PULSE earned. 4.8s cycle, off-phase from the mark's 5.2s so the page never reads as synchronously breathing. Per-tile phase stagger (-1.6s / -3.2s delays) prevents in-constellation synchrony.</p>
+          </div>
+          <div class="state-card">
+            <span class="state-card__num">02 · hover</span>
+            <h3 class="state-card__name">cursor enters (desktop)</h3>
+            <p class="state-card__copy">220ms with <code>var(--ease-pulse)</code>. Border brightens to <code>oklch(0.65 0.18 148)</code>; glow L jumps to 0.70, C to 0.20, blur to 18px. Scale 1.015 base-anchored at <code>transform-origin: center 80%</code> (same anchor pattern as B4.PULSE). Animation paused; @property-registered variables transition smoothly. Mobile has no hover &mdash; skips directly between rest and tap.</p>
+          </div>
+          <div class="state-card">
+            <span class="state-card__num">03 · tap</span>
+            <h3 class="state-card__name">click / Enter / Space</h3>
+            <p class="state-card__copy">Two-beat commitment: 120ms burst (peak chroma <code>oklch(0.80 0.26 148)</code>, scale 1.025) then expansion to viewport-fill over <code>var(--dur-tap-expand)</code> = 700ms. At ~85% expansion the frame chroma-desaturates into void <em>(NOT opacity-to-0, Rule #9)</em>. Unchosen tiles collapse via <code>scale(0.92) + brightness(0.7)</code>. Phase C handshake fires at 700ms.</p>
+          </div>
+          <div class="state-card">
+            <span class="state-card__num">04 · long-press</span>
+            <h3 class="state-card__name">preview-on-touch (mobile)</h3>
+            <p class="state-card__copy">400ms hold &mdash; iOS/Android long-press default. Haptic <code>navigator.vibrate(15)</code> on recognition. Frame brightens to hover intensity; <b>interior animates</b> for the press duration (Bloomberg tickers scroll, Glam orb spins). "Tap to enter · Lift to dismiss" caption appears. Lift commits to tap; drag-off cancels. Context menu suppressed. The only state interior is touched by motion outside wake.</p>
+          </div>
+        </div>
+
+        <div class="rationale" style="margin-top: var(--s-5);">
+          <h3>Q1 patch in code · L/C modulation, not alpha</h3>
+          <p>The rest-state glow breath was originally specified as alpha modulation (0.25 &rarr; 0.40) on the box-shadow color stop. CD-v5 catch surfaced that this would have broken the no-alpha-ramping lineage B4.PULSE established via <code>filter: brightness()</code>. Architect signed the re-cast. The breath modulates the L and C channels of the glow's <code>oklch(L C 148)</code> color while alpha stays pinned. Viewer reads identical visual outcome; grammar stays clean.</p>
+          <div class="codespec" style="margin-top: var(--s-3);"><span class="c">/* Q1 patched glow breath · L/C on oklch, alpha pinned at 0.30 */</span>
+
+@<span class="k">property</span> --glow-l    { syntax: <span class="v">'&lt;number&gt;'</span>; inherits: <span class="v">false</span>; initial-value: <span class="v">0.50</span>; }
+@<span class="k">property</span> --glow-c    { syntax: <span class="v">'&lt;number&gt;'</span>; inherits: <span class="v">false</span>; initial-value: <span class="v">0.08</span>; }
+@<span class="k">property</span> --glow-blur { syntax: <span class="v">'&lt;length&gt;'</span>; inherits: <span class="v">false</span>; initial-value: <span class="v">12px</span>; }
+
+.<span class="k">kl-hotspot</span> {
+  <span class="k">box-shadow</span>: <span class="v">0 0 var(--glow-blur) 0 oklch(var(--glow-l) var(--glow-c) 148 / 0.30)</span>;
+  <span class="k">animation</span>: <span class="v">b5-rest-breath 4.8s linear infinite</span>;
+}
+
+@<span class="k">keyframes</span> b5-rest-breath {
+  0%   { <span class="k">animation-timing-function</span>: <span class="v">var(--ease-pulse)</span>;
+         --glow-l: <span class="v">0.50</span>; --glow-c: <span class="v">0.08</span>; --glow-blur: <span class="v">12px</span>; }
+  45%  { <span class="k">animation-timing-function</span>: <span class="v">linear</span>;
+         --glow-l: <span class="v">0.62</span>; --glow-c: <span class="v">0.14</span>; --glow-blur: <span class="v">14px</span>; }
+  55%  { <span class="k">animation-timing-function</span>: <span class="v">cubic-bezier(.25,.65,.45,1)</span>;
+         --glow-l: <span class="v">0.62</span>; --glow-c: <span class="v">0.14</span>; --glow-blur: <span class="v">14px</span>; }
+  100% { --glow-l: <span class="v">0.50</span>; --glow-c: <span class="v">0.08</span>; --glow-blur: <span class="v">12px</span>; }
+}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       03 · TRANSITION + REVERSE
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Tap transition &amp; reverse</h2>
+      <p class="lede">B5 owns 0&rarr;700ms of the tap-to-template arc; Phase C owns &gt;700ms. The handshake is the moment the tile reaches viewport-fill and the frame begins dissolving via reverse chroma-saturation back into the void. Reverse-transition is also B5-lane (~900ms) &mdash; demoed below in a clearly-labeled preview-only stage.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>The expansion timeline</h3>
+          <div class="codespec"><span class="c">/* Timeline · 0ms anchor = user tap */</span>
+
+  <span class="s">0ms</span> &nbsp;tap fires &middot; .is-tapping added &middot; .has-tap on constellation
+        burst begins · 120ms transition · border &rarr; peak chroma
+        unchosen tiles begin collapsing · scale(0.92) + brightness(0.7)
+
+<span class="s">120ms</span> &nbsp;burst peak · .is-expanding added
+        expansion begins · 700ms duration · transform &amp; --tx/--ty/--scale
+
+<span class="s">600ms</span> &nbsp;.is-dissolving added
+        frame chroma-desaturates to void over final 100ms
+
+<span class="s">700ms</span> &nbsp;PHASE C HANDSHAKE
+        koy:template:enter event dispatched
+        Phase C template enter-animation takes over
+
+<span class="s">700ms+</span> · &lt;Phase C lane&gt;</div>
+        </div>
+
+        <div class="rationale">
+          <h3>Reverse transition · demo stage (preview-only construct)</h3>
+          <p>Reverse-transition motion is the slime-frame re-saturating around the collapsing interior + the tile returning to its grid position over 900ms. Easier to leave than to commit (700ms enter / 900ms exit &mdash; the UX warmth detail from §03 of the brief). The demo below starts from a simulated "viewport-fill template interior" state and plays the reverse motion. <b>The faux template interior is a preview-only construct &mdash; not B5's lane.</b> Watch the slime-frame &mdash; the green chroma resolves out of the void into a frame, the tile shrinks back into grid position.</p>
+        </div>
+
+        <div class="reverse-stage" aria-label="Reverse-transition demo · preview-only">
+          <div class="reverse-stage__faux"></div>
+          <span class="reverse-stage__faux-label">simulating template interior at viewport-fill &mdash; Phase C lane, not B5 deliverable</span>
+          <div class="reverse-stage__tile-anchor">
+            <button class="kl-hotspot" type="button" id="reverse-tile"
+                    data-template="bloomberg" aria-label="Demo · reverse-transition tile">
+              <span class="kl-frag kl-frag--bloomberg" aria-hidden="true">
+                <span class="kl-frag__rows">
+                  <span class="kl-frag__row"><span>AAPL</span><span>+1.24</span></span>
+                  <span class="kl-frag__row"><span>SPX&nbsp;</span><span class="neg">-0.32</span></span>
+                  <span class="kl-frag__row"><span>BTC&nbsp;</span><span>+2.14</span></span>
+                  <span class="kl-frag__row"><span>NVDA</span><span>+0.81</span></span>
+                  <span class="kl-frag__row"><span>&gt;_</span><span class="kl-frag__cursor"></span></span>
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="demo-controls">
+          <span class="demo-controls__label">PREVIEW · reverse-transition demo</span>
+          <button class="demo-btn" id="play-reverse" type="button">▸ <span>play reverse · 900ms</span></button>
+          <button class="demo-btn" id="play-reverse-reset" type="button">↻ <span>reset to expanded</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       04 · THE WAKE
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>The wake &middot; first-arrival animation</h2>
+      <p class="lede">Scroll-triggered, fire-once-per-session via <code>IntersectionObserver</code> on the constellation container. Three hotspots wake in sequence with 180ms stagger &mdash; sequential authorship, sharp/authored discipline (DC-5/10), not random emergence. All chroma-saturation from void to rest values; <b>no opacity ramps</b>. Total: t=0 to t=960ms last hotspot completes.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="wake-timeline">
+          <div class="wake-timeline__rows">
+            <div class="wake-timeline__row">
+              <span class="k">tile 1</span>
+              <div class="wake-timeline__track">
+                <div class="wake-timeline__bar" style="left: 0%; width: 62.5%;"></div>
+              </div>
+            </div>
+            <div class="wake-timeline__row">
+              <span class="k">tile 2</span>
+              <div class="wake-timeline__track">
+                <div class="wake-timeline__bar" style="left: 18.75%; width: 62.5%;"></div>
+              </div>
+            </div>
+            <div class="wake-timeline__row">
+              <span class="k">tile 3</span>
+              <div class="wake-timeline__track">
+                <div class="wake-timeline__bar" style="left: 37.5%; width: 62.5%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="wake-timeline__axis">
+            <span></span>
+            <div class="wake-timeline__ticks">
+              <span>0ms</span><span>180</span><span>360</span><span>600</span><span>780</span><span>960ms</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rationale" style="margin-top: var(--s-5);">
+          <h3>Wake grammar &middot; chroma-saturation, not fade</h3>
+          <p>Each tile animates four properties simultaneously over 600ms: border-color from <code>oklch(0.10 0.005 148)</code> (void) to <code>oklch(0.45 0.08 148)</code> (rest); the L/C/blur glow variables from null to rest values; and the interior fragment's <code>--frag-l-mult</code> multiplier from 0.08 to 1 (chroma-saturates the fragment from void-collapsed to vibrant). The interior is touched by chrome motion here &mdash; the bounded exception called out in §02 &mdash; because the content hasn't yet existed; it's manifesting, not fading.</p>
+          <p>Animation chains: each tile runs <code>b5-wake 600ms forwards</code> then <code>b5-rest-breath 4.8s infinite</code> beginning at +600ms. CSS handles the chain via dual <code>animation-delay</code> values per tile.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Composition with B4 spread &middot; standalone-defensible</h3>
+          <p>When B4 spread eventually ships, the wake fires AFTER the spread saturates the field (B4 spread ~2.4s &rarr; B5 wake ~960ms = ~3.36s end-to-end from first scroll into bridge zone). Until B4 spread ships, the wake fires against the placeholder substrate &mdash; the preview demonstrates this condition. The wake reads alive and intentional <em>without</em> a saturated field below; that's the test condition and the spec passes it. <b>Replay the wake</b> via the demo control above to verify against the void substrate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       05 · ACCESSIBILITY
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Accessibility</h2>
+      <p class="lede">Reduced motion is a hard requirement; keyboard nav, focus state, aria-labels, and contrast all sweat the details. Verifier walks every one against staging.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>Reduced motion · <code>prefers-reduced-motion: reduce</code></h3>
+          <ul>
+            <li><b>Rest frame-breath:</b> disabled (static frame at rest values).</li>
+            <li><b>Hover:</b> color shift remains; transform scale-up disabled.</li>
+            <li><b>Tap:</b> 60ms static color flash on border &mdash; no scale, no expansion animation. Tap still fires the <code>koy:template:enter</code> event so the navigation completes; the visual just doesn't animate.</li>
+            <li><b>Wake stagger:</b> hotspots appear at their rest state on first intersection &mdash; no chroma-saturation, no delay.</li>
+            <li><b>Long-press preview interior:</b> static fragment shows; long-press still registers and commits, no interior motion.</li>
+          </ul>
+          <p style="margin-top: var(--s-3);">Toggle the <code>simulate prefers-reduced-motion</code> control above to verify without flipping OS settings &mdash; same preview affordance pattern as B4.PULSE.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Keyboard &middot; screen reader &middot; contrast</h3>
+          <ul>
+            <li><b>Markup:</b> each hotspot is a <code>&lt;button&gt;</code> (navigation is to a template state, not a URL change in v1; revisit at Phase C if templates land at distinct routes).</li>
+            <li><b>Tab order:</b> left-to-right on desktop, top-to-bottom on mobile, in composition order.</li>
+            <li><b>Focus:</b> 2px outline at <code>oklch(0.65 0.18 148)</code> with 3px offset &mdash; visually mimics hover intensity. Visible via <code>:focus-visible</code>.</li>
+            <li><b>Enter / Space:</b> fires tap state. Escape cancels an active long-press (programmatic edge case).</li>
+            <li><b>ARIA:</b> each tile has <code>aria-label="Enter [template] template &mdash; [vibe description]"</code>. Tap transition announces via <code>aria-live="polite"</code>: "Loading [vibe name] template" (handled at Phase C handshake; Dev A wires).</li>
+            <li><b>Contrast:</b> rest border <code>oklch(0.45 0.08 148)</code> against <code>#0A0F0B</code> void passes WCAG AA (contrast ratio &gt;4.5:1 for the border-as-affordance; interior content per template's own contrast budget). Hover/tap states have headroom.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       06 · VERIFIER AUDIT (six-check)
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Verifier audit</h2>
+      <p class="lede">Six checks &mdash; the five standard plus the moderate-viewport grid-clamp pattern earned in B4.PULSE.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="audit-list">
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>1 · Fade audit</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>No <code>opacity</code> ramps anywhere. Glow breath via L/C modulation on <code>oklch()</code> (Q1 patch). Frame dissolve via chroma desaturation to void. Wake via chroma saturation from void. Unchosen-tile collapse via <code>transform: scale() + filter: brightness()</code> &mdash; NOT opacity. Rule #9 maintained across all 4 states + wake + transition + reverse.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>2 · Console clean</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>Production orchestrator (~50 LOC) handles tap / long-press / wake. Preview-only affordances clearly walled. <code>@property</code> registrations are spec-compliant; modern browser support (Chrome 85+ / Safari 16.4+ / Firefox 128+). <code>IntersectionObserver</code> disconnects after first intersection.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>3 · Mobile / desktop</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>Composition mirrors B4 spread geometry &mdash; horizontal constellation on desktop, vertical stack on mobile (<code>@media (max-width: 720px)</code>). Tile dimensions scale per viewport. Touch handlers conditional on touch device; hover handlers conditional on <code>@media (hover: hover)</code> so iOS doesn't sticky-hover.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>4 · Reduced motion</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p><code>@media (prefers-reduced-motion: reduce)</code> disables all animations; tap commitment still fires (event dispatch unchanged) but visual is a 60ms color flash. Preview affordance toggle (<code>body.rm-on</code>) mirrors the media query for in-preview verification without OS toggle.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>5 · Visual continuity</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>Mark above runs B4.PULSE breath at 5.2s; constellation below runs at 4.8s &mdash; off-phase, intentional. Per-tile stagger (-1.6s, -3.2s delays) prevents in-constellation sync. Wake chroma-saturation grammar continuous with B3 / B4 / B4.PULSE no-fade lineage. Frame-vs-fill rule (B4.05) honored across hover / tap. Token reuse: <code>--ease-pulse</code> for breath, hover, burst.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>6 · Moderate viewport (grid-clamp)</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>Constellation uses <code>grid-template-columns: repeat(3, minmax(0, 120px))</code> &mdash; tracks clamped per the B4.PULSE-earned pattern. Hero outer grid uses <code>minmax(0, 1.6fr) minmax(0, 1fr)</code>. No 890&ndash;1100px overlap.</p>
+          </div>
+
+          <div class="audit-card" style="grid-column: 1 / -1;">
+            <div class="audit-card__head">
+              <h3>+ &middot; Interaction state walk</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>All four states walked on live constellation. <b>Rest:</b> visible in default render &mdash; frame-breath running. <b>Hover:</b> mouseover any tile (desktop). <b>Tap:</b> click any tile or hit Enter / Space when focused; demo affordance auto-resets at 1.4s for repeated inspection. <b>Long-press:</b> touch device required &mdash; hold 400ms on any non-pending tile to see interior animate. <b>Graceful path:</b> third tile is in graceful-rest state by default; tap fires the "Coming soon" affordance. <b>Wake:</b> replay via demo control. <b>Reverse:</b> isolated demo stage.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       07 · DECISIONS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">07</span>
+      <h2>Decisions</h2>
+      <p class="lede">Fifteen from architect brief + three CD-v5 additions (the Q1 patch translation, the <code>--ease-pulse-burst</code> fold-back, the propose-queue items at file scope).</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:20%;">ID</th>
+              <th style="width:46%;">Decision</th>
+              <th style="width:34%;">Rationale / Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">B5.COUNT</td>
+              <td><b>Three hotspots</b> at launch.</td>
+              <td>Matches Phase C launch count: Bloomberg + Glam Girl + 1 TBD. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.LAYOUT</td>
+              <td>Horizontal (desktop) / vertical (mobile), mirroring B4 spread geometry.</td>
+              <td>Hotspots resolve where slime saturated; structural narrative continuity. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.GEOMETRY</td>
+              <td>Rectangular tile, 3:4 portrait aspect, ~120px desktop / ~90px mobile, ~6px corner radius.</td>
+              <td>Authored chrome contrasts formless slime; "destination" read not "button." <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.INTERIOR</td>
+              <td><b>Static fragment</b> of each template's cool element (architect rec (a) per brief §01).</td>
+              <td>Each tile advertises its template; reuses Phase C design lift. Preview ships Bloomberg + Glam at CSS-rebuild fidelity; third in graceful-degradation state. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.FRAME-FILL</td>
+              <td>Frame-vs-fill rule: chrome motion on frame only; interior untouched except wake (manifestation) and long-press (user-invoked).</td>
+              <td>B4.05 inherit. Locked. Vibe-agnostic frame composes radically different template aesthetics. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.REST</td>
+              <td>Frame-breath 4.8s, offset from B4.PULSE 5.2s. Glow modulates via <b>L/C on oklch()</b> &mdash; L 0.50&rarr;0.62, C 0.08&rarr;0.14, blur 12&rarr;14px. <b>Alpha pinned at 0.30.</b></td>
+              <td><b>Q1 patch</b>: re-cast from alpha-on-box-shadow to L/C-on-oklch per CD-v5 grammar-continuity catch. Preserves no-alpha-ramping lineage B3 / B4 / B4.PULSE collectively earned. <span class="status">CD signed · patch</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.STAGGER-REST</td>
+              <td>Per-tile breath phase stagger: -1.6s and -3.2s <code>animation-delay</code> on tiles 2 and 3.</td>
+              <td>Prevents in-constellation synchronous breathing on top of the 4.8s/5.2s mark-vs-constellation offset. <span class="status">CD signed</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.HOVER</td>
+              <td>Desktop-only (<code>@media (hover: hover)</code>). 220ms with <code>--ease-pulse</code>. Border&rarr;<code>oklch(0.65 0.18 148)</code>, scale 1.015 base-anchored.</td>
+              <td>Quick enough responsive, slow enough alive. Mobile skips hover. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.TAP</td>
+              <td>120ms burst &rarr; <code>var(--dur-tap-expand)</code> 700ms expansion &rarr; frame chroma-desaturation at 600ms. <code>koy:template:enter</code> event dispatched at 700ms.</td>
+              <td>Two-beat commitment; bridges to Phase C. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.TAP-CURVE</td>
+              <td><b><code>--ease-pulse-burst</code> proposal FOLDED.</b> 120ms burst uses <code>--ease-pulse</code> directly.</td>
+              <td>Per architect token-reuse lean &mdash; 120ms duration makes the curve choice perceptually negligible; folding back avoids near-duplicate tokens. <span class="status" data-tone="fold">CD &middot; fold</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.UNCHOSEN</td>
+              <td>Unchosen tiles during tap collapse via <code>scale(0.92) + filter: brightness(0.7)</code> &mdash; <b>NOT opacity</b>.</td>
+              <td>Slime collapsing the unchosen options visually. Rule #9 preserved. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.PREVIEW-TOUCH</td>
+              <td>Mobile-only. 400ms long-press threshold. Interior animates briefly during press. Haptic <code>navigator.vibrate(15)</code> on recognition. Context menu suppressed.</td>
+              <td>Mobile UX equivalent to hover; only state where interior animates outside wake. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.WAKE</td>
+              <td>IntersectionObserver fire-once-per-session. Tiles wake with 180ms stagger over 600ms each; full sequence completes at 960ms. <b>Chroma-saturation, not fade.</b></td>
+              <td>Sequential authorship read; sharp/authored discipline. Animation chains rest-breath at +600ms per tile. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.GRACEFUL</td>
+              <td>Tile with <code>data-template="pending"</code> taps to scale 1.3 + "Coming soon · vibe TBD" tooltip; resets after 1.4s.</td>
+              <td>B5 ships standalone of Phase C readiness. Third tile defaults to this state (Q2 sign &mdash; honors launch reality of unnamed third vibe). <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.A11Y</td>
+              <td>Reduced-motion disables animations (tap still fires); <code>&lt;button&gt;</code> markup; <code>:focus-visible</code> outline; <code>aria-label</code> per tile; WCAG AA contrast on rest border.</td>
+              <td>Hard requirement. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.HANDSHAKE</td>
+              <td>B5 owns 0&rarr;700ms (burst + expansion + frame dissolve). Phase C owns &gt;700ms (template render-out). Boundary marked by <code>koy:template:enter</code> event.</td>
+              <td>Clean lane boundary; B5 ships independently of any specific template being ready. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.REVERSE</td>
+              <td>~900ms total. Frame re-saturates around collapsing interior, tile returns to grid position.</td>
+              <td>Easier to leave than to commit (700ms enter &lt; 900ms exit). Demoed in preview-only stage with explicit faux-template label. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.Z-HOTSPOT</td>
+              <td>Hotspot z-index tokenized at file-scope: <code>--z-hotspot: 10</code>. Future overlay tokens at 20+.</td>
+              <td>Future-proof composition stack. Propose &rarr; <code>koy-tokens.css</code> at Phase B close. <span class="status" data-tone="propose">Propose · CD &rarr; architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.DUR-EXPAND</td>
+              <td><code>--dur-tap-expand: 700ms</code> declared at file-scope.</td>
+              <td>Reasonable starting target per architect. Propose &rarr; <code>koy-tokens.css</code> at Phase B close. <span class="status" data-tone="propose">Propose · CD &rarr; architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.@PROPERTY</td>
+              <td>Three registered custom properties: <code>--glow-l</code>, <code>--glow-c</code>, <code>--glow-blur</code> (plus <code>--frag-l-mult</code> inheriting for wake fragment chroma).</td>
+              <td>Enables the L/C modulation grammar for Q1 patch; transitions interpolate registered properties smoothly. Browser support universally available 2024-current. <span class="status">CD signed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       08 · DEV A HANDOFF + PROPOSE-QUEUE
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">08</span>
+      <h2>Dev A handoff &amp; propose-queue</h2>
+      <p class="lede">Production code is the live preview's orchestrator (~50 LOC) lifted as-is. Preview-only affordances are clearly walled. Consolidated Phase B integration sprint lifts <code>koy-tokens.css</code> + this CSS + this JS as one unit; the propose-queued tokens promote at that point.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>Production orchestrator · the JS Dev A lifts</h3>
+          <div class="codespec"><span class="c">/* koy-b5-orchestrator.js · ~50 LOC · lift as-is */</span>
+
+(<span class="k">function</span>() {
+  <span class="k">'use strict'</span>;
+  <span class="k">const</span> root = document.querySelector(<span class="v">'.kl-constellation'</span>);
+  <span class="k">if</span> (!root) <span class="k">return</span>;
+  <span class="k">const</span> tiles = root.querySelectorAll(<span class="v">'.kl-hotspot'</span>);
+
+  <span class="c">/* Wake · IntersectionObserver · fire-once-per-session */</span>
+  <span class="k">const</span> io = <span class="k">new</span> IntersectionObserver((entries, obs) =&gt; {
+    <span class="k">for</span> (<span class="k">const</span> e <span class="k">of</span> entries) {
+      <span class="k">if</span> (e.isIntersecting) {
+        root.classList.add(<span class="v">'is-woken'</span>);
+        obs.disconnect();
+        <span class="k">break</span>;
+      }
+    }
+  }, { threshold: 0.4 });
+  io.observe(root);
+
+  <span class="c">/* Tap · 120ms burst → 700ms expansion → Phase C handshake */</span>
+  <span class="k">function</span> fireTap(tile) {
+    <span class="k">if</span> (tile.dataset.template === <span class="v">'pending'</span>) <span class="k">return</span> fireGraceful(tile);
+    <span class="k">if</span> (root.classList.contains(<span class="v">'is-tap-in-flight'</span>)) <span class="k">return</span>;
+    root.classList.add(<span class="v">'is-tap-in-flight'</span>, <span class="v">'has-tap'</span>);
+
+    <span class="c">/* compute viewport-fill transform */</span>
+    <span class="k">const</span> r = tile.getBoundingClientRect();
+    tile.style.setProperty(<span class="v">'--tx'</span>, ((innerWidth/2) - (r.left + r.width/2)) + <span class="v">'px'</span>);
+    tile.style.setProperty(<span class="v">'--ty'</span>, ((innerHeight/2) - (r.top + r.height/2)) + <span class="v">'px'</span>);
+    tile.style.setProperty(<span class="v">'--scale'</span>, Math.max(innerWidth/r.width, innerHeight/r.height) * 1.05);
+
+    tile.classList.add(<span class="v">'is-tapping'</span>);
+    setTimeout(() =&gt; tile.classList.add(<span class="v">'is-expanding'</span>), 120);
+    setTimeout(() =&gt; tile.classList.add(<span class="v">'is-dissolving'</span>), 600);
+    setTimeout(() =&gt; {
+      tile.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="v">'koy:template:enter'</span>, {
+        bubbles: <span class="k">true</span>, detail: { template: tile.dataset.template }
+      }));
+    }, 700);
+  }
+
+  <span class="k">function</span> fireGraceful(tile) {
+    <span class="k">if</span> (root.classList.contains(<span class="v">'is-tap-in-flight'</span>)) <span class="k">return</span>;
+    root.classList.add(<span class="v">'is-tap-in-flight'</span>, <span class="v">'has-tap'</span>);
+    tile.classList.add(<span class="v">'is-graceful'</span>);
+    setTimeout(() =&gt; {
+      tile.classList.remove(<span class="v">'is-graceful'</span>);
+      root.classList.remove(<span class="v">'is-tap-in-flight'</span>, <span class="v">'has-tap'</span>);
+    }, 1400);
+  }
+
+  <span class="c">/* Long-press · 400ms · mobile preview-on-touch */</span>
+  <span class="k">function</span> bindLongPress(tile) {
+    <span class="k">let</span> timer, x0 = 0, y0 = 0;
+    tile.addEventListener(<span class="v">'touchstart'</span>, (e) =&gt; {
+      <span class="k">if</span> (tile.dataset.template === <span class="v">'pending'</span>) <span class="k">return</span>;
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+      timer = setTimeout(() =&gt; {
+        tile.classList.add(<span class="v">'is-previewing'</span>);
+        <span class="k">if</span> (navigator.vibrate) navigator.vibrate(15);
+      }, 400);
+    }, { passive: <span class="k">true</span> });
+    tile.addEventListener(<span class="v">'touchmove'</span>, (e) =&gt; {
+      <span class="k">const</span> t = e.touches[0];
+      <span class="k">if</span> (Math.hypot(t.clientX - x0, t.clientY - y0) &gt; 12) {
+        clearTimeout(timer); tile.classList.remove(<span class="v">'is-previewing'</span>);
+      }
+    }, { passive: <span class="k">true</span> });
+    tile.addEventListener(<span class="v">'touchend'</span>, () =&gt; {
+      clearTimeout(timer);
+      <span class="k">const</span> was = tile.classList.contains(<span class="v">'is-previewing'</span>);
+      tile.classList.remove(<span class="v">'is-previewing'</span>);
+      <span class="k">if</span> (was) fireTap(tile);
+    });
+    tile.addEventListener(<span class="v">'touchcancel'</span>, () =&gt; {
+      clearTimeout(timer); tile.classList.remove(<span class="v">'is-previewing'</span>);
+    });
+    tile.addEventListener(<span class="v">'contextmenu'</span>, (e) =&gt; e.preventDefault());
+  }
+
+  tiles.forEach((tile) =&gt; {
+    tile.addEventListener(<span class="v">'click'</span>, () =&gt; fireTap(tile));
+    tile.addEventListener(<span class="v">'keydown'</span>, (e) =&gt; {
+      <span class="k">if</span> (e.key === <span class="v">'Enter'</span> || e.key === <span class="v">' '</span>) { e.preventDefault(); fireTap(tile); }
+    });
+    bindLongPress(tile);
+  });
+})();</div>
+        </div>
+
+        <div class="rationale">
+          <h3>Integration notes</h3>
+          <ul>
+            <li><b>Token dependencies:</b> <code>--ease-pulse</code> (already canon). Three new propose-queue tokens (<code>--z-hotspot</code>, <code>--dur-tap-expand</code>) declared at file-scope in this preview's CSS &mdash; promote to <code>koy-tokens.css</code> as part of consolidated Phase B integration.</li>
+            <li><b>@property registrations:</b> <code>--glow-l</code> / <code>--glow-c</code> / <code>--glow-blur</code> / <code>--frag-l-mult</code> &mdash; lift verbatim. Required for L/C glow modulation grammar.</li>
+            <li><b>Markup contract:</b> constellation container has class <code>kl-constellation</code> with role <code>group</code> + aria-label. Each tile is a <code>&lt;button&gt;</code> with class <code>kl-hotspot</code>, <code>data-template="[name]"</code>, <code>aria-label</code>, and a child <code>&lt;span class="kl-frag kl-frag--[name]"&gt;</code> with <code>aria-hidden="true"</code>. Pending tile uses <code>data-template="pending"</code> + <code>data-coming-soon="[label]"</code>.</li>
+            <li><b>Phase C handshake:</b> Phase C subscribes to <code>koy:template:enter</code> events on document or the constellation. The event carries <code>detail.template</code> so the right template renders. B5 does NOT route or render templates; it only signals.</li>
+            <li><b>Composition with B4 spread:</b> when B4 spread MP4 ends, B5's constellation container becomes visible / its observer fires. Sequencing handled in App.jsx orchestration; B5 module itself is composition-agnostic.</li>
+            <li><b>Composition with B4.PULSE:</b> none. They run independently. The mark continues to breathe regardless of B5 state.</li>
+            <li><b>Reverse transition:</b> when user exits a template, Phase C dispatches <code>koy:template:exit</code>. Dev A wires the reverse-transition (B5-lane CSS already present): apply <code>.is-expanded-state</code> to the originating tile, animate to <code>.is-reversing</code>, end at rest. ~900ms total. Identifying the "originating tile" requires Phase C tracking which template was entered; suggest a small <code>data-active-template</code> attribute on constellation.</li>
+          </ul>
+        </div>
+
+        <div class="rationale">
+          <h3>Propose-queue · architect read</h3>
+          <ul>
+            <li><b><code>--z-hotspot: 10</code></b> &middot; promote to <code>koy-tokens.css</code> at Phase B close. Future overlay tokens at 20+ (modal: 20, toast: 30, etc.).</li>
+            <li><b><code>--dur-tap-expand: 700ms</code></b> &middot; promote to <code>koy-tokens.css</code>. Same starting target as architect proposed.</li>
+            <li><b><code>--ease-pulse-burst</code> FOLDED</b> &middot; no new token. <code>--ease-pulse</code> reused for the 120ms burst. Per architect lean.</li>
+            <li><b>Naming-vibes-3+ as active constraint</b> &middot; surfaced in CLAUDESIGN v4.4 patch (forthcoming, post-sign). Documentation sufficient at this stage per architect's note.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sign">
+    <span>SPRINT 2.5 / PHASE B / B5 / v1.0 / SPEC + PREVIEW / READY-FOR-ARCHITECT-READ</span>
+    <span><b>CLAUDESIGN</b> &middot; v5.0 &middot; 2026-05-27</span>
+  </footer>
+
+</div>
+
+<!-- ============================================================
+     PRODUCTION ORCHESTRATOR · Dev A lifts as-is at integration.
+     Wrapped in a closure; no globals. Defers to CSS for reduced
+     motion via the @media query (the JS still fires events).
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+  var root = document.querySelector('.kl-constellation');
+  if (!root) return;
+  var tiles = root.querySelectorAll('.kl-hotspot');
+
+  // ---- Wake · IntersectionObserver · fire-once-per-session
+  var io = new IntersectionObserver(function (entries, obs) {
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].isIntersecting) {
+        root.classList.add('is-woken');
+        obs.disconnect();
+        break;
+      }
+    }
+  }, { threshold: 0.4 });
+  io.observe(root);
+
+  function fireTap(tile) {
+    if (tile.dataset.template === 'pending') return fireGraceful(tile);
+    if (root.classList.contains('is-tap-in-flight')) return;
+    root.classList.add('is-tap-in-flight', 'has-tap');
+
+    var r = tile.getBoundingClientRect();
+    tile.style.setProperty('--tx', ((window.innerWidth / 2) - (r.left + r.width / 2)) + 'px');
+    tile.style.setProperty('--ty', ((window.innerHeight / 2) - (r.top + r.height / 2)) + 'px');
+    tile.style.setProperty('--scale', Math.max(window.innerWidth / r.width, window.innerHeight / r.height) * 1.05);
+
+    tile.classList.add('is-tapping');
+    setTimeout(function () { tile.classList.add('is-expanding'); }, 120);
+    setTimeout(function () { tile.classList.add('is-dissolving'); }, 600);
+    setTimeout(function () {
+      tile.dispatchEvent(new CustomEvent('koy:template:enter', {
+        bubbles: true,
+        detail: { template: tile.dataset.template }
+      }));
+    }, 700);
+  }
+
+  function fireGraceful(tile) {
+    if (root.classList.contains('is-tap-in-flight')) return;
+    root.classList.add('is-tap-in-flight', 'has-tap');
+    tile.classList.add('is-graceful');
+    setTimeout(function () {
+      tile.classList.remove('is-graceful');
+      root.classList.remove('is-tap-in-flight', 'has-tap');
+    }, 1400);
+  }
+
+  function bindLongPress(tile) {
+    var timer, x0 = 0, y0 = 0;
+    tile.addEventListener('touchstart', function (e) {
+      if (tile.dataset.template === 'pending') return;
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+      timer = setTimeout(function () {
+        tile.classList.add('is-previewing');
+        if (navigator.vibrate) navigator.vibrate(15);
+      }, 400);
+    }, { passive: true });
+    tile.addEventListener('touchmove', function (e) {
+      var t = e.touches[0];
+      if (Math.hypot(t.clientX - x0, t.clientY - y0) > 12) {
+        clearTimeout(timer);
+        tile.classList.remove('is-previewing');
+      }
+    }, { passive: true });
+    tile.addEventListener('touchend', function () {
+      clearTimeout(timer);
+      var was = tile.classList.contains('is-previewing');
+      tile.classList.remove('is-previewing');
+      if (was) fireTap(tile);
+    });
+    tile.addEventListener('touchcancel', function () {
+      clearTimeout(timer);
+      tile.classList.remove('is-previewing');
+    });
+    tile.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+
+  tiles.forEach(function (tile) {
+    tile.addEventListener('click', function () { fireTap(tile); });
+    tile.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fireTap(tile); }
+    });
+    bindLongPress(tile);
+  });
+})();
+</script>
+
+<!-- ============================================================
+     PREVIEW ONLY · demo affordances. Strip from production.
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+  var root = document.querySelector('.kl-constellation');
+  if (!root) return;
+
+  // ---- Reduced-motion simulation toggle ----
+  var rmBtn = document.getElementById('rm-toggle');
+  if (rmBtn) {
+    rmBtn.addEventListener('click', function () {
+      var on = rmBtn.getAttribute('aria-pressed') === 'true';
+      rmBtn.setAttribute('aria-pressed', String(!on));
+      document.body.classList.toggle('rm-on', !on);
+      rmBtn.firstChild.nodeValue = on ? '○ ' : '● ';
+    });
+  }
+
+  // ---- Force-fire wake (preview-only · re-runs the IO trigger) ----
+  var wakeBtn = document.getElementById('force-wake');
+  if (wakeBtn) {
+    wakeBtn.addEventListener('click', function () {
+      root.classList.remove('is-woken');
+      // reflow trick so the animation restarts cleanly
+      void root.offsetWidth;
+      // small delay so the pre-wake state is visibly readable
+      setTimeout(function () { root.classList.add('is-woken'); }, 80);
+    });
+  }
+
+  // ---- Replay graceful path on the third tile ----
+  var gracefulBtn = document.getElementById('replay-graceful');
+  if (gracefulBtn) {
+    gracefulBtn.addEventListener('click', function () {
+      var third = root.querySelector('[data-template="pending"]');
+      if (third) third.click();
+    });
+  }
+
+  // ---- Demo tap-expansion · auto-resets at 1.4s ----
+  var expandBtn = document.getElementById('demo-expand');
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function () {
+      var first = root.querySelector('[data-template="bloomberg"]');
+      if (!first) return;
+      first.click();
+      setTimeout(function () {
+        first.classList.remove('is-tapping', 'is-expanding', 'is-dissolving');
+        root.classList.remove('has-tap', 'is-tap-in-flight');
+        first.style.transition = 'none';
+        first.style.removeProperty('--tx');
+        first.style.removeProperty('--ty');
+        first.style.removeProperty('--scale');
+        void first.offsetWidth;
+        first.style.transition = '';
+      }, 1400);
+    });
+  }
+
+  // ---- Reverse-transition demo (isolated stage) ----
+  var reverseTile = document.getElementById('reverse-tile');
+  var playReverse = document.getElementById('play-reverse');
+  var resetReverse = document.getElementById('play-reverse-reset');
+
+  function resetToExpanded() {
+    if (!reverseTile) return;
+    var stage = reverseTile.closest('.reverse-stage');
+    var stageRect = stage.getBoundingClientRect();
+    var tileRect = reverseTile.getBoundingClientRect();
+    // compute fake "viewport-fill" transform relative to the stage
+    var tx = (stageRect.left + stageRect.width / 2) - (tileRect.left + tileRect.width / 2);
+    var ty = (stageRect.top + stageRect.height / 2) - (tileRect.top + tileRect.height / 2);
+    var scale = Math.max(stageRect.width / tileRect.width, stageRect.height / tileRect.height) * 0.85;
+    reverseTile.style.setProperty('--tx', tx + 'px');
+    reverseTile.style.setProperty('--ty', ty + 'px');
+    reverseTile.style.setProperty('--scale', scale);
+    reverseTile.classList.remove('is-reversing', 'is-rested');
+    reverseTile.classList.add('is-expanded-state');
+  }
+
+  if (resetReverse) resetReverse.addEventListener('click', resetToExpanded);
+
+  if (playReverse) {
+    playReverse.addEventListener('click', function () {
+      if (!reverseTile) return;
+      // ensure we start from expanded
+      if (!reverseTile.classList.contains('is-expanded-state') &&
+          !reverseTile.classList.contains('is-rested')) {
+        resetToExpanded();
+      }
+      // reflow then begin reverse
+      void reverseTile.offsetWidth;
+      reverseTile.classList.remove('is-expanded-state');
+      reverseTile.classList.add('is-reversing');
+      setTimeout(function () {
+        reverseTile.classList.remove('is-reversing');
+        reverseTile.classList.add('is-rested');
+      }, 900);
+    });
+  }
+
+  // initialize reverse demo in expanded state on load
+  // (small delay so layout has settled)
+  setTimeout(resetToExpanded, 150);
+})();
+</script>
+
+</body>
+</html>

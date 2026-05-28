@@ -1,0 +1,426 @@
+/* =============================================================
+   KOY STATE-COMM — A3
+   Sprint 2.5 · Phase A · Deliverable A3
+   Depends on: koy-tokens.css, koy-chrome.css
+   -------------------------------------------------------------
+   The 5 + 1 state-communication primitives:
+     1. Loading              (.ks-loading + aria-busy)
+     2. Success              (.ks-success-inline + kc-toast)
+     3. Recoverable error    (.ks-error-inline)
+     4. Non-recoverable err. (kc-toast — chrome)
+     5. Destructive confirm  (kc-modal — chrome)
+     6. InlineConfirm        (.ks-inline-confirm)  — canonical reusable
+
+   Motion grammar:
+     · snap   — arrivals (success check, toast, confirm)
+     · glide  — ambient banners (rare; default is snap)
+     · pulse  — loading rhythm
+     · NO rip · NO fade  (DC-11 grammar; A1 audit upheld)
+
+   aria-live canon:
+     · loading           — NOT announced (aria-busy on action only)
+     · success           — polite
+     · recoverable err.  — polite
+     · non-recoverable   — assertive
+     · destructive       — role="alertdialog" (auto-announced)
+     · InlineConfirm     — role="alertdialog" (auto-announced)
+   ============================================================= */
+
+
+/* ============================================================
+   COMMON PRIMITIVES — icon glyph holder + spinner + details
+   ============================================================ */
+.ks-icon {
+  width: 12px; height: 12px;
+  flex: 0 0 12px;
+  display: inline-grid; place-items: center;
+}
+.ks-icon svg { width: 100%; height: 100%; }
+
+.ks-spinner {
+  width: 12px; height: 12px;
+  flex: 0 0 12px;
+}
+.ks-spinner svg {
+  width: 100%; height: 100%;
+  animation: ks-spin 700ms linear infinite;
+  transform-origin: center;
+  color: currentColor;
+}
+.ks-spinner svg .track { stroke: currentColor; opacity: 0.22; }
+.ks-spinner svg .arc   { stroke: currentColor; stroke-linecap: round; }
+
+@keyframes ks-spin { to { transform: rotate(360deg); } }
+
+/* visually-hidden announce region — screen-reader only */
+.ks-live-region {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ============================================================
+   DETAILS DISCLOSURE  (the canonical "details" affordance)
+   Resolution: expand-on-tap. Default state hides the technical
+   line; tap the toggle to reveal it. Keeps chrome quiet at rest;
+   treats jargon as opt-in. Used consistently across primitives.
+   ============================================================ */
+.ks-details {
+  margin-top: var(--s-2);
+}
+.ks-details__toggle {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  background: transparent;
+  border: 0;
+  color: var(--fg-faint);
+  padding: 2px 0;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color var(--dur-instant) var(--ease-snap);
+}
+.ks-details__toggle:hover { color: var(--fg); }
+.ks-details__toggle::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-quick) var(--ease-snap);
+}
+.ks-details[aria-expanded="true"] .ks-details__toggle::before { transform: rotate(45deg); }
+.ks-details__body {
+  display: none;
+  margin-top: var(--s-2);
+  padding-top: var(--s-2);
+  border-top: 1px dashed var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  line-height: var(--lh-loose);
+}
+.ks-details[aria-expanded="true"] .ks-details__body { display: block; }
+
+
+/* ============================================================
+   1 · LOADING
+   - inline at action; button gets aria-busy="true"
+   - UI is NOT locked — only the action surface
+   - Minimum-duration floor: 200ms before showing spinner.
+     (Production rule, enforced in app code, called out here so
+     designers don't ship a 50ms flicker as "loading state".)
+   - Pulse rhythm = the spinner spin itself (700ms, infinite)
+   - NOT announced via aria-live (aria-busy is enough)
+   ============================================================ */
+.ks-loading {
+  /* applied to any host element that's currently loading */
+  cursor: progress;
+  color: var(--fg-muted);
+}
+.ks-loading .ks-loading__label { color: var(--fg-muted); }
+.ks-loading[aria-busy="true"] { /* semantic mirror */ }
+
+/* an inline loading chip — for non-button hosts (panel header, etc.) */
+.ks-loading-chip {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  padding: 4px var(--s-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-1);
+  background: var(--bg-deep);
+}
+
+
+/* ============================================================
+   2 · SUCCESS — inline check
+   - sits at the action point (chip-shaped, replaces the trigger
+     or sits beside it)
+   - auto-collapses after 1500ms (foreground); pauses on hover/focus
+   - aria-live="polite"
+   - snap entry, translate only, NO fade
+   ============================================================ */
+.ks-success-inline {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+  color: var(--state-success);
+  background: var(--state-success-bg);
+  border: 1px solid var(--state-success-bg);
+  border-radius: var(--r-2);
+  padding: 4px var(--s-3);
+  animation: ks-success-in var(--dur-quick) var(--ease-snap) both;
+}
+.ks-success-inline .ks-icon { color: var(--state-success); }
+.ks-success-inline__label { line-height: 1; }
+
+@keyframes ks-success-in {
+  from { transform: translateY(-4px); }
+  to   { transform: translateY(0); }
+}
+
+/* a smaller variant that fits inside a host button label slot */
+.ks-success-inline--bare {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* background success uses .kc-toast[data-tone="success"] from chrome.css.
+   Auto-dismiss: 4000ms · pauses on hover/focus.  Production wiring
+   in Dev A's lane; CSS exposes the timing var below for tuning. */
+:root {
+  --ks-success-inline-dur: 1500ms;
+  --ks-success-toast-dur:  4000ms;
+}
+
+
+/* ============================================================
+   3 · RECOVERABLE ERROR — inline
+   - appears at the action point, replaces silent failure
+   - plain-English message; details disclosure for the tech line
+   - Retry CTA always visible
+   - sticky (does NOT auto-dismiss); user dismisses by retrying
+     or by changing the input that caused it
+   - aria-live="polite" + role="status"
+   - snap entry, translate only
+   ============================================================ */
+.ks-error-inline {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--state-warn-bg);
+  border: 1px solid var(--state-warn);
+  border-radius: var(--r-2);
+  color: var(--fg);
+  font-size: var(--t-sm);
+  animation: ks-error-in var(--dur-quick) var(--ease-snap) both;
+}
+.ks-error-inline__glyph {
+  width: 16px; height: 16px;
+  margin-top: 2px;
+  color: var(--state-warn);
+  display: grid; place-items: center;
+}
+.ks-error-inline__msg {
+  line-height: var(--lh-base);
+}
+.ks-error-inline__msg strong {
+  color: var(--fg);
+  font-weight: var(--w-medium);
+}
+.ks-error-inline__cta-row {
+  display: flex; align-items: center; gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+.ks-error-inline__retry {
+  font: inherit;
+  font-size: var(--t-xs);
+  font-weight: var(--w-medium);
+  font-family: var(--font-mono);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  padding: 4px var(--s-2);
+  border: 1px solid var(--state-warn);
+  background: transparent;
+  color: var(--state-warn);
+  border-radius: var(--r-1);
+  cursor: pointer;
+  transition: background var(--dur-instant) var(--ease-snap);
+}
+.ks-error-inline__retry:hover { background: var(--state-warn-bg); }
+.ks-error-inline__retry:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+@keyframes ks-error-in {
+  from { transform: translateY(-6px); }
+  to   { transform: translateY(0); }
+}
+
+
+/* ============================================================
+   4 · NON-RECOVERABLE ERROR — uses .kc-toast (chrome)
+   ----------------------------------------------------------------
+   Dismissibility rules:
+     · OFFLINE     → dismissible. Dismissing the toast doesn't
+                     change the offline state; user knows.
+     · SESSION EXP → sticky, non-dismissible. Only "Sign back in"
+                     closes it; dismiss would silently strand.
+     · RECONNECTING→ dismissible.
+   General rule: can the user act safely without the banner? If
+   yes, dismissible. If no, sticky.
+
+   aria-live: "assertive" — this IS the interruption.
+   ============================================================ */
+.kc-toast[data-tone="danger"][data-sticky="true"] .kc-toast__cta--dismiss { display: none; }
+
+
+/* ============================================================
+   5 · DESTRUCTIVE CONFIRM — uses .kc-modal (chrome)
+   ----------------------------------------------------------------
+   Reserved for irreversibles: Delete page, Unpublish, Discard
+   unsaved. InlineConfirm covers smaller in-flow destructive
+   moments. Modal entrance is snap (chrome). Scrim is the world
+   darkening, not content arriving — its opacity ramp survives
+   the no-fade audit.
+
+   Role: role="alertdialog" aria-modal="true"
+   Focus: moves to safest action (Cancel) on open; traps in
+          dialog; returns to invoker on close.
+   Dismiss: Esc / click-outside / Cancel (all = Cancel semantics).
+   Destructive action: no shake, no big red — magenta-tinted
+   --btn--danger is the alien-hazard signal. Dignified.
+   ============================================================ */
+.kc-modal[role="alertdialog"] { /* documentation only */ }
+
+
+/* ============================================================
+   6 · INLINECONFIRM — the canonical reusable component
+   ----------------------------------------------------------------
+   Replaces a sticky destructive button in place. The component
+   the user invokes a destructive in-flow action FROM is replaced
+   by this element until resolved.
+
+   Dev A's Sprint 3 queue uses this for:
+     · save-with-overwrite (in B14's wound)
+     · delete-saved-page
+     · discard-unsaved when navigating away
+
+   Anatomy:
+     [icon] [message + sub] ----- [esc hint] [Cancel] [Confirm]
+
+   Tone: the destructive action keeps its plain word ("Overwrite",
+   "Delete", "Discard") — no euphemism. The magenta tint is the
+   only visual flag; the COPY is what makes the consequence clear.
+
+   Esc / click-outside / Cancel: all dismiss with Cancel semantics
+   (no destructive action runs). Focus moves to Cancel on open;
+   returns to invoker on close. Role="alertdialog" so it's
+   auto-announced.
+
+   Entrance: snap, translate-only. No fade. Container reserves
+   the space if --reserve is set so siblings don't jump.
+   ============================================================ */
+.ks-inline-confirm {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  background: var(--bg-raised);
+  border: 1px solid var(--state-danger);
+  border-radius: var(--r-2);
+  box-shadow: var(--shadow-2);
+  /* the destructive tint shows in the border + icon only — the
+     surface stays calm; the COPY does the work of clarity. */
+  animation: ks-inline-confirm-in var(--dur-quick) var(--ease-snap) both;
+}
+.ks-inline-confirm:focus-within {
+  box-shadow: var(--shadow-3), 0 0 0 1px var(--state-danger);
+}
+
+.ks-inline-confirm__icon {
+  width: 24px; height: 24px;
+  background: var(--state-danger-bg);
+  color: var(--state-danger);
+  border-radius: var(--r-1);
+  display: grid; place-items: center;
+  flex: 0 0 24px;
+  font-family: var(--font-mono); font-weight: var(--w-bold);
+  font-size: 13px;
+}
+.ks-inline-confirm__body {
+  min-width: 0;
+  font-size: var(--t-sm);
+  color: var(--fg);
+}
+.ks-inline-confirm__msg {
+  line-height: var(--lh-snug);
+}
+.ks-inline-confirm__msg strong { font-weight: var(--w-medium); }
+.ks-inline-confirm__sub {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg-faint);
+  letter-spacing: var(--track-mono);
+  margin-top: 2px;
+}
+.ks-inline-confirm__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.ks-inline-confirm__hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin-right: var(--s-2);
+}
+.ks-inline-confirm__cancel,
+.ks-inline-confirm__confirm {
+  /* reuse chrome buttons; component-local styling kept minimal */
+}
+
+/* host container — wrap whatever the InlineConfirm replaces so
+   space is reserved and surrounding chrome doesn't jump */
+.ks-inline-confirm-host {
+  position: relative;
+  display: inline-block;
+  min-height: 32px;
+}
+.ks-inline-confirm-host[data-active="true"] > :not(.ks-inline-confirm) {
+  visibility: hidden;
+}
+.ks-inline-confirm-host[data-active="true"] > .ks-inline-confirm {
+  position: absolute;
+  inset: 0;
+  width: max-content;
+  z-index: 5;
+}
+
+/* variants */
+.ks-inline-confirm--block {
+  /* full-width variant (e.g. inside an Inspector field row) */
+  width: 100%;
+}
+
+@keyframes ks-inline-confirm-in {
+  from { transform: translateY(-6px) scale(0.99); }
+  to   { transform: translateY(0)     scale(1); }
+}
+
+
+/* ============================================================
+   ANNOUNCE REGIONS  (visible documentation classes)
+   ----------------------------------------------------------------
+   Production wires aria-live to a small set of named regions
+   to prevent each feature from inventing its own announce surface.
+   Three regions are enough:
+
+     #ks-announce--polite     · success, recoverable, info
+     #ks-announce--assertive  · session-class, offline, signed out
+     (alertdialog handles its own announce)
+   ============================================================ */
+.ks-announce-region {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}

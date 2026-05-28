@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Koy Landing — B3 Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="koy-tokens.css" />
+<link rel="stylesheet" href="koy-landing.css" />
+
+<style>
+/* ============================================================
+   Preview scaffolding — A1/A2/A3/B1/B2 idiom.
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+.aurora {
+  position: fixed; inset: -10vmin -10vmin auto -10vmin; height: 60vh;
+  pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(60vmax 40vmax at 18% 5%,  oklch(0.45 0.20 148 / 0.18), transparent 60%),
+    radial-gradient(50vmax 30vmax at 90% 10%, oklch(0.40 0.20 148 / 0.10), transparent 65%);
+  filter: blur(40px);
+}
+.doc { max-width: 1240px; margin: 0 auto; padding: var(--s-9) var(--s-6) var(--s-10); }
+.doc-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: end;
+  gap: var(--s-5);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--s-8);
+}
+.doc-head h1 {
+  font-size: var(--t-3xl); line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight); font-weight: var(--w-bold);
+  margin: 0 0 var(--s-3);
+}
+.doc-head h1 .slash { color: var(--accent); }
+.doc-head .crumbs {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); margin: 0 0 var(--s-3);
+}
+.doc-head p.lede { max-width: 64ch; color: var(--fg-muted); margin: 0; }
+.doc-head .meta {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  text-align: right; white-space: nowrap; line-height: 1.7;
+}
+.doc-head .meta b { color: var(--accent); font-weight: var(--w-bold); }
+
+section { margin-bottom: var(--s-10); }
+.sec-head {
+  display: grid; grid-template-columns: 56px 1fr;
+  gap: var(--s-4); align-items: baseline; margin-bottom: var(--s-5);
+}
+.sec-head .num {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); color: var(--accent); padding-top: var(--s-1);
+}
+.sec-head h2 {
+  font-size: var(--t-2xl); font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight); margin: 0; line-height: var(--lh-tight);
+}
+.sec-head .lede {
+  grid-column: 2; font-size: var(--t-md); color: var(--fg-muted);
+  max-width: 70ch; margin: var(--s-3) 0 0;
+}
+.body-grid { display: grid; grid-template-columns: 56px 1fr; gap: var(--s-4); }
+.rationale {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+  margin-bottom: var(--s-5);
+}
+.rationale h3 {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: var(--w-medium); letter-spacing: var(--track-caps);
+  text-transform: uppercase; color: var(--accent); margin: 0 0 var(--s-2);
+}
+.rationale p { margin: 0 0 var(--s-2); }
+.rationale p:last-child { margin-bottom: 0; }
+.rationale code, .rationale b {
+  font-family: var(--font-mono); font-size: 0.92em;
+  color: var(--fg); font-weight: var(--w-medium); letter-spacing: var(--track-mono);
+}
+.rationale ul { margin: var(--s-2) 0; padding-left: var(--s-5); }
+.rationale li { margin-bottom: 4px; }
+
+/* ============================================================
+   RIP STAGE — a reusable square void canvas for storyboarding
+   each phase of the rip. The mark is drawn entirely in CSS as
+   a slime-green amorphous blob (formless, IP-bulletproof) and
+   shaped per-frame by clip-path + filter + scale.
+   ============================================================ */
+.rip-stage {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  aspect-ratio: 1;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.rip-stage::before {
+  /* void substrate halo */
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 50% -10%, oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80% 70% at 50% 120%, oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.rip-stage::after {
+  /* phase label, top-right */
+  content: attr(data-phase);
+  position: absolute;
+  top: 8px; right: 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 5;
+}
+
+/* the mark — a slime-green amorphous shape rendered as a
+   radial gradient inside a soft-edge organic blob. Formless on
+   purpose; readable as PRESENCE not silhouette. */
+.rip-mark-blob {
+  position: absolute;
+  width: 60%; height: 60%;
+  left: 20%; top: 20%;
+  background:
+    radial-gradient(70% 60% at 50% 45%,
+      oklch(0.92 0.290 148 / 0.95) 0%,
+      oklch(0.82 0.260 148 / 0.85) 28%,
+      oklch(0.55 0.210 148 / 0.55) 62%,
+      transparent 78%);
+  filter: blur(2px);
+  border-radius: 48% 52% 56% 44% / 50% 46% 54% 50%;
+  z-index: 2;
+}
+
+/* the tear — a vertical jagged seam of hot light */
+.rip-tear {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px; height: 0;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    oklch(0.98 0.05 148 / 0.95) 8%,
+    oklch(0.95 0.20 148 / 1) 50%,
+    oklch(0.98 0.05 148 / 0.95) 92%,
+    transparent 100%);
+  filter: blur(0.5px);
+  box-shadow:
+    0 0 8px var(--accent-glow),
+    0 0 24px oklch(0.92 0.29 148 / 0.6);
+  z-index: 3;
+  /* clip-path keeps it tight to the seam line; jagged via fine SVG path */
+  clip-path: polygon(
+    50% 0%,  46% 8%,  54% 14%, 46% 22%, 54% 30%, 46% 38%, 54% 46%,
+    46% 54%, 54% 62%, 46% 70%, 54% 78%, 46% 86%, 54% 92%, 50% 100%);
+}
+
+/* the seam glow — perimeter of the mark after settling */
+.rip-glow {
+  position: absolute;
+  inset: 18%;
+  border-radius: 48% 52% 56% 44% / 50% 46% 54% 50%;
+  box-shadow:
+    0 0 32px -4px var(--accent-glow),
+    0 0 80px -16px oklch(0.85 0.29 148 / 0.4);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* phase-specific overrides — each storyboard frame configures
+   the mark/tear/glow to capture a moment in the 380ms window.
+   ABSENCE is expressed via transform: scale(0) and box-shadow: 0,
+   NEVER via opacity. Rule #9 — no fade primitive, anywhere. */
+.rip-stage[data-phase-id="0"] .rip-mark-blob { transform: scale(0); }
+.rip-stage[data-phase-id="0"] .rip-tear { height: 0; }
+.rip-stage[data-phase-id="0"] .rip-glow { box-shadow: none; }
+.rip-stage[data-phase-id="0"]::before {
+  background:
+    radial-gradient(30% 30% at 50% 50%, oklch(0.04 0.01 148 / 0.7), transparent 70%),
+    radial-gradient(70% 60% at 50% -10%, oklch(0.10 0.040 148 / 0.45), transparent 60%);
+}
+
+.rip-stage[data-phase-id="1"] .rip-mark-blob { transform: scale(0); }
+.rip-stage[data-phase-id="1"] .rip-tear {
+  height: 65%; width: 6px;
+  filter: blur(1px);
+  box-shadow:
+    0 0 24px oklch(0.95 0.05 148 / 0.95),
+    0 0 60px oklch(0.92 0.29 148 / 0.7);
+}
+.rip-stage[data-phase-id="1"] .rip-glow { box-shadow: none; }
+
+.rip-stage[data-phase-id="2"] .rip-mark-blob {
+  transform: scale(0.7);
+  filter: blur(4px) brightness(1.6) saturate(1.4);
+}
+.rip-stage[data-phase-id="2"] .rip-tear {
+  height: 78%; width: 14px;
+  filter: blur(1.5px);
+  background: linear-gradient(180deg,
+    transparent 0%,
+    oklch(0.98 0.10 148 / 0.8) 8%,
+    oklch(0.92 0.290 148 / 0.9) 50%,
+    oklch(0.98 0.10 148 / 0.8) 92%,
+    transparent 100%);
+  box-shadow:
+    0 0 32px oklch(0.92 0.290 148 / 0.8),
+    0 0 80px oklch(0.85 0.29 148 / 0.5);
+}
+.rip-stage[data-phase-id="2"] .rip-glow {
+  box-shadow:
+    0 0 24px -8px var(--accent-glow),
+    0 0 60px -20px oklch(0.85 0.29 148 / 0.4);
+}
+
+.rip-stage[data-phase-id="3"] .rip-mark-blob {
+  transform: scale(1);
+}
+.rip-stage[data-phase-id="3"] .rip-tear {
+  height: 8%; width: 1px;
+  filter: blur(0.5px);
+  box-shadow: 0 0 4px var(--accent-glow);
+}
+.rip-stage[data-phase-id="3"] .rip-glow {
+  box-shadow:
+    0 0 32px -4px var(--accent-glow),
+    0 0 80px -16px oklch(0.85 0.29 148 / 0.4);
+}
+
+/* ============================================================
+   STORYBOARD GRID — 4 phases side-by-side
+   ============================================================ */
+.storyboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-3);
+}
+.storyboard__cell {
+  display: grid; gap: var(--s-2);
+}
+.storyboard__cell-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-muted);
+  text-align: center;
+}
+.storyboard__cell-label b { color: var(--accent); font-weight: var(--w-bold); }
+@media (max-width: 760px) {
+  .storyboard { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
+   APPROXIMATION RUNNER — a single rip-stage that plays the
+   actual 380ms CSS keyframe approximation when clicked.
+   PRODUCTION renders the actual asset (WebM/APNG); this is
+   sanity-check timing only.
+   ============================================================ */
+.approx-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--s-5);
+  align-items: start;
+}
+@media (max-width: 900px) { .approx-row { grid-template-columns: 1fr; } }
+.approx-stage {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  height: 360px;
+  overflow: hidden;
+  display: grid; place-items: center;
+}
+.approx-stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 50% -10%, oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80% 70% at 50% 120%, oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.approx-stage[data-label]::after {
+  content: attr(data-label);
+  position: absolute;
+  top: 10px; left: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--state-warn);
+  z-index: 5;
+}
+.approx-mark {
+  position: absolute;
+  width: 50%; height: 50%; left: 25%; top: 25%;
+  background:
+    radial-gradient(70% 60% at 50% 45%,
+      oklch(0.92 0.290 148 / 0.95) 0%,
+      oklch(0.82 0.260 148 / 0.85) 28%,
+      oklch(0.55 0.210 148 / 0.55) 62%,
+      transparent 78%);
+  filter: blur(2px);
+  border-radius: 48% 52% 56% 44% / 50% 46% 54% 50%;
+  /* absence via scale(0) — Rule #9, no opacity primitive */
+  transform: scale(0);
+  transform-origin: center;
+  z-index: 2;
+}
+.approx-tear {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px; height: 0;
+  background: linear-gradient(180deg,
+    transparent 0%, oklch(0.98 0.05 148 / 0.95) 8%,
+    oklch(0.95 0.20 148 / 1) 50%,
+    oklch(0.98 0.05 148 / 0.95) 92%, transparent 100%);
+  filter: blur(0.5px);
+  box-shadow: 0 0 8px var(--accent-glow);
+  z-index: 3;
+  clip-path: polygon(50% 0%, 46% 8%, 54% 14%, 46% 22%, 54% 30%, 46% 38%, 54% 46%,
+    46% 54%, 54% 62%, 46% 70%, 54% 78%, 46% 86%, 54% 92%, 50% 100%);
+}
+.approx-flash {
+  position: absolute;
+  inset: 0;
+  /* SCRIM-CLASS surface — full-bleed background brightener, no
+     content. Alpha-channel ramp is the sanctioned scrim primitive
+     (Rule #9 exception: "darkness arrives hard, not blooming" —
+     here inverted to brightness, eased via --ease-rip which IS
+     hard-arriving). Does NOT decorate a content element. */
+  background: oklch(0.95 0.20 148 / 0);
+  z-index: 4; pointer-events: none;
+}
+
+/* Play classes — applied via JS on click to run the timeline */
+.approx-stage.is-playing .approx-mark {
+  animation: approx-mark 380ms cubic-bezier(0.85, 0, 0.30, 1.35) forwards;
+}
+.approx-stage.is-playing .approx-tear {
+  animation: approx-tear 380ms cubic-bezier(0.85, 0, 0.30, 1.35) forwards;
+}
+.approx-stage.is-playing .approx-flash {
+  animation: approx-flash 380ms cubic-bezier(0.85, 0, 0.30, 1.35) forwards;
+}
+
+@keyframes approx-mark {
+  /* RULE #9 — mark enters via scale + filter, NEVER opacity.
+     Scale-from-zero is the absence primitive. */
+  0%   { transform: scale(0);    filter: blur(8px) brightness(0); }
+  20%  { transform: scale(0);    filter: blur(6px) brightness(0); }   /* still hidden during pre-flash */
+  45%  { transform: scale(0.55); filter: blur(4px) brightness(1.6) saturate(1.4); }
+  75%  { transform: scale(0.92); filter: blur(2.5px) brightness(1.2); }
+  100% { transform: scale(1);    filter: blur(2px) brightness(1) saturate(1); }
+}
+@keyframes approx-tear {
+  /* tear visibility via height + width + box-shadow spread — no opacity */
+  0%   { height: 0;   width: 2px;   box-shadow: 0 0 0 transparent; }
+  18%  { height: 0;   width: 2px;   box-shadow: 0 0 0 transparent; }
+  22%  { height: 70%; width: 8px;   box-shadow: 0 0 32px oklch(0.98 0.10 148 / 0.95); }
+  50%  { height: 80%; width: 14px;  box-shadow: 0 0 36px oklch(0.92 0.290 148 / 0.8); }
+  80%  { height: 30%; width: 3px;   box-shadow: 0 0 12px var(--accent-glow); }
+  100% { height: 8%;  width: 1px;   box-shadow: 0 0 4px var(--accent-glow); }
+}
+@keyframes approx-flash {
+  0%, 18% { background: oklch(0.95 0.20 148 / 0); }
+  21%     { background: oklch(0.98 0.10 148 / 0.55); }
+  35%     { background: oklch(0.95 0.20 148 / 0.18); }
+  100%    { background: oklch(0.95 0.20 148 / 0); }
+}
+
+.approx-btn {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  font-weight: var(--w-medium);
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-pill);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background var(--dur-instant) var(--ease-snap),
+              color var(--dur-instant) var(--ease-snap);
+}
+.approx-btn:hover { background: var(--accent-soft); }
+.approx-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.approx-meta {
+  display: grid;
+  gap: var(--s-3);
+  font-size: var(--t-sm);
+}
+.approx-meta__warn {
+  border: 1px solid var(--state-warn);
+  background: var(--state-warn-bg);
+  color: var(--fg);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-2);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+}
+.approx-meta__warn b {
+  color: var(--state-warn);
+  font-family: var(--font-mono);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-mono);
+}
+
+/* ============================================================
+   TIMING BAR — visual 380ms breakdown
+   ============================================================ */
+.timing {
+  display: grid; gap: var(--s-3);
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+}
+.timing__row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: var(--s-3);
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-muted);
+}
+.timing__row b { color: var(--accent); font-weight: var(--w-bold); }
+.timing__bar {
+  height: 8px;
+  background: var(--bg-deep);
+  border-radius: var(--r-pill);
+  position: relative;
+  border: 1px solid var(--line);
+}
+.timing__bar::after {
+  content: "";
+  position: absolute;
+  top: -1px; bottom: -1px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.timing__row[data-from="0"]   .timing__bar::after { left: 0%;  width: 21%;   }
+.timing__row[data-from="80"]  .timing__bar::after { left: 21%; width: 26%;   }
+.timing__row[data-from="180"] .timing__bar::after { left: 47%; width: 26%;   }
+.timing__row[data-from="280"] .timing__bar::after { left: 73%; width: 27%;   }
+
+.timing__row[data-mode="b2"] .timing__bar::after {
+  background: var(--accent-low);
+  box-shadow: none;
+}
+
+/* ============================================================
+   SKIP-AFFORDANCE DEMO  — a discreet bottom-right glyph that
+   maps to production CSS class .kl-skip (specced; not yet in
+   koy-landing.css — that's a B3 PR for Dev A).
+   ============================================================ */
+.skip-demo {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  height: 260px;
+  overflow: hidden;
+}
+.skip-demo::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 50% -10%, oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80% 70% at 50% 120%, oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.skip-demo[data-tag]::after {
+  content: attr(data-tag);
+  position: absolute;
+  top: 8px; left: 12px;
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 5;
+}
+.skip-affordance {
+  position: absolute;
+  bottom: 16px; right: 16px;
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  padding: 6px 12px;
+  background: oklch(0.08 0.015 148 / 0.6);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.skip-affordance__kbd {
+  display: inline-grid; place-items: center;
+  width: 18px; height: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-1);
+  font-size: 9px;
+  color: var(--fg-muted);
+  background: var(--bg-deep);
+}
+
+/* ============================================================
+   ASSET COORDINATION TABLE
+   ============================================================ */
+.assets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-chrome);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.assets-table th, .assets-table td {
+  text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.assets-table tr:last-child td { border-bottom: 0; }
+.assets-table th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  font-weight: var(--w-medium);
+  background: var(--bg-deep);
+}
+.assets-table td.k {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--accent);
+  letter-spacing: var(--track-mono);
+  white-space: nowrap;
+}
+.assets-table td b { color: var(--fg); font-weight: var(--w-medium); }
+
+/* ============================================================
+   DECISIONS TABLE (same idiom as B1/B2)
+   ============================================================ */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-chrome);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.table th, .table td {
+  text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.table tr:last-child td { border-bottom: 0; }
+.table th {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); font-weight: var(--w-medium);
+  background: var(--bg-deep);
+}
+.table td.k {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  color: var(--accent); letter-spacing: var(--track-mono); white-space: nowrap;
+}
+.table td b { color: var(--fg); font-weight: var(--w-medium); }
+.table .status {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-1);
+  background: var(--accent-soft); color: var(--accent);
+}
+.table .status[data-tone="open"]      { background: var(--state-warn-bg); color: var(--state-warn); }
+.table .status[data-tone="reserved"]  { background: var(--bg-pressed);    color: var(--fg-muted); }
+
+footer.sign {
+  margin-top: var(--s-10);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+}
+footer.sign b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* reduced-motion: disable the approximation runner via color-only
+   disabled state — no opacity primitive on a content surface */
+@media (prefers-reduced-motion: reduce) {
+  .approx-btn {
+    color: var(--fg-faint);
+    border-color: var(--line);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .approx-btn::after { content: " · disabled"; }
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="doc">
+
+  <header class="doc-head">
+    <div>
+      <p class="crumbs">SPRINT 2.5 / PHASE B / DELIVERABLE B3</p>
+      <h1>Koy Landing <span class="slash">/</span> rip-from-void intro</h1>
+      <p class="lede">DC-11 grammar finally fires. A vertical jagged tear opens at the hero center, exposes the mark, settles. 380ms total — the window B2 reserved. Skippable, once-per-session, reduced-motion safe. Production is a rendered asset (WebM-alpha + APNG fallback) — this preview ships a CSS approximation for timing sanity only.</p>
+    </div>
+    <p class="meta">
+      VERSION <b>B3.0</b><br/>
+      PHASE  B · LANDING<br/>
+      WINDOW  <b>0 → 380ms</b><br/>
+      ASSET  rendered · shipped flat<br/>
+      SIGN  CLAUDESIGN
+    </p>
+  </header>
+
+  <!-- ========================================================
+       00 · STORYBOARD — 4 STATIC KEYFRAMES
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">00</span>
+      <h2>Storyboard</h2>
+      <p class="lede">The 380ms window resolved into four static keyframes. Each frame shows the void substrate, the seam, the mark, and the perimeter glow at its moment in the sequence. Pure CSS approximation — the production asset gets the alien-techno-trippy quality CSS can only point at.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="storyboard">
+        <div class="storyboard__cell">
+          <div class="rip-stage" data-phase="t = 0ms" data-phase-id="0" aria-hidden="true">
+            <div class="rip-glow"></div>
+            <div class="rip-mark-blob"></div>
+            <div class="rip-tear"></div>
+          </div>
+          <p class="storyboard__cell-label"><b>00 · pre-flash</b><br/>void compresses · 0 → 80ms</p>
+        </div>
+        <div class="storyboard__cell">
+          <div class="rip-stage" data-phase="t = 80ms" data-phase-id="1" aria-hidden="true">
+            <div class="rip-glow"></div>
+            <div class="rip-mark-blob"></div>
+            <div class="rip-tear"></div>
+          </div>
+          <p class="storyboard__cell-label"><b>01 · tear opens</b><br/>jagged seam materializes · 80 → 180ms</p>
+        </div>
+        <div class="storyboard__cell">
+          <div class="rip-stage" data-phase="t = 180ms" data-phase-id="2" aria-hidden="true">
+            <div class="rip-glow"></div>
+            <div class="rip-mark-blob"></div>
+            <div class="rip-tear"></div>
+          </div>
+          <p class="storyboard__cell-label"><b>02 · mark emerges</b><br/>blob expands from seam · 180 → 280ms</p>
+        </div>
+        <div class="storyboard__cell">
+          <div class="rip-stage" data-phase="t = 380ms" data-phase-id="3" aria-hidden="true">
+            <div class="rip-glow"></div>
+            <div class="rip-mark-blob"></div>
+            <div class="rip-tear"></div>
+          </div>
+          <p class="storyboard__cell-label"><b>03 · settled</b><br/>final-frame · 280 → 380ms</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       01 · APPROXIMATION RUNNER
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>Approximation runner</h2>
+      <p class="lede">Press to play the 380ms timing in CSS. Useful for verifying the curve feels right (snap-out + overshoot via <code>--ease-rip</code> — the curve B0 reserved exactly for this moment). Production asset will carry far more visual fidelity than CSS keyframes can express; this is timing-only.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="approx-row">
+        <div class="approx-stage" id="approx-stage" data-label="approximation · 380ms · --ease-rip" aria-hidden="true">
+          <div class="approx-flash"></div>
+          <div class="approx-tear"></div>
+          <div class="approx-mark"></div>
+        </div>
+        <div class="approx-meta">
+          <button class="approx-btn" id="approx-btn" type="button">▶  Play rip · 380ms</button>
+          <div class="approx-meta__warn">
+            <b>NOT THE PRODUCTION ASSET.</b><br/>
+            CSS keyframes can sketch the timing and the rough shape. The alien-organic quality — noise, soft-edge distortion, the way light pours from a fresh tear — requires a rendered asset. This runner exists to confirm the <b>380ms feels right</b> against the eye, not to define visual fidelity.
+          </div>
+          <div class="rationale" style="margin: 0;">
+            <h3>What the eye should see</h3>
+            <p>A held void → a sharp bright flash → a jagged vertical seam opens → an amorphous slime-green mass blooms from inside the seam and pushes the tear edges open → the tear retracts to a faint perimeter glow as the mark settles. No bounce. Overshoot via <code>--ease-rip</code> means the mark crosses its final position before snapping back — a tiny pull, not a wobble.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       02 · SHAPE OF THE RIP
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Shape of the rip</h2>
+      <p class="lede">Vertical, jagged, center-anchored. Not radial (too superhero-burst), not horizontal (too curtain-open), not diagonal (too slash-the-screen). Vertical tear is the rip's natural axis — inherited from DC-10 / DC-11 visual language (something forcing its way OUT of the void) without lifting recognizable composition.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>Rejected shapes (and why)</h3>
+          <ul>
+            <li><b>Radial burst</b> — reads as Marvel superhero arrival. Too iconic-in-the-wrong-way; identical to a dozen brand stings.</li>
+            <li><b>Horizontal slit</b> — reads as a curtain or shutter opening. Domestic, not violent.</li>
+            <li><b>Diagonal slash</b> — reads as a knife or claw mark. Too violent in the wrong register (aggression-toward-viewer rather than emergence).</li>
+            <li><b>Multi-slash / cross-tear</b> — too busy; the eye can't lock to a single seam in 380ms.</li>
+            <li><b>Mark fades in</b> — Rule #9. Not a candidate, never was.</li>
+          </ul>
+        </div>
+
+        <div class="rationale">
+          <h3>What "jagged" means here</h3>
+          <p>The seam is NOT a clean line. It zigzags ~4–8% horizontally as it descends, like a torn cloth seam or a lightning fork. The jaggedness is what reads as ORGANIC tearing rather than mechanical aperture. In production, the renderer chooses noise frequency, edge thickness, and seam-glow falloff — keep it irregular, keep the edges hot.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>What "violent" means here</h3>
+          <p>Force, not aggression. The void doesn't <em>break gently</em>; it gets pried apart by something pushing through. The pre-flash compression is the moment of pressure; the tear is the rupture; the bloom is the mark forcing into space. No screen-shake. No glitch artifacts. Violence is in the motion's CONFIDENCE, not its noise.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Does the void recover?</h3>
+          <p><b>Yes.</b> By t=380ms the tear has retracted to a faint hairline glow around the mark's perimeter. The void is whole again, but it's <em>marked</em> — the rip leaves a residue, not a wound. On subsequent visits (once-per-session triggered), the page opens in the recovered state. The rip is an event; the static final-frame is the steady state.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       03 · TIMING
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Timing</h2>
+      <p class="lede">380ms total for the rip itself. The window B2 reserved (rip ends → phrase enters at 380ms → cue at 700ms). Easing curve = <code>--ease-rip</code> (the cubic-bezier B0 designated for landing-scale only, never spent in chrome). One curve does the whole rip; the four phases vary only in WHICH ELEMENT moves at which point on the curve.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="timing">
+          <div class="timing__row" data-from="0">
+            <span><b>00</b> · 0 → 80ms</span>
+            <div class="timing__bar"></div>
+            <span>pre-flash compression</span>
+          </div>
+          <div class="timing__row" data-from="80">
+            <span><b>01</b> · 80 → 180ms</span>
+            <div class="timing__bar"></div>
+            <span>tear opens · flash peaks</span>
+          </div>
+          <div class="timing__row" data-from="180">
+            <span><b>02</b> · 180 → 280ms</span>
+            <div class="timing__bar"></div>
+            <span>mark blooms from seam</span>
+          </div>
+          <div class="timing__row" data-from="280">
+            <span><b>03</b> · 280 → 380ms</span>
+            <div class="timing__bar"></div>
+            <span>tear retracts · mark settles · overshoot</span>
+          </div>
+        </div>
+
+        <div class="rationale" style="margin-top:var(--s-4);">
+          <h3>Why 380ms (and not 600 or 200)</h3>
+          <p>200ms is too short — the eye barely catches the bloom; the rip reads as a glitch. 600ms is too long — the visitor starts thinking <em>"loading screen"</em> by 500ms and the rip loses authority. 380ms is the longest interval that still reads as a single event. Comparable to a hard scene cut + breath in film grammar; comparable to a UI snap-toast in chrome.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>What happens at t=380ms+</h3>
+          <p>B2's spec inherits. Phrase enters at <code>t=380ms</code> (translate-only, snap easing, ~80ms after mark settles). Scroll cue hairline at <code>t=700ms</code>. Skip affordance was present from <code>t=0</code> and remains present until the page transitions out of the hero scroll-range.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       04 · THE MARK · UNIFICATION PROPOSAL
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>The mark</h2>
+      <p class="lede">The thing that rips into being. Formless on purpose. <b>Proposal: the rip-mark IS slime, in its settled form.</b> One mascot, two modes — rip (arrival in B3) and spread (takeover in B4). Flagged as <span style="color:var(--state-warn);">open</span> for the architect's call; the rest of B3 is self-contained either way.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>The unification argument</h3>
+          <p>Both deliverables require <b>formless · alien · slime-green · alive</b>. If B3's mark and B4's slime are the same entity at different moments, identity coheres: a visitor sees the mark rip into being, sees the same green presence pour into the space between hero and hotspots, and recognizes ONE thing acting in two modes. Constitution's "Bloomberg-meets-MySpace" balance gets reinforced — there is ONE strange creature that is the platform's avatar; everything else is just the page.</p>
+        </div>
+        <div class="rationale">
+          <h3>The split argument (for completeness)</h3>
+          <p>If the architect wants them split, the mark becomes an abstract slime-green identity glyph (still formless, but distinct from the mascot). Slime then arrives FRESH in B4 as a separate event. Slightly more identity work, but cleaner separation of concerns. Either path keeps both elements formless and IP-bulletproof.</p>
+        </div>
+        <div class="rationale">
+          <h3>Either way: what the mark looks like</h3>
+          <ul>
+            <li><b>Amorphous</b> — irregular soft-edge blob; <code>border-radius: 48% 52% 56% 44% / 50% 46% 54% 50%</code> baseline, varied per render.</li>
+            <li><b>Slime-green</b> — radial gradient from <code>oklch(0.92 0.290 148)</code> core to <code>oklch(0.55 0.210 148)</code> edge, anchored on the canon <b>148°</b> hue.</li>
+            <li><b>Soft-edged</b> — 2px blur at minimum. NO sharp vector outline. NO eyes. NO body. NO recognizable silhouette.</li>
+            <li><b>Settles to ~60vmin</b> — the hero rip-slot B1 reserved.</li>
+            <li><b>Lives lightly</b> — at rest, a sub-perceptible breathing pulse (post-rip, separate from the 380ms event). Spec for B5/B4 to define exact pulse rhythm; B3 only sets the rest shape.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       05 · SKIPPABLE AFFORDANCE
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Skippable affordance</h2>
+      <p class="lede">Discreet glyph in the bottom-right of the hero. Present from <code>t=0</code> — visible BEFORE the rip starts, not surfacing during. (Surfacing during would mean fading in. Rule #9.) Once dismissed or once-completed, the storage flag fires; subsequent visits skip the rip entirely and open in the final-frame state.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="skip-demo" data-tag="hero region · bottom-right · t=0">
+          <div class="skip-affordance">
+            <span>Skip intro</span>
+            <span class="skip-affordance__kbd">esc</span>
+          </div>
+        </div>
+
+        <div class="rationale" style="margin-top:var(--s-4);">
+          <h3>Behavior</h3>
+          <ul>
+            <li><b>Always present from <code>t=0</code></b>. Not animated in. Static styled element from initial paint.</li>
+            <li><b>Click / tap / Esc</b> all jump to final-frame state immediately (mark settled, phrase placed, cue rendered).</li>
+            <li><b>Once the rip completes naturally</b> OR <b>once the user skips</b>, set the storage flag. Subsequent visits skip the rip entirely.</li>
+            <li><b>Skip stays visible</b> through the hero scroll-range. As the visitor scrolls past the hero, Skip leaves with the hero — it's a hero-scoped affordance, not a global one.</li>
+          </ul>
+        </div>
+
+        <div class="rationale">
+          <h3>Storage contract (Dev A wires backend)</h3>
+          <p>Single boolean key. Suggested name: <code>koy.landing.rip.seen</code>. Read at hero mount: if true, open in final-frame state (no rip motion, no skip glyph). If false, play the rip + show skip glyph. Set on rip-completion OR on user-skip OR if reduced-motion / asset-load-fail. <b>Dev A picks the storage backend</b> (sessionStorage vs localStorage vs server-side per-account) based on whatever the auth lane decides. Spec only the contract.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>CSS class to ship (B3 → koy-landing.css)</h3>
+          <p>The skip affordance is a new chrome element on landing. Suggested class: <code>.kl-skip</code>. Hairline pill, mono caption, kbd glyph inline. The styling is shown in the demo above; the actual CSS sits in B3's PR to <code>koy-landing.css</code>. Dev A appends; Phase A canon is not touched.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       06 · FALLBACK CHAIN
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Fallback chain</h2>
+      <p class="lede">Three failure modes; all resolve to the same fallback — the static final-frame asset, rendered at <code>t=380ms</code>. No transition, no fade, no decoration. The rip is the gift; its absence costs nothing.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="assets-table">
+          <thead>
+            <tr>
+              <th style="width:18%;">Trigger</th>
+              <th style="width:30%;">Detection</th>
+              <th>Behavior</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">prefers-reduced-motion</td>
+              <td>CSS media query, zeroed at root (A1 canon).</td>
+              <td>Open in final-frame state immediately. No rip. No skip glyph (nothing to skip). Storage flag set so subsequent visits behave consistently.</td>
+            </tr>
+            <tr>
+              <td class="k">low-bandwidth</td>
+              <td><b>Spec only the contract:</b> if the motion asset hasn't loaded within <b>600ms</b> of hero mount, fall back. Detection via simple timeout race. (Network Information API is not universal; Dev A may use it as a hint but timeout is the floor.)</td>
+              <td>Open in final-frame state. Storage flag NOT set — visitor may retry later under better conditions.</td>
+            </tr>
+            <tr>
+              <td class="k">asset-load-fail</td>
+              <td>Video / image <code>onerror</code>.</td>
+              <td>Open in final-frame state. Storage flag NOT set.</td>
+            </tr>
+            <tr>
+              <td class="k">storage:seen</td>
+              <td><code>koy.landing.rip.seen === true</code> at mount.</td>
+              <td>Open in final-frame state immediately. No rip (already seen). No skip glyph (nothing to skip).</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="rationale" style="margin-top:var(--s-4);">
+          <h3>The final-frame is itself an asset</h3>
+          <p>Per architect: <b>two assets</b>. Production renders the motion artifact AND a static final-frame artifact. The static is used in every fallback path AND in the B1 nav <code>.kl-nav__brand-slot</code> (the small post-rip mark in the top-left chrome). Same source render, different output formats.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       07 · ASSET COORDINATION + SOUND
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">07</span>
+      <h2>Asset coordination + sound</h2>
+      <p class="lede">Two assets. Three format candidates per asset. Coordination note for Khalid: who renders. Sound stays silent by default; the future-enhancement seat is reserved, not built.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="assets-table">
+          <thead>
+            <tr>
+              <th style="width:18%;">Asset</th>
+              <th style="width:22%;">Used at</th>
+              <th>Format candidates</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">motion</td>
+              <td>Hero rip-slot, first visit, 0 → 380ms</td>
+              <td>
+                <b>WebM with alpha (VP9)</b> — best quality, modern browsers. Primary candidate.<br/>
+                <b>APNG</b> — fallback for browsers without WebM-alpha. Larger file.<br/>
+                <b>SVG SMIL</b> — vector + small file but SMIL deprecated; Chrome support is iffy. Not recommended for primary.<br/>
+                <em style="color:var(--fg-faint);font-family:var(--font-mono);">No Lottie — Lottie requires JS lib (sandbox-safety floor).</em>
+              </td>
+            </tr>
+            <tr>
+              <td class="k">static</td>
+              <td>Fallback chain (all paths) + <code>.kl-nav__brand-slot</code> in chrome</td>
+              <td>
+                <b>SVG</b> — primary. Vector, infinitely scalable. The blob is a soft-edge gradient; SVG handles this cleanly.<br/>
+                <b>PNG @2x</b> — fallback. Two sizes: 96×96 for nav-slot, 640×640 for hero fallback.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="rationale" style="margin-top:var(--s-4);">
+          <h3>Coordination note for Khalid (open item)</h3>
+          <p>Who renders these? Three paths surface:</p>
+          <ul>
+            <li><b>Khalid commissions an external animator / motion designer</b> — highest visual fidelity. Cost. Founder's call.</li>
+            <li><b>paper.design liquid-logo (or equivalent generator)</b> — free, sandbox-acceptable per DC-7 (scrapped paid budget). Need to confirm the tool outputs WebM-alpha or APNG. Probably outputs WebM or static SVG.</li>
+            <li><b>Khalid renders himself</b> with After Effects / Rive / similar — moderate fidelity, full control, time cost.</li>
+          </ul>
+          <p>Architect lane bar: GPT is ad-only, not first-party landing. Whichever path: <b>spec stays unchanged</b> (shape, timing, fallback), only the production source varies. Pause-and-report once founder picks a path.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Sound — flagged, not built</h3>
+          <p>Silent default holds. DC-11 reference (Xbox boot) had iconic audio; the project's <em>future</em> may want to honor that. <b>Future enhancement</b>: a small audio glyph adjacent to the Skip affordance — <code>[♪ Sound on]</code> — that, when tapped, unmutes the rip's sound for THIS session and stores the preference. Default: muted. Web autoplay-audio is mostly broken and the rip plays before any user gesture; presuming sound would mean the rip plays silently for 90% of visitors anyway. Build when the third-party audio asset exists and the founder calls it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       08 · DECISIONS LOG + OPEN ITEMS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">08</span>
+      <h2>Decisions log</h2>
+      <p class="lede">What B3 locks. What carries to B4 / B5. What stays open for Khalid.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:12%;">ID</th>
+              <th style="width:32%;">Decision</th>
+              <th>Rationale / state</th>
+              <th style="width:13%;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">B3.01</td>
+              <td><b>Shape: vertical jagged tear</b>. Center-anchored. Mark blooms from seam.</td>
+              <td>Refuses radial-burst (Marvel pull), horizontal slit (curtain pull), diagonal (aggression-toward-viewer), multi-slash (busy). Vertical is rip's natural axis.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.02</td>
+              <td><b>Timing: 380ms total</b>, 4 phases, single <code>--ease-rip</code> curve.</td>
+              <td>200ms reads as glitch; 600ms reads as loading screen. 380ms holds as single event. Window inherits B2's hero composition spec.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.03</td>
+              <td><b>Void recovers</b> by <code>t=380ms</code>. Faint perimeter glow remains around mark.</td>
+              <td>The rip is an event, not a permanent wound. Subsequent visits open in the recovered state.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.04</td>
+              <td><b>Skip affordance</b> always present from <code>t=0</code>, bottom-right of hero. Click / tap / Esc all map to skip-with-Cancel semantics.</td>
+              <td>Visible before rip starts — no fade-in (Rule #9). Discreet pill chrome, mono caption + kbd glyph.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.05</td>
+              <td><b>Storage contract</b>: single boolean key <code>koy.landing.rip.seen</code>. Dev A picks backend.</td>
+              <td>Architect direction: spec the hook, not the storage. Read at mount; set on completion / skip / fallback paths (per §06 table).</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.06</td>
+              <td><b>Fallback = static final-frame</b>, no transition. Three triggers (reduced-motion, low-bandwidth, asset-fail) all resolve to same state.</td>
+              <td>Same asset doubles as nav-slot mark in <code>.kl-nav__brand-slot</code>.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.07</td>
+              <td><b>Two assets to render</b>: motion (WebM-alpha + APNG fallback) + static (SVG + PNG @2x).</td>
+              <td>One source render, two output formats. Same visual identity in both.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.08</td>
+              <td><b>Sound = silent default</b>. B+ future-enhancement seat reserved adjacent to Skip.</td>
+              <td>Web autoplay-audio mostly broken; rip plays before user gesture. Build when audio asset exists and founder calls.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.MARK</td>
+              <td><b>Unification proposal</b>: rip-mark = slime-at-rest. One mascot, two modes.</td>
+              <td>Both deliverables require formless / alien / slime-green / alive. Unifying makes identity cohere. Split is defensible if architect prefers.</td>
+              <td><span class="status" data-tone="open">Open · architect calls</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.RENDER</td>
+              <td>Who renders the two assets.</td>
+              <td>Three paths: external commission · paper.design liquid-logo · founder-renders. Spec unchanged across paths.</td>
+              <td><span class="status" data-tone="open">Open · founder calls</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.PULSE</td>
+              <td>The mark's at-rest breathing pulse rhythm.</td>
+              <td>B3 sets rest shape; B4 (or B5) calibrates the sub-perceptible alive-state pulse.</td>
+              <td><span class="status" data-tone="reserved">Reserved · B4 / B5</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sign">
+    <span>FADE AUDIT · <b>CLEAN</b> · mark via scale · tear via dimensions · glow via box-shadow · flash is scrim-class</span>
+    <span>RIP CURVE · <b>--ease-rip</b> · spent here for the first time (DC-11)</span>
+    <span>SIGN · <b>CLAUDESIGN</b> · phase B · deliverable B3</span>
+  </footer>
+
+</div>
+
+<!-- ============================================================
+     APPROXIMATION RUNNER LOGIC
+     Click → add .is-playing class → wait 400ms → remove class so
+     the runner can be played again. NO library; pure DOM toggle.
+     ============================================================ -->
+<script>
+(function () {
+  var btn = document.getElementById('approx-btn');
+  var stage = document.getElementById('approx-stage');
+  if (!btn || !stage) return;
+
+  function play() {
+    stage.classList.remove('is-playing');
+    /* force reflow so the next add restarts the animation */
+    void stage.offsetWidth;
+    stage.classList.add('is-playing');
+    setTimeout(function () { stage.classList.remove('is-playing'); }, 480);
+  }
+
+  btn.addEventListener('click', play);
+})();
+</script>
+
+</body>
+</html>

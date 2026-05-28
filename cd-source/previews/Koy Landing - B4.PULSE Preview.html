@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Koy Landing — B4.PULSE Preview · breath on the settled mark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="koy-tokens.css" />
+
+<style>
+/* ============================================================
+   Preview scaffolding — inherit-shape of the A1/A2/A3/B1/B2/B3/B4 idiom.
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+.aurora {
+  position: fixed; inset: -10vmin -10vmin auto -10vmin; height: 60vh;
+  pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(60vmax 40vmax at 18% 5%,  oklch(0.45 0.20 148 / 0.18), transparent 60%),
+    radial-gradient(50vmax 30vmax at 90% 10%, oklch(0.40 0.20 148 / 0.10), transparent 65%);
+  filter: blur(40px);
+}
+.doc { max-width: 1240px; margin: 0 auto; padding: var(--s-9) var(--s-6) var(--s-10); }
+.doc-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: end;
+  gap: var(--s-5);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--s-8);
+}
+.doc-head h1 {
+  font-size: var(--t-3xl); line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight); font-weight: var(--w-bold);
+  margin: 0 0 var(--s-3);
+}
+.doc-head h1 .slash { color: var(--accent); }
+.doc-head .crumbs {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); margin: 0 0 var(--s-3);
+}
+.doc-head p.lede { max-width: 64ch; color: var(--fg-muted); margin: 0; }
+.doc-head .meta {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  text-align: right; white-space: nowrap; line-height: 1.7;
+}
+.doc-head .meta b { color: var(--accent); font-weight: var(--w-bold); }
+
+section { margin-bottom: var(--s-10); }
+.sec-head {
+  display: grid; grid-template-columns: 56px 1fr;
+  gap: var(--s-4); align-items: baseline; margin-bottom: var(--s-5);
+}
+.sec-head .num {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); color: var(--accent); padding-top: var(--s-1);
+}
+.sec-head h2 {
+  font-size: var(--t-2xl); font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight); margin: 0; line-height: var(--lh-tight);
+}
+.sec-head .lede {
+  grid-column: 2; font-size: var(--t-md); color: var(--fg-muted);
+  max-width: 70ch; margin: var(--s-3) 0 0;
+}
+.body-grid { display: grid; grid-template-columns: 56px 1fr; gap: var(--s-4); }
+.rationale {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+  margin-bottom: var(--s-5);
+}
+.rationale:last-child { margin-bottom: 0; }
+.rationale h3 {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: var(--w-medium); letter-spacing: var(--track-caps);
+  text-transform: uppercase; color: var(--accent); margin: 0 0 var(--s-2);
+}
+.rationale p { margin: 0 0 var(--s-2); }
+.rationale p:last-child { margin-bottom: 0; }
+.rationale code, .rationale b {
+  font-family: var(--font-mono); font-size: 0.92em;
+  color: var(--fg); font-weight: var(--w-medium); letter-spacing: var(--track-mono);
+}
+.rationale ul { margin: var(--s-2) 0; padding-left: var(--s-5); }
+.rationale li { margin-bottom: 4px; }
+
+footer.sign {
+  margin-top: var(--s-10);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-faint);
+  display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+}
+footer.sign b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* ============================================================
+   PULSE STAGE — the visual substrate the breath runs on.
+   Matches the B4 preview's .spread-stage idiom but height-cropped
+   to the upper mark region only (the spread's lower scroll-strip
+   doesn't belong in B4.PULSE — that's B4 spread's surface).
+
+   The mark CSS rebuild mirrors .spread-mark from CD v4's B4
+   preview — same radial gradient grammar, same border-radius
+   organic deformation, same accent-glow box-shadow. v2 geometry
+   bias: gradient center dropped to 50% 60% (denser-at-base),
+   aspect-ratio slightly elongated vertically (0.92:1), so the
+   "widened base, narrower above" reading is preserved.
+   ============================================================ */
+.pulse-stage {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  display: block;
+}
+.pulse-stage::before {
+  /* void substrate — soft slime undertone, same idiom as B3 / B4 */
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 50% -10%, oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80% 70% at 50% 120%, oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.pulse-stage__caption {
+  position: absolute;
+  top: 8px; right: 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 5;
+}
+
+/* the bridge hairline (inherited from B1) — present beneath the
+   mark, but doesn't pulse (B4.PULSE operates on the mark only) */
+.pulse-stage__bridge {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 32%;
+  background: linear-gradient(180deg,
+    oklch(0.85 0.29 148 / 0.30) 0%,
+    oklch(0.85 0.29 148 / 0.45) 60%,
+    oklch(0.85 0.29 148 / 0.20) 100%);
+  z-index: 1;
+  box-shadow: 0 0 6px oklch(0.85 0.29 148 / 0.30);
+}
+
+/* the settled mark — CSS rebuild of the B3 v2 final-frame state.
+   This is the substrate; the .kl-mark-rest class drives the breath. */
+.pulse-stage__mark {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  transform: translate(-50%, -50%);
+  width: 46%;
+  aspect-ratio: 0.92 / 1;          /* v2 bias: slightly taller than wide */
+  background:
+    radial-gradient(60% 70% at 50% 62%,                 /* density shifted DOWN — v2 base-bias */
+      oklch(0.92 0.290 148 / 0.95) 0%,
+      oklch(0.82 0.260 148 / 0.85) 28%,
+      oklch(0.55 0.210 148 / 0.55) 62%,
+      transparent 78%);
+  /* writhing-seam border-radius asymmetry — wider at the bottom */
+  border-radius: 48% 52% 60% 40% / 42% 38% 62% 58%;
+  filter: blur(3px);
+  z-index: 3;
+  box-shadow:
+    0 0 32px -4px var(--accent-glow),
+    0 0 80px -16px oklch(0.85 0.29 148 / 0.40);
+}
+
+/* ============================================================
+   THE PULSE CLASS (this is the deliverable)
+   Applies to the mark element; pure CSS keyframe; GPU-cheap.
+
+   v4.2 patch implementation:
+   · animation property: 5.2s LINEAR infinite (linear at top level)
+   · per-segment timing functions in @keyframes, segment-of-departure
+     · 0%→45%   inhale  · --ease-pulse  (token reuse, asymm. breathes)
+     · 45%→55%  peak    · linear        (cosmetic; values don't change)
+     · 55%→100% exhale  · custom        (faster-out / slower-settle)
+   · transform-origin: center 80%  → anchors at widened base (v2 geom)
+   · ranges per architect brief: scale 1.000→1.012, brightness 0.94→1.06,
+     blur 0→0.4px
+   ============================================================ */
+.kl-mark-rest {
+  animation: b4-pulse 5.2s linear infinite;
+  transform-origin: center 80%;
+  /* preserves the static translate while breath layers on top */
+  will-change: transform, filter;
+}
+
+@keyframes b4-pulse {
+  0% {
+    animation-timing-function: var(--ease-pulse);          /* inhale segment */
+    transform: translate(-50%, -50%) scale(1.000);
+    filter: brightness(0.94) blur(0px);
+  }
+  45% {
+    animation-timing-function: linear;                     /* peak hold */
+    transform: translate(-50%, -50%) scale(1.012);
+    filter: brightness(1.06) blur(0.4px);
+  }
+  55% {
+    animation-timing-function: cubic-bezier(0.25, 0.65, 0.45, 1);  /* exhale */
+    transform: translate(-50%, -50%) scale(1.012);
+    filter: brightness(1.06) blur(0.4px);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.000);
+    filter: brightness(0.94) blur(0px);
+  }
+}
+
+/* COMPARE-FRAME variant: pulse without the blur breath (Effect C off)
+   — same scale + brightness, no blur term in the filter. */
+.kl-mark-rest--noblur { animation-name: b4-pulse-noblur; }
+@keyframes b4-pulse-noblur {
+  0% {
+    animation-timing-function: var(--ease-pulse);
+    transform: translate(-50%, -50%) scale(1.000);
+    filter: brightness(0.94);
+  }
+  45% {
+    animation-timing-function: linear;
+    transform: translate(-50%, -50%) scale(1.012);
+    filter: brightness(1.06);
+  }
+  55% {
+    animation-timing-function: cubic-bezier(0.25, 0.65, 0.45, 1);
+    transform: translate(-50%, -50%) scale(1.012);
+    filter: brightness(1.06);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.000);
+    filter: brightness(0.94);
+  }
+}
+
+/* ----- reduced-motion: hard requirement, mark renders static ----- */
+@media (prefers-reduced-motion: reduce) {
+  .kl-mark-rest,
+  .kl-mark-rest--noblur { animation: none; filter: none; }
+}
+/* preview-only: simulate reduced-motion for testing without OS toggle */
+.kl-mark-rest[data-rm="on"],
+.kl-mark-rest--noblur[data-rm="on"] { animation: none; filter: none; }
+
+/* ============================================================
+   §01 · HERO BREATH CELL — single large running loop
+   ============================================================ */
+.pulse-hero {
+  display: grid;
+  /* minmax(0, …) lets the stage column shrink below its intrinsic
+     min-width (aspect-ratio + min-height would otherwise force ~560px
+     and overflow the 1.4fr track at moderate viewport widths). */
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--s-5);
+  align-items: stretch;
+}
+@media (max-width: 880px) { .pulse-hero { grid-template-columns: 1fr; } }
+.pulse-hero .pulse-stage { min-height: 420px; }
+.pulse-hero .pulse-stage__mark {
+  /* hero variant: slightly larger mark for primary read */
+  width: 52%;
+  top: 44%;
+}
+.pulse-hero .pulse-stage__bridge { top: 70%; height: 24%; }
+
+.pulse-hero__notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  justify-content: center;
+}
+.pulse-hero__notes .stat-row {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  display: grid; grid-template-columns: 120px 1fr; gap: var(--s-3);
+  color: var(--fg-muted);
+  padding: var(--s-2) 0;
+  border-bottom: 1px dashed var(--line);
+}
+.pulse-hero__notes .stat-row:last-child { border-bottom: 0; }
+.pulse-hero__notes .stat-row b { color: var(--accent); font-weight: var(--w-bold); }
+.pulse-hero__notes .stat-row .k { color: var(--fg-faint); text-transform: uppercase; letter-spacing: var(--track-caps); font-size: 10px; }
+
+.rm-toggle {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  color: var(--fg-muted);
+  cursor: pointer;
+  text-align: left;
+}
+.rm-toggle:hover { border-color: var(--line-strong); color: var(--fg); }
+.rm-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.rm-toggle .k { color: var(--fg-faint); }
+.rm-toggle[aria-pressed="true"] .k { color: var(--accent); }
+
+/* ============================================================
+   §03 · COMPARE FRAME — with-blur vs without-blur, same loop phase
+   ============================================================ */
+.pulse-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+}
+@media (max-width: 760px) { .pulse-compare { grid-template-columns: 1fr; } }
+.pulse-compare__cell { display: grid; gap: var(--s-2); }
+.pulse-compare__cell-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-muted);
+  text-align: center;
+  padding-top: var(--s-2);
+}
+.pulse-compare__cell-label b { color: var(--accent); font-weight: var(--w-bold); }
+.pulse-compare .pulse-stage { aspect-ratio: 1 / 1; }
+.pulse-compare .pulse-stage__mark { width: 50%; top: 42%; }
+.pulse-compare .pulse-stage__bridge { top: 68%; height: 26%; }
+
+/* ============================================================
+   §02 · CURVE READ — visual diagram of the asymmetric loop
+   ============================================================ */
+.curve-read {
+  display: grid; gap: var(--s-3);
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+}
+.curve-read__bar {
+  position: relative;
+  height: 36px;
+  border-radius: var(--r-pill);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: flex;
+}
+.curve-read__seg {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  border-right: 1px solid var(--line);
+}
+.curve-read__seg:last-child { border-right: 0; }
+.curve-read__seg b { color: var(--accent); font-weight: var(--w-bold); }
+.curve-read__seg[data-seg="inhale"]  { flex: 45; background: oklch(0.20 0.06 148 / 0.20); }
+.curve-read__seg[data-seg="peak"]    { flex: 10; background: oklch(0.30 0.13 148 / 0.36); }
+.curve-read__seg[data-seg="exhale"]  { flex: 45; background: oklch(0.18 0.05 148 / 0.16); }
+.curve-read__legend {
+  display: grid; grid-template-columns: 120px 1fr; gap: var(--s-3);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono); color: var(--fg-muted);
+}
+.curve-read__legend b { color: var(--accent); font-weight: var(--w-bold); }
+.curve-read__legend code { font-family: var(--font-mono); color: var(--fg); font-size: 0.92em; }
+
+/* code-spec block */
+.codespec {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+  color: var(--fg-muted);
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.55;
+}
+.codespec .k  { color: var(--accent); }
+.codespec .v  { color: var(--fg); }
+.codespec .c  { color: var(--fg-faint); }
+
+/* ============================================================
+   §04 · VERIFIER AUDIT — checklist with status pills
+   ============================================================ */
+.audit-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+}
+@media (max-width: 760px) { .audit-list { grid-template-columns: 1fr; } }
+.audit-card {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--s-3) var(--s-4);
+  font-size: var(--t-sm);
+  display: grid; gap: var(--s-2);
+}
+.audit-card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-3);
+}
+.audit-card__head h3 {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: var(--w-medium); letter-spacing: var(--track-caps);
+  text-transform: uppercase; color: var(--fg); margin: 0;
+}
+.audit-card__head .pill {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-1);
+  background: var(--accent-soft); color: var(--accent);
+}
+.audit-card p { margin: 0; color: var(--fg-muted); line-height: var(--lh-loose); }
+.audit-card code, .audit-card b {
+  font-family: var(--font-mono); font-size: 0.92em;
+  color: var(--fg); font-weight: var(--w-medium); letter-spacing: var(--track-mono);
+}
+
+/* ============================================================
+   §05 · DECISIONS TABLE (B3/B4 idiom)
+   ============================================================ */
+.table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-chrome);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.table th, .table td {
+  text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.table tr:last-child td { border-bottom: 0; }
+.table th {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-faint); font-weight: var(--w-medium);
+  background: var(--bg-deep);
+}
+.table td.k {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  color: var(--accent); letter-spacing: var(--track-mono); white-space: nowrap;
+}
+.table td b { color: var(--fg); font-weight: var(--w-medium); }
+.table .status {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  padding: 2px 6px; border-radius: var(--r-1);
+  background: var(--accent-soft); color: var(--accent);
+  display: inline-block;
+}
+.table .status[data-tone="propose"] { background: var(--state-warn-bg); color: var(--state-warn); }
+.table .status[data-tone="inherit"] { background: var(--bg-pressed);    color: var(--fg-muted); }
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="doc">
+
+  <header class="doc-head">
+    <div>
+      <p class="crumbs">SPRINT 2.5 / PHASE B / DELIVERABLE B4.PULSE · v1.0 spec-pass</p>
+      <h1>Koy Landing <span class="slash">/</span> pulse</h1>
+      <p class="lede">B3 v2 ends with the mark settled. Without a pulse the mark reads as a screenshot — frozen, finished, dead. B4.PULSE breathes the mark in place, the same logic as a sleeping animal's chest rising and falling. Held but alive; held but not finished; held but watching. Pure CSS keyframe on the static B3 v2 final-frame asset. No Seedance dependency. Independent ship from the parked B4 spread &mdash; the cheapest deliverable in Phase B, biggest perceptual lift per agent-cycle.</p>
+    </div>
+    <p class="meta">
+      VERSION <b>B4.PULSE v1.0</b><br/>
+      PHASE  B · LANDING<br/>
+      DRIVER  <b>CSS @keyframes</b> · infinite<br/>
+      ASSET  pulses on B3 v2 static final-frame<br/>
+      SIGN  CLAUDESIGN · v5.0
+    </p>
+  </header>
+
+  <!-- ========================================================
+       00 · WHAT B4.PULSE IS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">00</span>
+      <h2>What B4.PULSE is</h2>
+      <p class="lede">An ambient at-rest loop on the settled mark. Two synchronized effects (scale + brightness), optionally a third (blur), running on a 5.2s cycle &mdash; slower than human breath, calibrated <em>subliminal</em>. The viewer should never consciously notice the breath; only register the mark as <em>alive</em>.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>Tonality target</h3>
+          <p>Alive but held. Pregnant with motion. Slow-menace at rest. Same eldritch register as B3 v2 &mdash; the mark hasn't lost its presence after the rip, it's just at rest. Body grammar carried forward, not reset. The breath answers one viewer question: <em>&ldquo;Wait, is this thing still there?&rdquo;</em> The breath says yes, without moving.</p>
+        </div>
+        <div class="rationale">
+          <h3>What B4.PULSE is NOT</h3>
+          <ul>
+            <li><b>Not a separate motion sequence</b> with its own arc &mdash; it's ambient, looping, internal.</li>
+            <li><b>Not a ripple or wave</b> &mdash; those imply external disturbance. The breath is internal.</li>
+            <li><b>Not the slime spread</b> (B4 proper, Seedance, parked). The spread happens BELOW the mark; the pulse continues uninterrupted ON the mark.</li>
+            <li><b>Not interactive</b> &mdash; the viewer doesn't trigger it; it just is.</li>
+            <li><b>Not attention-grabbing</b> &mdash; subliminal calibration is load-bearing. Conscious noticing = failed spec.</li>
+          </ul>
+        </div>
+        <div class="rationale">
+          <h3>Three modes, one entity (continuity with B3 v2 canon)</h3>
+          <p>B3 settled the slime into a <b>landing-resolved</b> form. B4.PULSE doesn't introduce a fourth mode &mdash; it expresses the landing-resolved mode's <em>at-rest condition</em>. The mark is still in mode 2; it's just breathing. When B4 spread eventually ships, the spread is the slime's <b>spread-formless</b> third mode acting BELOW; the mark above continues to breathe in landing-resolved mode throughout. No coupling, no synchronization &mdash; two simultaneous motions on different surfaces.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       01 · THE BREATH — live loop
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>The breath · live</h2>
+      <p class="lede">CSS-built rebuild of the B3 v2 settled mark (per Q1 sign &mdash; substrate doesn't need to BE the production asset to demonstrate the pulse; Dev A applies the class to the real <code>&lt;img&gt;</code> at integration time). The loop below runs the deliverable spec: 5.2s, scale 1.000&rarr;1.012 anchored at <code>center 80%</code>, brightness 0.94&rarr;1.06, blur 0&rarr;0.4px, asymmetric per-segment timing functions.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="pulse-hero">
+        <div class="pulse-stage" aria-label="B4.PULSE live breath loop on CSS-built mark substrate">
+          <span class="pulse-stage__caption">5.2s · infinite</span>
+          <div class="pulse-stage__bridge"></div>
+          <div class="pulse-stage__mark kl-mark-rest" id="hero-mark"></div>
+        </div>
+        <div class="pulse-hero__notes">
+          <div class="stat-row"><span class="k">scale</span><span><b>1.000 &rarr; 1.012</b> · base-anchored</span></div>
+          <div class="stat-row"><span class="k">brightness</span><span><b>0.94 &rarr; 1.06</b> · synchronized</span></div>
+          <div class="stat-row"><span class="k">blur</span><span><b>0 &rarr; 0.4px</b> · synchronized · default ON</span></div>
+          <div class="stat-row"><span class="k">cycle</span><span><b>5.2s</b> · slower than human breath</span></div>
+          <div class="stat-row"><span class="k">origin</span><span><b>center 80%</b> · widened base</span></div>
+          <div class="stat-row"><span class="k">curves</span><span>inhale <code>--ease-pulse</code> · peak <code>linear</code> · exhale <code>cubic-bezier(.25,.65,.45,1)</code></span></div>
+          <div class="stat-row"><span class="k">cost</span><span>GPU compositor · zero layout / paint</span></div>
+          <button class="rm-toggle" id="rm-toggle" aria-pressed="false" type="button">
+            <span class="k">test</span> <span>simulate <code>prefers-reduced-motion: reduce</code></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       02 · CURVES & GEOMETRY
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Curves &amp; geometry</h2>
+      <p class="lede">Per architect-lane patch (2026-05-27): animation property is <code>5.2s linear infinite</code>; the asymmetric pacing lives in per-keyframe <code>animation-timing-function</code> declarations, each governing the segment <em>starting</em> at that keyframe. Three segments, three curves &mdash; reused tokens where the grammar already exists.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="curve-read">
+          <div class="curve-read__bar">
+            <div class="curve-read__seg" data-seg="inhale">00 &rarr; 45 · <b>inhale</b></div>
+            <div class="curve-read__seg" data-seg="peak"><b>peak</b></div>
+            <div class="curve-read__seg" data-seg="exhale">55 &rarr; 100 · exhale</div>
+          </div>
+          <div class="curve-read__legend">
+            <span><b>inhale</b> · 45%</span><span>Long-slow build into peak. Timing function: <code>--ease-pulse</code> (token reuse) &mdash; <code>cubic-bezier(0.65, 0.05, 0.35, 0.95)</code>, koy-tokens.css comment reads <em>&ldquo;organic asymm., breathes.&rdquo;</em> Exactly the grammar required; not inventing a new bezier when the token already expresses it.</span>
+            <span><b>peak</b> · 10%</span><span>Brief held inhale. Values don't change between 45% and 55%; timing function on this segment is cosmetic. Declared <code>linear</code> explicitly for readability &mdash; <code>step-end</code> would produce the same visual.</span>
+            <span><b>exhale</b> · 45%</span><span>Faster-out / slower-settle. Custom: <code>cubic-bezier(0.25, 0.65, 0.45, 1)</code>. At 25% time the body is already 65% through the descent (the body releases the peak quickly); the long tail settles into trough. <b>Proposed token candidacy:</b> if this curve recurs in future deliverables, propose promoting to <code>--ease-pulse-out</code> at Phase A reconciliation (see §05 decisions).</span>
+          </div>
+        </div>
+
+        <div class="rationale" style="margin-top: var(--s-5);">
+          <h3>Anchor · <code>transform-origin: center 80%</code> · v2 geometry</h3>
+          <p>The B3 v2 settled mark is a <em>vertical pour with a widened base</em> &mdash; denser at the bottom, narrower above (locked geometry per CD v4 §00 Shift 4). Scaling from the geometric center would push the mass equally in all directions; scaling from <code>center 80% Y</code> means the densest part of the body &mdash; the base &mdash; stays planted while the upper mass drifts subtly skyward at peak. This reads as <b>&ldquo;the mass breathes from its center of gravity&rdquo;</b> rather than <b>&ldquo;the mass zooms toward the viewer.&rdquo;</b> Spring-not-drain reading reinforced. <code>transform-origin</code> is relative to the mark element's own box, not the page.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Brightness asymmetry · 0.94 trough is intentional</h3>
+          <p>The 0.94 floor (slightly dimmer than canonical 1.0) is the &ldquo;settles into its shadow&rdquo; beat at the bottom of the exhale. Canonical brightness sits roughly at the 50%-of-progress mark of either segment, NOT at the loop boundary. <b>Production-side continuity note for Dev A:</b> for the seamless MP4&rarr;static handoff, the B3 v2 MP4's final frame should match the pulse's trough state (brightness ~0.94, scale 1.000) so the moment of transition lands on the breath's natural low. <em>Seam reconciliation between MP4 final frame and static asset is Dev A's lane (per architect Q5 sign);</em> noted here only as awareness, not as a B4.PULSE scope item.</p>
+        </div>
+
+        <div class="rationale">
+          <h3>Composition · keyframe block as authored</h3>
+          <div class="codespec"><span class="c">/* the deliverable: one class + one @keyframes block */</span>
+.<span class="k">kl-mark-rest</span> {
+  <span class="k">animation</span>: <span class="v">b4-pulse 5.2s linear infinite</span>;
+  <span class="k">transform-origin</span>: <span class="v">center 80%</span>;
+  <span class="k">will-change</span>: <span class="v">transform, filter</span>;          <span class="c">/* hint compositor */</span>
+}
+
+@<span class="k">keyframes</span> b4-pulse {
+  0% {
+    <span class="k">animation-timing-function</span>: <span class="v">var(--ease-pulse)</span>;   <span class="c">/* inhale */</span>
+    <span class="k">transform</span>: <span class="v">scale(1.000)</span>;
+    <span class="k">filter</span>: <span class="v">brightness(0.94) blur(0px)</span>;
+  }
+  45% {
+    <span class="k">animation-timing-function</span>: <span class="v">linear</span>;              <span class="c">/* peak hold */</span>
+    <span class="k">transform</span>: <span class="v">scale(1.012)</span>;
+    <span class="k">filter</span>: <span class="v">brightness(1.06) blur(0.4px)</span>;
+  }
+  55% {
+    <span class="k">animation-timing-function</span>: <span class="v">cubic-bezier(.25,.65,.45,1)</span>;  <span class="c">/* exhale */</span>
+    <span class="k">transform</span>: <span class="v">scale(1.012)</span>;
+    <span class="k">filter</span>: <span class="v">brightness(1.06) blur(0.4px)</span>;
+  }
+  100% {
+    <span class="k">transform</span>: <span class="v">scale(1.000)</span>;
+    <span class="k">filter</span>: <span class="v">brightness(0.94) blur(0px)</span>;
+  }
+}
+
+@<span class="k">media</span> (prefers-reduced-motion: reduce) {
+  .<span class="k">kl-mark-rest</span> { <span class="k">animation</span>: <span class="v">none</span>; <span class="k">filter</span>: <span class="v">none</span>; }
+}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       03 · COMPARE FRAME — with-blur vs without-blur
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Effect C compare · blur on vs off</h2>
+      <p class="lede">The architect deferred the blur-breath inclusion call to CD's eye &mdash; <em>&ldquo;Default: include. CD can omit if it muddies.&rdquo;</em> Per Q3 sign: show both at the same loop phase, let the visual evidence make the case. Both cells run the same 5.2s loop in sync; only the <code>filter: blur()</code> term differs.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="pulse-compare">
+          <div class="pulse-compare__cell">
+            <div class="pulse-stage">
+              <span class="pulse-stage__caption">Effect C · ON</span>
+              <div class="pulse-stage__bridge"></div>
+              <div class="pulse-stage__mark kl-mark-rest"></div>
+            </div>
+            <p class="pulse-compare__cell-label"><b>WITH blur</b> &middot; default · brightness + scale + 0&rarr;0.4px blur</p>
+          </div>
+          <div class="pulse-compare__cell">
+            <div class="pulse-stage">
+              <span class="pulse-stage__caption">Effect C · OFF</span>
+              <div class="pulse-stage__bridge"></div>
+              <div class="pulse-stage__mark kl-mark-rest--noblur"></div>
+            </div>
+            <p class="pulse-compare__cell-label"><b>WITHOUT blur</b> &middot; brightness + scale only</p>
+          </div>
+        </div>
+
+        <div class="rationale" style="margin-top: var(--s-5);">
+          <h3>CD's read · include the blur</h3>
+          <p>The two cells run side-by-side; the substrate mark is already <code>filter: blur(3px)</code> baseline (matching the B3 v2 rebuild). The breath's additional 0&rarr;0.4px on top is small enough that it doesn't add visible &ldquo;defocus&rdquo; &mdash; it adds a soft <em>edge breathing</em> that reads as the body relaxing outward at peak inhale. Without blur, scale+brightness alone produces a slightly more mechanical pulse &mdash; the edges remain pixel-stable while the body grows, which reads as a UI element scaling, not a body breathing.</p>
+          <p>The risk the architect flagged (&ldquo;looks like a render artifact&rdquo;) doesn't materialize at this magnitude. <b>Default: include.</b> If founder/architect read it as muddy on production substrate (real JPG vs CSS rebuild), omit is a one-line patch (drop the blur term from filter).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       04 · VERIFIER AUDIT
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>Verifier audit</h2>
+      <p class="lede">Five checks per CD-lane discipline. Status pills are CD's own pre-handoff assessment; Claudette runs the same audit against staging URL after Dev A integrates.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="audit-list">
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>1 · Fade audit</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>Constitution Rule #9 prohibits the fade primitive. B4.PULSE animates <code>transform</code> (scale) and <code>filter</code> (brightness, blur). <b>No <code>opacity</code> in the keyframes. No fade-in / fade-out on the mark.</b> Brightness is a CSS filter channel, not opacity &mdash; it modulates rendered luminance, never alpha.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>2 · Console clean</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>Pure CSS deliverable &mdash; one <code>@keyframes</code>, one class, one media query. <b>Zero JS for the pulse itself.</b> Preview file contains one tiny <code>rm-toggle</code> button handler (preview-only affordance to simulate the reduced-motion path without OS toggle); production integration carries no JS.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>3 · Mobile / desktop</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p><code>transform</code> + <code>filter</code> are GPU-accelerated on iOS Safari, Chrome Android, and all desktop targets. Compositor-thread &mdash; no layout, no paint. <b>Cost is effectively free</b> on low-end devices. Mobile read: subliminal at small viewport &mdash; the breath should never feel like a UI element pulsing for attention.</p>
+          </div>
+
+          <div class="audit-card">
+            <div class="audit-card__head">
+              <h3>4 · Reduced motion</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p><code>@media (prefers-reduced-motion: reduce)</code> sets <code>animation: none; filter: none;</code> &mdash; the mark renders at its canonical static state (no scale, no brightness modulation, no blur breath). Test affordance in §01 (<code>data-rm="on"</code>) lets verifier confirm without toggling OS preference. <b>Hard requirement satisfied.</b></p>
+          </div>
+
+          <div class="audit-card" style="grid-column: 1 / -1;">
+            <div class="audit-card__head">
+              <h3>5 · Visual continuity with B3 v2 settled state</h3>
+              <span class="pill">PASS</span>
+            </div>
+            <p>The B3 preview's <code>.rip-mark-blob</code> at phase-id=3 is <code>transform: scale(1)</code> with no filter modulation &mdash; a static slime body. The B4.PULSE substrate (CSS rebuild here, real JPG in production) loops past <code>scale(1.000)</code> at the trough; the body grammar reads continuous. <b>The two are the same mark in the same mode.</b> The pulse adds at-rest breath, not a new visual identity. Production seam (MP4 last frame &rarr; static asset) is Dev A's reconciliation; the pulse contract is verified against the static substrate.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       05 · DECISIONS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Decisions</h2>
+      <p class="lede">Eight from architect brief (preserved verbatim from §07 of the brief, status noted). One CD-lane proposal queued for architect read.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:18%;">ID</th>
+              <th style="width:48%;">Decision</th>
+              <th style="width:34%;">Rationale / Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">B4P.SCALE</td>
+              <td><b>Max scale 1.012</b> (1.2%), anchored at <code>center 80% Y</code>.</td>
+              <td>Subliminal range; base-anchor preserves spring-not-drain reading. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.DURATION</td>
+              <td><b>5.2s per full cycle.</b> Slower than human breath (~4s) &mdash; eldritch presence, not a person.</td>
+              <td>CD held at 5.2s &mdash; the &plusmn;0.4s tunability margin is unused. Visual read at 5.2s is correct on the substrate. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.BRIGHTNESS</td>
+              <td><b>Synchronized 0.94 &rarr; 1.06</b> brightness breath.</td>
+              <td>Mimics body brightening at peak inhale; reinforces &ldquo;alive&rdquo; read. 0.94 trough = settle-into-shadow beat; production seam note in §02. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.BLUR</td>
+              <td>Optional <b>0 &rarr; 0.4px blur</b> breath &mdash; CD's call.</td>
+              <td><b>Include</b>, per §03 compare-frame read. The 0.4px peak is small enough not to register as defocus; it adds soft edge-breathing that disambiguates breath from UI-scale. <span class="status">CD signed</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.LOOP</td>
+              <td><b>Infinite</b>, no start/stop logic.</td>
+              <td>Mark is always alive while visible; no triggering, no orchestration. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.A11Y</td>
+              <td><code>prefers-reduced-motion: reduce</code> <b>disables entirely.</b></td>
+              <td>Hard requirement; vestibular sensitivity respect. Test affordance in §01 of preview. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.INDEPENDENCE</td>
+              <td>Runs <b>independently</b> of B4 spread and B5 hotspots.</td>
+              <td>No coupling, no synchronization. Spread happens BELOW; pulse continues ON the mark throughout. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.SHIP-PATH</td>
+              <td>No Seedance dependency; ships when CD activates + Dev A integrates.</td>
+              <td>Independent ship from parked B4 spread; can land in production this week. <span class="status" data-tone="inherit">Inherit · architect</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.CURVES</td>
+              <td><b>Per-segment timing functions</b> in <code>@keyframes</code>: inhale <code>--ease-pulse</code> (token reuse), peak <code>linear</code>, exhale <code>cubic-bezier(.25,.65,.45,1)</code>. Animation property is <code>5.2s linear infinite</code>.</td>
+              <td>Architect-lane patch (Q2 sign, 2026-05-27) corrected the brief's §02 keyframe block to align with its prose. Reused <code>--ease-pulse</code> rather than invent. <span class="status">CD signed · patch</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.SUBSTRATE</td>
+              <td>Preview demo on <b>CSS-built mark</b>; production applies same class to real <code>&lt;img src="koy-rip-static-final-frame-v2.jpg"&gt;</code>.</td>
+              <td>Q1 sign &mdash; pulse is a CSS contract; substrate doesn't have to BE the asset to demonstrate. CSS rebuild matches CD v4 <code>.spread-mark</code> grammar with v2 geometry bias (gradient center at 50% 60%, aspect-ratio 0.92:1). <span class="status">CD signed</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4P.PROPOSE-EASEOUT</td>
+              <td>Propose promoting the exhale curve to a token <b><code>--ease-pulse-out</code></b> at next Phase A reconciliation, IF it recurs.</td>
+              <td>Per architect patch instruction: &ldquo;If the design system grows to need a <code>--ease-pulse-out</code> companion token, propose in your decisions log; don't invent at file-scope.&rdquo; Logged here as candidacy; not promoted at file scope. <span class="status" data-tone="propose">Propose · CD &rarr; architect</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       06 · DEV A HANDOFF
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Dev A handoff</h2>
+      <p class="lede">Two-snippet integration. Lives on the same DOM node that hosts B3's MP4 (or replaces it after the MP4's <code>ended</code> event). Pulse class applies to the <code>&lt;img&gt;</code> element rendering the static final-frame asset; the asset itself is unchanged.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <div class="rationale">
+          <h3>The two snippets</h3>
+          <div class="codespec"><span class="c">/* 1. CSS — add to koy-landing.css (or component-local) */</span>
+
+.<span class="k">kl-mark-rest</span> {
+  <span class="k">animation</span>: <span class="v">b4-pulse 5.2s linear infinite</span>;
+  <span class="k">transform-origin</span>: <span class="v">center 80%</span>;
+  <span class="k">will-change</span>: <span class="v">transform, filter</span>;
+}
+
+@<span class="k">keyframes</span> b4-pulse {
+  0%   { <span class="k">animation-timing-function</span>: <span class="v">var(--ease-pulse)</span>;
+         <span class="k">transform</span>: <span class="v">scale(1.000)</span>; <span class="k">filter</span>: <span class="v">brightness(0.94) blur(0px)</span>; }
+  45%  { <span class="k">animation-timing-function</span>: <span class="v">linear</span>;
+         <span class="k">transform</span>: <span class="v">scale(1.012)</span>; <span class="k">filter</span>: <span class="v">brightness(1.06) blur(0.4px)</span>; }
+  55%  { <span class="k">animation-timing-function</span>: <span class="v">cubic-bezier(.25,.65,.45,1)</span>;
+         <span class="k">transform</span>: <span class="v">scale(1.012)</span>; <span class="k">filter</span>: <span class="v">brightness(1.06) blur(0.4px)</span>; }
+  100% { <span class="k">transform</span>: <span class="v">scale(1.000)</span>; <span class="k">filter</span>: <span class="v">brightness(0.94) blur(0px)</span>; }
+}
+
+@<span class="k">media</span> (prefers-reduced-motion: reduce) {
+  .<span class="k">kl-mark-rest</span> { <span class="k">animation</span>: <span class="v">none</span>; <span class="k">filter</span>: <span class="v">none</span>; }
+}
+
+<span class="c">/* 2. JSX — class applies to the static final-frame &lt;img&gt; */</span>
+
+&lt;<span class="k">img</span>
+  src=<span class="v">"/assets/koy-rip-static-final-frame-v2.jpg"</span>
+  alt=<span class="v">""</span>
+  className=<span class="v">"kl-mark-rest"</span>
+  aria-hidden=<span class="v">"true"</span>
+/&gt;</div>
+        </div>
+
+        <div class="rationale">
+          <h3>Integration notes for Dev A</h3>
+          <ul>
+            <li><b>Token dependency:</b> <code>var(--ease-pulse)</code> is declared in <code>koy-tokens.css</code>. No new tokens. No new dependencies.</li>
+            <li><b>If the existing image element already has <code>transform: translate(&hellip;)</code> for positioning</b>, layer it: the pulse keyframe writes <code>transform: scale(...)</code> which would clobber translate. Two options: (a) wrap the image in a positioning <code>&lt;div&gt;</code> and apply <code>.kl-mark-rest</code> to the image, (b) write the static translate into <code>--mark-tx</code>/<code>--mark-ty</code> and prepend in each keyframe transform. <em>The preview file uses option (a) implicitly &mdash; pulse runs on a freshly-positioned element.</em></li>
+            <li><b>MP4&rarr;static seam</b> (Dev A's lane per Q5): MP4's final frame should land at the pulse's trough state (brightness ~0.94, scale 1.000). The <code>onended</code> handler should swap MP4 for static <em>and</em> apply <code>.kl-mark-rest</code> in the same tick. The pulse begins at <code>0%</code> of its keyframe block by default &mdash; which is the trough. Seamless handoff comes for free if the MP4's last frame matches the trough render.</li>
+            <li><b>Reverse interaction with B3's seen-flag:</b> if <code>koy.landing.rip.seen === true</code>, the static asset renders at mount (no rip motion). Apply <code>.kl-mark-rest</code> at mount in that branch too &mdash; the mark should breathe from page load, not only after MP4 ended.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sign">
+    <span>SPRINT 2.5 / PHASE B / B4.PULSE / v1.0 / SPEC + PREVIEW / READY-FOR-ARCHITECT-READ</span>
+    <span><b>CLAUDESIGN</b> &middot; v5.0 &middot; 2026-05-27</span>
+  </footer>
+
+</div>
+
+<script>
+  /* preview-only: reduced-motion test affordance. Toggles data-rm on
+     every kl-mark-rest variant so the verifier can confirm the static
+     fallback reads correctly without flipping OS settings. */
+  (function () {
+    var btn = document.getElementById('rm-toggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var on = btn.getAttribute('aria-pressed') === 'true';
+      var next = on ? null : 'on';
+      btn.setAttribute('aria-pressed', String(!on));
+      btn.querySelector('span:last-child').innerHTML = on
+        ? 'simulate <code>prefers-reduced-motion: reduce</code>'
+        : '<code>prefers-reduced-motion: reduce</code> · active';
+      var marks = document.querySelectorAll('.kl-mark-rest, .kl-mark-rest--noblur');
+      for (var i = 0; i < marks.length; i++) {
+        if (next) marks[i].setAttribute('data-rm', next);
+        else marks[i].removeAttribute('data-rm');
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Koy Landing — B1 Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" />
+<link rel="stylesheet" href="koy-tokens.css" />
+<link rel="stylesheet" href="koy-landing.css" />
+
+<style>
+/* ============================================================
+   Preview document scaffolding (NOT part of the landing spec).
+   Same mono-rail / rationale-box idiom as the A1+A2+A3 previews.
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+.aurora {
+  position: fixed; inset: -10vmin -10vmin auto -10vmin; height: 60vh;
+  pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(60vmax 40vmax at 18% 5%,  oklch(0.45 0.20 148 / 0.18), transparent 60%),
+    radial-gradient(50vmax 30vmax at 90% 10%, oklch(0.40 0.20 148 / 0.10), transparent 65%);
+  filter: blur(40px);
+}
+
+.doc {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--s-9) var(--s-6) var(--s-10);
+}
+
+.doc-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: end;
+  gap: var(--s-5);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--s-8);
+}
+.doc-head h1 {
+  font-size: var(--t-3xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  font-weight: var(--w-bold);
+  margin: 0 0 var(--s-3);
+}
+.doc-head h1 .slash { color: var(--accent); }
+.doc-head .crumbs {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 var(--s-3);
+}
+.doc-head p.lede {
+  max-width: 64ch;
+  color: var(--fg-muted);
+  margin: 0;
+}
+.doc-head .meta {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  text-align: right;
+  white-space: nowrap;
+  line-height: 1.7;
+}
+.doc-head .meta b { color: var(--accent); font-weight: var(--w-bold); }
+
+section { margin-bottom: var(--s-10); }
+.sec-head {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--s-4);
+  align-items: baseline;
+  margin-bottom: var(--s-5);
+}
+.sec-head .num {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  color: var(--accent);
+  padding-top: var(--s-1);
+}
+.sec-head h2 {
+  font-size: var(--t-2xl);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  margin: 0;
+  line-height: var(--lh-tight);
+}
+.sec-head .lede {
+  grid-column: 2;
+  font-size: var(--t-md);
+  color: var(--fg-muted);
+  max-width: 70ch;
+  margin: var(--s-3) 0 0;
+}
+
+.body-grid {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--s-4);
+}
+
+.rationale {
+  background: var(--bg-chrome);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--t-sm);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+  margin-bottom: var(--s-5);
+}
+.rationale h3 {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 var(--s-2);
+}
+.rationale p { margin: 0 0 var(--s-2); }
+.rationale p:last-child { margin-bottom: 0; }
+.rationale ul {
+  margin: var(--s-2) 0;
+  padding-left: var(--s-5);
+}
+.rationale li { margin-bottom: 4px; }
+.rationale code, .rationale b {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--fg);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-mono);
+}
+
+/* a demo frame that hosts a small live snippet of landing chrome
+   without competing with the doc's own dark surfaces */
+.demo {
+  position: relative;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  overflow: hidden;
+  /* the same void halos as the landing background, but locally
+     scoped to this frame so it reads as a contained vignette */
+}
+.demo::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(50vmax 40vmax at 50% -10%,
+      oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(60vmax 50vmax at 50% 120%,
+      oklch(0.13 0.060 148 / 0.45), transparent 65%);
+}
+.demo > * { position: relative; z-index: 1; }
+.demo[data-tag]::after {
+  content: attr(data-tag);
+  position: absolute;
+  top: 8px; right: 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  z-index: 5;
+}
+
+/* a tiny one-line callout for a single piece-of-chrome demo */
+.piece {
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-chrome);
+  padding: var(--s-3) var(--s-4);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg-muted);
+  letter-spacing: var(--track-mono);
+  line-height: var(--lh-loose);
+}
+.piece b { color: var(--fg); font-weight: var(--w-medium); }
+
+/* spec-grid: side-by-side rationale + demo */
+.spec-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: var(--s-5);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .spec-grid { grid-template-columns: 1fr; }
+}
+
+/* the in-page "live landing" embed gets its own scroll */
+.landing-frame {
+  width: 100%;
+  height: 84vh;
+  min-height: 640px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--bg-deep);
+  overflow: hidden;
+  box-shadow: var(--shadow-3);
+}
+.landing-frame iframe {
+  width: 100%; height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* mobile sub-frame for the reshape preview — narrower iframe */
+.mobile-frame {
+  width: 380px;
+  max-width: 100%;
+  height: 720px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--bg-deep);
+  overflow: hidden;
+  margin: 0 auto;
+  box-shadow: var(--shadow-3);
+}
+.mobile-frame iframe {
+  width: 100%; height: 100%;
+  border: 0;
+  display: block;
+}
+.mobile-frames {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--s-5);
+  justify-items: center;
+}
+.mobile-frame-wrap {
+  display: grid;
+  gap: var(--s-3);
+  justify-items: center;
+}
+.mobile-frame-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+/* table for the decisions log */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-chrome);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.table th, .table td {
+  text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.table tr:last-child td { border-bottom: 0; }
+.table th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  font-weight: var(--w-medium);
+  background: var(--bg-deep);
+}
+.table td.k {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--accent);
+  letter-spacing: var(--track-mono);
+  white-space: nowrap;
+}
+.table td b { color: var(--fg); font-weight: var(--w-medium); }
+.table .status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: var(--r-1);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.table .status[data-tone="open"] {
+  background: var(--state-warn-bg); color: var(--state-warn);
+}
+.table .status[data-tone="reserved"] {
+  background: var(--bg-pressed); color: var(--fg-muted);
+}
+
+footer.sign {
+  margin-top: var(--s-10);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+footer.sign b { color: var(--accent); font-weight: var(--w-bold); }
+
+/* the small placeholder marks inside the landing demo */
+.placeholder-mark {
+  display: inline-grid;
+  place-items: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-2);
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  text-align: center;
+  line-height: var(--lh-snug);
+  padding: var(--s-3);
+}
+.placeholder-mark.rip-mark {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(circle at center,
+      oklch(0.20 0.10 148 / 0.5) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.placeholder-mark.rip-mark .kw {
+  font-size: var(--t-xs);
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<!-- ============================================================
+     LANDING MARKUP TEMPLATE
+     This template is composed into the iframes below. It is the
+     ACTUAL landing markup B1 ships — every class is a kl-* class
+     from koy-landing.css. Nothing here is preview-only.
+     ============================================================ -->
+<template id="landing-markup">
+  <div class="kl">
+    <div class="kl-scroll-progress" aria-hidden="true"></div>
+
+    <nav class="kl-nav" aria-label="Landing">
+      <div class="kl-nav__brand-slot" aria-label="Koy">
+        <div class="placeholder-mark" style="width:36px;height:36px;border-radius:50%;font-size:9px;padding:0;">B3</div>
+      </div>
+      <div></div>
+      <a class="kl-nav__route" href="#">Sign in</a>
+    </nav>
+
+    <section class="kl-hero">
+      <div class="kl-hero__rip-slot">
+        <div class="placeholder-mark rip-mark">
+          <span class="kw">B3 · rip-mark asset</span>
+          <span>rendered · shipped flat</span>
+        </div>
+      </div>
+
+      <div class="kl-hero__copy-slot">
+        <p class="kl-hero__tag">B2 · voice direction (stand-in)</p>
+        <h1 class="kl-hero__phrase">make it yours.</h1>
+      </div>
+
+      <div class="kl-hero__cue" aria-hidden="true">
+        <span class="kl-hero__cue-line"></span>
+        <span class="kl-hero__cue-label">Scroll</span>
+      </div>
+    </section>
+
+    <div class="kl-slime-band" aria-hidden="true">
+      <div class="kl-slime-band__slot">
+        <span class="kl-slime-band__slot-label">B4 · slime takeover</span>
+      </div>
+    </div>
+
+    <section class="kl-hotspots" aria-label="Templates">
+      <header class="kl-hotspots__head">
+        <h2 class="kl-hotspots__title">A page for every you.</h2>
+        <span class="kl-hotspots__count">6 · alive hotspots · B5 fills behavior</span>
+      </header>
+
+      <a class="kl-hotspot" href="#">
+        <div class="kl-hotspot__head">
+          <span class="kl-hotspot__num">01</span>
+          <span class="kl-hotspot__tag">Purpose</span>
+        </div>
+        <div class="kl-hotspot__preview">B5 · mini-preview</div>
+        <div class="kl-hotspot__foot">
+          <span class="kl-hotspot__label">the page</span>
+          <span class="kl-hotspot__sub">stand-in label · Phase C names</span>
+        </div>
+      </a>
+
+      <a class="kl-hotspot" href="#">
+        <div class="kl-hotspot__head">
+          <span class="kl-hotspot__num">02</span>
+          <span class="kl-hotspot__tag">Vibe</span>
+        </div>
+        <div class="kl-hotspot__preview">B5 · mini-preview</div>
+        <div class="kl-hotspot__foot">
+          <span class="kl-hotspot__label">the zine</span>
+          <span class="kl-hotspot__sub">stand-in label · Phase C names</span>
+        </div>
+      </a>
+
+      <a class="kl-hotspot" href="#">
+        <div class="kl-hotspot__head">
+          <span class="kl-hotspot__num">03</span>
+          <span class="kl-hotspot__tag">Commerce</span>
+        </div>
+        <div class="kl-hotspot__preview">B5 · mini-preview</div>
+        <div class="kl-hotspot__foot">
+          <span class="kl-hotspot__label">the shop</span>
+          <span class="kl-hotspot__sub">stand-in label · Phase C names</span>
+        </div>
+      </a>
+
+      <a class="kl-hotspot" href="#">
+        <div class="kl-hotspot__head">
+          <span class="kl-hotspot__num">04</span>
+          <span class="kl-hotspot__tag">Purpose</span>
+        </div>
+        <div class="kl-hotspot__preview">B5 · mini-preview</div>
+        <div class="kl-hotspot__foot">
+          <span class="kl-hotspot__label">the link</span>
+          <span class="kl-hotspot__sub">stand-in label · Phase C names</span>
+        </div>
+      </a>
+
+      <a class="kl-hotspot" href="#">
+        <div class="kl-hotspot__head">
+          <span class="kl-hotspot__num">05</span>
+          <span class="kl-hotspot__tag">Vibe</span>
+        </div>
+        <div class="kl-hotspot__preview">B5 · mini-preview</div>
+        <div class="kl-hotspot__foot">
+          <span class="kl-hotspot__label">the manifesto</span>
+          <span class="kl-hotspot__sub">stand-in label · Phase C names</span>
+        </div>
+      </a>
+
+      <a class="kl-hotspot" href="#">
+        <div class="kl-hotspot__head">
+          <span class="kl-hotspot__num">06</span>
+          <span class="kl-hotspot__tag">Commerce</span>
+        </div>
+        <div class="kl-hotspot__preview">B5 · mini-preview</div>
+        <div class="kl-hotspot__foot">
+          <span class="kl-hotspot__label">the pre-order</span>
+          <span class="kl-hotspot__sub">stand-in label · Phase C names</span>
+        </div>
+      </a>
+    </section>
+
+    <section class="kl-bridge" aria-label="Browse all templates">
+      <span class="kl-bridge__line" aria-hidden="true"></span>
+      <span class="kl-bridge__cue">Phase C · gallery handoff</span>
+      <a class="kl-bridge__cta" href="#">Browse every template →</a>
+    </section>
+  </div>
+</template>
+
+<!-- ============================================================
+     DOC
+     ============================================================ -->
+<div class="doc">
+
+  <header class="doc-head">
+    <div>
+      <p class="crumbs">SPRINT 2.5 / PHASE B / DELIVERABLE B1</p>
+      <h1>Koy Landing <span class="slash">/</span> layout system</h1>
+      <p class="lede">The frame the rip-mark (B3), the hero phrase (B2), the slime takeover (B4), and the alive hotspots (B5) all live inside. B1 is structure-only — every downstream asset has a reserved slot; nothing is presumed filled.</p>
+    </div>
+    <p class="meta">
+      VERSION <b>B1.0</b><br/>
+      PHASE  B · LANDING<br/>
+      DEPENDS  koy-tokens.css<br/>
+      PREFIX  <b>kl-</b><br/>
+      SIGN  CLAUDESIGN
+    </p>
+  </header>
+
+  <!-- ========================================================
+       00 · FRAME AT A GLANCE
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">00</span>
+      <h2>Frame at a glance</h2>
+      <p class="lede">The full landing as a visitor would see it — scrollable inside the frame below. Every visible mark inside is either ACTUAL B1 layout (the regions, the grid, the nav, the bridge) or a labelled placeholder for a downstream sub-deliverable (B2 copy, B3 rip-mark, B4 slime, B5 hotspot behavior).</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="landing-frame">
+        <iframe id="frame-full" title="Landing — full" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       01 · LAYOUT SHELL
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>Layout shell</h2>
+      <p class="lede">Five stacked regions. No header, no toolbar, no panels — landing is its own surface, not the editor wearing a costume. Each region is a single CSS responsibility; downstream phases fill content without renegotiating layout.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spec-grid">
+        <div>
+          <div class="rationale">
+            <h3>Regions, top to bottom</h3>
+            <ul>
+              <li><b>kl-nav</b> — fixed, minimal. Brand-slot left, one route right.</li>
+              <li><b>kl-hero</b> — full-bleed, 100svh. Rip-slot centered, copy-slot below.</li>
+              <li><b>kl-slime-band</b> — inter-section void; B4 fills.</li>
+              <li><b>kl-hotspots</b> — 3×2 desktop constellation of templates.</li>
+              <li><b>kl-bridge</b> — doorway to gallery (Phase C).</li>
+            </ul>
+          </div>
+          <div class="rationale">
+            <h3>What B1 does NOT do</h3>
+            <p>No rip motion (B3). No slime asset (B4). No hotspot interactions or template previews (B5). No final hero phrase (B2). Every slot is reserved with a labelled placeholder so the layout reads true without those deliverables shipped.</p>
+          </div>
+        </div>
+        <div class="piece" style="display:grid;gap:6px;line-height:1.7;">
+          <span style="color:var(--accent);">┌─ kl-nav ─────────────────────────────┐</span>
+          <span>│  brand-slot (B3)              route  │</span>
+          <span style="color:var(--accent);">└──────────────────────────────────────┘</span>
+          <span>┌─ kl-hero ────────────────────────────┐</span>
+          <span>│                                      │</span>
+          <span>│         [ rip-mark slot ]            │</span>
+          <span>│         B3 fills · rendered          │</span>
+          <span>│                                      │</span>
+          <span>│        "B2 phrase reserved"          │</span>
+          <span>│                                      │</span>
+          <span>│                 ▼                    │</span>
+          <span>│              scroll                  │</span>
+          <span>└──────────────────────────────────────┘</span>
+          <span style="color:var(--state-warn);">┄┄┄┄┄┄┄ kl-slime-band ┄ B4 ┄┄┄┄┄┄┄┄┄┄┄</span>
+          <span>┌─ kl-hotspots ────────────────────────┐</span>
+          <span>│  [01]                                │</span>
+          <span>│  [01]      [03]                      │</span>
+          <span>│  [01]  [02]                  [06]    │</span>
+          <span>│         [02]                 [06]    │</span>
+          <span>│  [04]   [02]                         │</span>
+          <span>│  [04]   [05]                         │</span>
+          <span>│  [04]   [05]                         │</span>
+          <span>│         [05]                         │</span>
+          <span>│  CONSTELLATION · star map, not bento │</span>
+          <span>└──────────────────────────────────────┘</span>
+          <span>┌─ kl-bridge ──────────────────────────┐</span>
+          <span>│       Browse every template →        │</span>
+          <span>└──────────────────────────────────────┘</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       02 · NAV FOOTPRINT
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Nav footprint</h2>
+      <p class="lede">Two elements. Brand-mark slot (left, B3 rip-mark) and one route in (right, "Sign in"). No nav menu, no marketing categories, no language switcher, no logo wordmark adjacent to the mark. Landing is identity-first; a marketing nav would soften the entry.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spec-grid">
+        <div>
+          <div class="rationale">
+            <h3>Layout</h3>
+            <p><b>position: fixed</b> at the page root. Container has <b>pointer-events: none</b>; children opt back in — so the empty middle column doesn't intercept clicks on whatever the rip-mark is doing under it.</p>
+            <p>The route uses the pill chrome from the chrome lib's vocabulary: hairline border, slime-soft tinted backdrop, blur. <b>Snap</b> easing on hover transitions (chrome scale, not landing-scale).</p>
+          </div>
+          <div class="rationale">
+            <h3>Why one route, not two</h3>
+            <p>"Sign in" covers both new and returning. A "Sign up" button would split the eye and weaken the rip-mark's gravity. Routing to /signin handles new-user upgrade in-flow. Reversible if user research disagrees.</p>
+          </div>
+        </div>
+        <div class="demo" data-tag="kl-nav · live" style="height:120px;display:grid;align-items:center;padding:0;">
+          <div style="position:relative;">
+            <nav class="kl-nav" style="position:relative;">
+              <div class="kl-nav__brand-slot">
+                <div class="placeholder-mark" style="width:36px;height:36px;border-radius:50%;font-size:9px;padding:0;">B3</div>
+              </div>
+              <div></div>
+              <a class="kl-nav__route" href="#">Sign in</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       03 · HERO
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Hero</h2>
+      <p class="lede">Three-row grid: breathing room, rip-mark band, copy stack. Bottom of the hero hosts a hairline + mono "Scroll" cue — no bouncing chevron, no animated arrow. Identity, not affordance theatre.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spec-grid">
+        <div>
+          <div class="rationale">
+            <h3>The void decision</h3>
+            <p>Hero opens on <b>void</b>, not earth. Three reasons: A1's "make it yours." vignette already canonized void as Koy's hero substrate; rip-from-void grammar inherits literally from the project name; an earth+cosmos comp borrows recognizable composition from the DC-8 Sony reference, which Absolute Rule #6 fires hardest on at landing scale. Reversible if Khalid calls it back to earth.</p>
+          </div>
+          <div class="rationale">
+            <h3>Slots, not content</h3>
+            <p><b>kl-hero__rip-slot</b> is a square canvas, 320px / clamped to 60vmin. B3 fills with the rendered rip-mark (video / GIF / SVG-animated). NO live shader.</p>
+            <p><b>kl-hero__copy-slot</b> reserves 720ch-max width with <b>text-wrap: balance</b>. The phrase token is <b>--t-4xl</b> (72px desktop, 48px mobile). B2 fills the final string; "make it yours." is shown here as voice-direction stand-in.</p>
+          </div>
+          <div class="rationale">
+            <h3>Why a "Scroll" cue at all</h3>
+            <p>Landing is a multi-section scroll program. Visitors who don't scroll never see B5's templates and never reach the bridge. The cue is a single hairline + 10px mono label — no animation, no bounce. The scroll progress bar at the very top is the parallel wayfinding signal.</p>
+          </div>
+        </div>
+        <div class="demo" data-tag="kl-hero · live · 60svh" style="height:60vh;min-height:480px;">
+          <section class="kl-hero" style="min-height:100%;">
+            <div class="kl-hero__rip-slot">
+              <div class="placeholder-mark rip-mark">
+                <span class="kw">B3 · rip-mark</span>
+                <span>rendered asset</span>
+              </div>
+            </div>
+            <div class="kl-hero__copy-slot">
+              <p class="kl-hero__tag">B2 · voice direction (stand-in)</p>
+              <h1 class="kl-hero__phrase">make it yours.</h1>
+            </div>
+            <div class="kl-hero__cue" aria-hidden="true">
+              <span class="kl-hero__cue-line"></span>
+              <span class="kl-hero__cue-label">Scroll</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       04 · SCROLL TRANSITION
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>Scroll transition</h2>
+      <p class="lede">Two pieces, both pure CSS. A slime-tinted hairline that fills left-to-right with document scroll, and a per-hotspot reveal-on-enter that translates each card up into final position as it crosses the viewport. Translate-only, no fade. Both wrapped in <b>@supports (animation-timeline: …)</b> so non-supporting UAs render the layout statically — no broken-looking page.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spec-grid">
+        <div>
+          <div class="rationale">
+            <h3>Why no JS scroll listeners</h3>
+            <p>Constitution Section 5 + Decision #2: sandbox-safe means pure CSS. <b>animation-timeline: scroll(root)</b> ties the progress bar to document scroll without listeners; <b>animation-timeline: view()</b> ties each hotspot reveal to its own intersection with the viewport. Browser does the math.</p>
+          </div>
+          <div class="rationale">
+            <h3>NO fade</h3>
+            <p>Hotspot reveal is <b>translate-only</b>. The cards enter at final opacity, rising 48px into place across the entry range <b>entry 0% cover 30%</b>. Scrim opacity ramps are the only sanctioned opacity transitions, and B1 has none — the progress bar fills via <b>transform: scaleX</b>, not opacity.</p>
+          </div>
+          <div class="rationale">
+            <h3>Reduced motion</h3>
+            <p><b>prefers-reduced-motion</b> kills both: progress bar pins to <b>scaleX(0)</b>; hotspots cancel the rise animation. Layout still works; the page just doesn't kinetic.</p>
+          </div>
+        </div>
+        <div>
+          <div class="piece" style="margin-bottom:var(--s-3);">
+            <b>kl-scroll-progress</b> — 2px hairline, slime tint, fixed-top, <b>animation-timeline: scroll(root)</b>. Scroll the doc to watch it fill.
+          </div>
+          <div class="piece">
+            <b>kl-hotspot</b> reveal — <b>animation-timeline: view()</b>, range <b>entry 0% → cover 30%</b>, <b>translateY(48px → 0)</b>. Linear timing function so the motion feels scroll-controlled, not scroll-triggered.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       05 · SLIME BAND SLOT
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Slime band slot</h2>
+      <p class="lede">The inter-section void between hero and hotspots. B4 fills with the slime takeover asset — rendered, shipped flat, NOT a live shader. B1 reserves the band so the page rhythm reads correctly without B4 shipped.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spec-grid">
+        <div>
+          <div class="rationale">
+            <h3>Why a dedicated band, not a continuous bleed</h3>
+            <p>Slime is the project's mascot moment. Burying it as background texture under hotspots dissolves its presence. Giving it its own band (~42vh / 280px floor) lets the takeover feel like an event that happens between sections — slime spreads ACROSS the void, then hotspots arrive. Authored chrome, not decoration.</p>
+          </div>
+          <div class="rationale">
+            <h3>Asset coordination — OPEN ITEM</h3>
+            <p>B4 deliverable spec hasn't been written yet. Open: who renders the slime asset? Khalid (founder direction), external tool (paper.design or similar generator), or GPT (ad lane only)? B1 reserves the band; B4 closes the asset-coordination question.</p>
+          </div>
+        </div>
+        <div class="demo" data-tag="kl-slime-band · slot reserved" style="padding:var(--s-5);">
+          <div class="kl-slime-band" style="height:280px;">
+            <div class="kl-slime-band__slot">
+              <span class="kl-slime-band__slot-label">B4 · slime takeover</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       06 · HOTSPOTS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Hotspots</h2>
+      <p class="lede">Six slots. 3×2 desktop constellation; 2×3 phone; 1×6 ultra-narrow. Each hotspot is a doorway to a template (DC-9, founder-confirmed). B1 ships the grid + per-card scaffold; B5 fills the breathing / preview / slime-acknowledgement / route.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spec-grid">
+        <div>
+          <div class="rationale">
+            <h3>Constellation, not bento</h3>
+            <p>The grid is a <b>12-col × auto-row scaffold</b>; each card has its own (col, row, span). No two cards share a row baseline or a column edge. A symmetric 3×2 would hand the territory back to productivity-tool framing (Rule #4) — the asymmetry is the point. Unsupervised maximalism reaches into chrome here through composed irregularity.</p>
+          </div>
+          <div class="rationale">
+            <h3>Why 6</h3>
+            <p>Six cards give enough mass for a star map without crowding. Four reads as a quad / decision matrix; nine reads as a feature grid. Six in this constellation lets the eye compose left→right in descending waves — not by row-major scan.</p>
+          </div>
+          <div class="rationale">
+            <h3>Per-card anatomy</h3>
+            <ul>
+              <li><b>head</b> — mono number (01–06) · taxonomy tag (Purpose / Vibe / Commerce)</li>
+              <li><b>preview</b> — striped placeholder; B5 fills with template mini-preview</li>
+              <li><b>foot</b> — display label · mono sub-line</li>
+            </ul>
+            <p>Card sizes vary by grid span (3–5 cols, 3–5 rows of a 64px row track). Background is a low-chroma slime-tinted oklch with <b>backdrop-filter: blur(2px)</b> so the void halo behind the grid bleeds through faintly.</p>
+          </div>
+          <div class="rationale">
+            <h3>Labels are stand-ins</h3>
+            <p>"the page / the zine / the shop / the link / the manifesto / the pre-order" are placeholder labels chosen to demonstrate the voice direction (definite article + noun = identity-first, not productivity-tool-first). Phase C names them for real.</p>
+          </div>
+        </div>
+        <div>
+          <div class="demo" data-tag="kl-hotspot · close-up" style="padding:var(--s-5);max-width:300px;margin:0 0 var(--s-4);">
+            <a class="kl-hotspot" href="#" style="aspect-ratio:4/5;animation:none;grid-column:auto;grid-row:auto;">
+              <div class="kl-hotspot__head">
+                <span class="kl-hotspot__num">01</span>
+                <span class="kl-hotspot__tag">Purpose</span>
+              </div>
+              <div class="kl-hotspot__preview">B5 · preview</div>
+              <div class="kl-hotspot__foot">
+                <span class="kl-hotspot__label">the page</span>
+                <span class="kl-hotspot__sub">stand-in label</span>
+              </div>
+            </a>
+          </div>
+          <div class="piece">
+            <b>Hover state (B1):</b> border picks up <code>--accent</code>; background slightly intensifies. <b>B5 will add:</b> mini-preview reveal, slime-acknowledgement, hover-pulse.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       07 · BRIDGE — HAIRLINE-REVEAL
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">07</span>
+      <h2>Bridge · hairline-reveal</h2>
+      <p class="lede">A vertical hairline with transparent endcaps, a mono cue, and a single underlined CTA. The doorway from landing into the template gallery (Phase C). B5 wires the routing — hotspot click goes to template-detail; bridge CTA goes to gallery index.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="spec-grid">
+        <div>
+          <div class="rationale">
+            <h3>Mechanism (one line)</h3>
+            <p>Static <code>&lt;span&gt;</code>, <b>1px × 96px</b>, <code>background: linear-gradient(to bottom, transparent, var(--accent), transparent)</code>. No animation. No scroll binding. No opacity transition. The transparent endcaps ARE the "reveal" — the line appears to fade in and out of the void because the gradient endcaps match the void substrate.</p>
+          </div>
+          <div class="rationale">
+            <h3>Why a hairline, not a button</h3>
+            <p>A primary-coloured button at the foot of landing would compete with the rip-mark for gravity. The bridge is a soft handoff — the user has scrolled past hero, slime, and the constellation; the bridge is the polite "and if none of those landed, here's all of them." A button shouts. A hairline + underlined link concedes.</p>
+          </div>
+        </div>
+        <div class="demo" data-tag="kl-bridge · live" style="padding:var(--s-7) var(--s-5) var(--s-8);">
+          <section class="kl-bridge">
+            <span class="kl-bridge__line" aria-hidden="true"></span>
+            <span class="kl-bridge__cue">Phase C · gallery handoff</span>
+            <a class="kl-bridge__cta" href="#">Browse every template →</a>
+          </section>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       08 · MOBILE RESHAPE
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">08</span>
+      <h2>Mobile reshape</h2>
+      <p class="lede">Landing reshapes at &lt;768px. NOT a desktop-trimmed view. The constellation can't survive narrow viewport, so it collapses to a single-column vertical scroll-reveal of cards — top-down by feature priority. Hero scales down (72 → 48 type, 320 → 220 rip-slot). Slime band compresses but stays present.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div class="mobile-frames">
+        <div class="mobile-frame-wrap">
+          <div class="mobile-frame" style="width:560px;height:800px;">
+            <iframe id="frame-tablet" title="Landing — tablet (640w)" loading="lazy"></iframe>
+          </div>
+          <span class="mobile-frame-label">560w · tablet · collapses to 1 col</span>
+        </div>
+        <div class="mobile-frame-wrap">
+          <div class="mobile-frame" style="width:380px;height:720px;">
+            <iframe id="frame-phone" title="Landing — phone (380w)" loading="lazy"></iframe>
+          </div>
+          <span class="mobile-frame-label">380w · phone narrow · 1 col</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       09 · DECISIONS LOG + OPEN ITEMS
+       ======================================================== -->
+  <section>
+    <div class="sec-head">
+      <span class="num">09</span>
+      <h2>Decisions log</h2>
+      <p class="lede">Everything B1 locks. Everything B1 leaves open. Phase B sub-deliverables that inherit from this layout.</p>
+    </div>
+
+    <div class="body-grid">
+      <span></span>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:12%;">ID</th>
+              <th style="width:32%;">Decision</th>
+              <th>Rationale / state</th>
+              <th style="width:13%;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="k">B1.01</td>
+              <td><b>Hero substrate = void</b>, not earth.</td>
+              <td>Inherits A1 vignette canon. Rip-from-void reads literally. Earth borrows DC-8 composition; Rule #6 boundary stays clean.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B1.02</td>
+              <td><b>6 hotspots in an irregular constellation</b> on a 12-col scaffold. Not 3×2. Not 2×3.</td>
+              <td>A symmetric grid is tasteful-SaaS geometry (Rule #4). Each card has its own (col, row, span); no two share a baseline. Star map, not bento.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B1.03</td>
+              <td><b>One route on nav</b> ("Sign in").</td>
+              <td>Avoids splitting eye away from rip-mark. New-user upgrade handled in-flow at /signin.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B1.04</td>
+              <td><b>No JS scroll listeners.</b></td>
+              <td>CSS <code>animation-timeline: scroll() / view()</code>. Wrapped in <code>@supports</code> for graceful degrade.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B1.05</td>
+              <td><b>NO fade</b> in any B1 entry.</td>
+              <td>Hotspot reveal = translate-only. Progress bar = scaleX. Hover = border/bg color only. Rule #9 audit clean.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B1.06</td>
+              <td><b>Bridge = hairline-reveal + underlined CTA</b>, not a button.</td>
+              <td>Mechanism: static <code>&lt;span&gt;</code> with vertical linear-gradient and transparent endcaps. No animation. No opacity transition. Soft handoff to Phase C gallery.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B1.07</td>
+              <td><b>Mobile reshape</b>, not desktop-trim.</td>
+              <td>Desktop constellation collapses to single-column vertical scroll-reveal at &lt;768px (architect exception — constellation can't survive narrow viewport). Cards order top-down by feature priority.</td>
+              <td><span class="status">Locked</span></td>
+            </tr>
+            <tr>
+              <td class="k">B2.HERO</td>
+              <td>Hero phrase final string.</td>
+              <td>"make it yours." is the A1 voice-direction stand-in. B2 proposes finalists.</td>
+              <td><span class="status" data-tone="open">Open · B2</span></td>
+            </tr>
+            <tr>
+              <td class="k">B3.RIP</td>
+              <td>Rip-from-void asset spec + production path.</td>
+              <td>Rendered asset (video / GIF / SVG-animated). NOT live shader. Sound-on-intro defaults silent (open for Khalid).</td>
+              <td><span class="status" data-tone="reserved">Reserved · B3</span></td>
+            </tr>
+            <tr>
+              <td class="k">B4.SLIME</td>
+              <td>Slime takeover asset + behavior.</td>
+              <td>Rendered, flat, IP-bulletproof (formless, no eyes/body). Production path open — who renders.</td>
+              <td><span class="status" data-tone="reserved">Reserved · B4</span></td>
+            </tr>
+            <tr>
+              <td class="k">B5.HOT</td>
+              <td>Hotspot interactions + template-gallery routing.</td>
+              <td>Hover/tap reveals mini-preview + slime-acknowledgement. Click → template detail. Bridge CTA → gallery index.</td>
+              <td><span class="status" data-tone="reserved">Reserved · B5</span></td>
+            </tr>
+            <tr>
+              <td class="k">C.NAMES</td>
+              <td>Final hotspot labels.</td>
+              <td>B1 stand-ins: the page / the zine / the shop / the link / the manifesto / the pre-order. Phase C names templates for real.</td>
+              <td><span class="status" data-tone="reserved">Reserved · C</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sign">
+    <span>FADE AUDIT · <b>CLEAN</b> · 0 opacity-transition on content surfaces · 0 fade keyframes</span>
+    <span>CONSTELLATION · <b>IRREGULAR</b> · 12-col scaffold · no two cards share a baseline</span>
+    <span>SIGN · <b>CLAUDESIGN</b> · phase B · deliverable B1</span>
+  </footer>
+
+</div>
+
+<!-- ============================================================
+     IFRAME COMPOSITION
+     The landing markup template above is composed into each
+     iframe with a <base href="…"> set to the parent's location
+     so the CSS hrefs (koy-tokens.css, koy-landing.css) resolve.
+     ============================================================ -->
+<script>
+(function () {
+  var base = location.href.replace(/[^/]*(?:[#?].*)?$/, '');
+  var markup = document.getElementById('landing-markup').innerHTML;
+
+  var head = ''
+    + '<!doctype html>'
+    + '<html lang="en"><head>'
+    + '<meta charset="utf-8">'
+    + '<base href="' + base + '">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">'
+    + '<link rel="stylesheet" href="koy-tokens.css">'
+    + '<link rel="stylesheet" href="koy-landing.css">'
+    + '<style>'
+    + 'html,body{margin:0;background:var(--bg-deep);}'
+    /* placeholder-mark styles must be inlined inside the iframe
+       since they live in the preview doc, not in koy-landing.css. */
+    + '.placeholder-mark{display:inline-grid;place-items:center;border:1px dashed var(--line-strong);border-radius:var(--r-2);color:var(--fg-faint);font-family:var(--font-mono);font-size:10px;letter-spacing:var(--track-caps);text-transform:uppercase;text-align:center;line-height:var(--lh-snug);padding:var(--s-3);}'
+    + '.placeholder-mark.rip-mark{width:100%;height:100%;background:radial-gradient(circle at center,oklch(0.20 0.10 148 / 0.5) 0%,transparent 70%);border-radius:50%;}'
+    + '.placeholder-mark.rip-mark .kw{font-size:var(--t-xs);color:var(--accent);margin-bottom:4px;}'
+    + '</style>'
+    + '</head><body>'
+    + markup
+    + '</body></html>';
+
+  ['frame-full', 'frame-tablet', 'frame-phone'].forEach(function (id) {
+    var f = document.getElementById(id);
+    if (f) f.srcdoc = head;
+  });
+})();
+</script>
+
+</body>
+</html>
