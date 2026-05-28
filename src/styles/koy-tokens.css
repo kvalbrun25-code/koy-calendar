@@ -1,0 +1,197 @@
+/* =============================================================
+   KOY DESIGN TOKENS — A1
+   Sprint 2.5 Phase A · v0.1
+   Default theme: "Slime" (psychedelic alien techno, green/black)
+   -------------------------------------------------------------
+   STRUCTURE
+     LAYER 1 — THEME TOKENS (--t-*)  : concrete values, swapped by S5 themes
+     LAYER 2 — SEMANTIC TOKENS       : the only names chrome references
+   No chrome component reads a --t-* directly. Add a theme by redefining
+   layer 1 inside a [data-theme="..."] selector; layer 2 keeps working.
+   ============================================================= */
+
+
+/* =================================================
+   LAYER 1 · THEME PRIMITIVES — "Slime" (default)
+   ================================================= */
+:root,
+[data-theme="slime"] {
+
+  /* ---- void & surface (green-undertoned black) ---- */
+  --t-void-deep:    oklch(0.08 0.015 148);  /* deepest black, faint green */
+  --t-void:         oklch(0.12 0.020 148);  /* page background */
+  --t-surface:      oklch(0.17 0.022 148);  /* toolbar / menu chrome */
+  --t-surface-2:    oklch(0.22 0.025 148);  /* modal, hover bg */
+  --t-surface-3:    oklch(0.28 0.028 148);  /* pressed / active */
+  --t-hairline:     oklch(0.32 0.030 148);  /* 1px borders */
+  --t-hairline-hi:  oklch(0.45 0.040 148);  /* emphasized borders */
+
+  /* ---- foreground (green-tinged whites, never pure) ---- */
+  --t-fg:           oklch(0.96 0.012 148);  /* primary text */
+  --t-fg-2:         oklch(0.78 0.020 148);  /* secondary text */
+  --t-fg-3:         oklch(0.58 0.022 148);  /* tertiary / placeholder */
+
+  /* ---- slime: the alien core ---- */
+  --t-slime:        oklch(0.82 0.260 148);  /* brand / focus / accent */
+  --t-slime-hi:     oklch(0.90 0.270 148);  /* hover */
+  --t-slime-dim:    oklch(0.55 0.150 148);  /* success / low-intensity */
+  --t-slime-bg:     oklch(0.22 0.080 148);  /* accent-tinted surface */
+  --t-slime-glow:   oklch(0.85 0.290 148);  /* inside box-shadow only */
+
+  /* ---- state colors (off-palette intrusions — read as alerts) ---- */
+  --t-warn:         oklch(0.80 0.180 75);   /* phosphor amber */
+  --t-warn-bg:      oklch(0.24 0.070 75);
+  --t-danger:       oklch(0.68 0.260 355);  /* alien magenta */
+  --t-danger-bg:    oklch(0.24 0.080 355);
+}
+
+
+/* =================================================
+   LAYER 2 · SEMANTIC TOKENS  (the chrome API)
+   These names do not change between themes.
+   ================================================= */
+:root {
+
+  /* surfaces */
+  --bg-page:         var(--t-void);
+  --bg-chrome:       var(--t-surface);
+  --bg-raised:       var(--t-surface-2);
+  --bg-pressed:      var(--t-surface-3);
+  --bg-accent-soft:  var(--t-slime-bg);
+  --bg-deep:         var(--t-void-deep);
+
+  /* text */
+  --fg:              var(--t-fg);
+  --fg-muted:        var(--t-fg-2);
+  --fg-faint:        var(--t-fg-3);
+  --fg-on-accent:    var(--t-void-deep);   /* slime is bright; legible text = void */
+
+  /* lines */
+  --line:            var(--t-hairline);
+  --line-strong:     var(--t-hairline-hi);
+
+  /* accent */
+  --accent:          var(--t-slime);
+  --accent-hover:    var(--t-slime-hi);
+  --accent-low:      var(--t-slime-dim);
+  --accent-soft:     var(--t-slime-bg);
+  --accent-glow:     var(--t-slime-glow);
+
+  /* state-comm */
+  --state-success:    var(--t-slime-dim);
+  --state-success-bg: var(--t-slime-bg);
+  --state-warn:       var(--t-warn);
+  --state-warn-bg:    var(--t-warn-bg);
+  --state-danger:     var(--t-danger);
+  --state-danger-bg:  var(--t-danger-bg);
+
+  /* focus ring */
+  --focus:           var(--t-slime);
+
+
+  /* ---- TYPOGRAPHY ---- */
+  --font-ui:       "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display:  "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:     "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* chrome-tight scale; landing/hero may declare its own larger sizes */
+  --t-xs:   11px;   /* mono metadata, badges */
+  --t-sm:   13px;   /* secondary chrome text */
+  --t-base: 14px;   /* primary chrome / button labels */
+  --t-md:   15px;   /* body in modals */
+  --t-lg:   18px;   /* modal titles, section headers */
+  --t-xl:   24px;   /* page-level chrome headers */
+  --t-2xl:  32px;   /* large authored moments in chrome (rare) */
+  --t-3xl:  48px;   /* landing-adjacent */
+  --t-4xl:  72px;   /* hero — landing only */
+
+  --lh-tight: 1.15;
+  --lh-snug:  1.30;
+  --lh-base:  1.45;
+  --lh-loose: 1.60;
+
+  --w-regular: 400;
+  --w-medium:  500;
+  --w-bold:    700;
+
+  --track-tight: -0.01em;
+  --track-flat:   0;
+  --track-mono:   0.02em;
+  --track-caps:   0.10em;
+
+
+  /* ---- SPACING (4px base) ---- */
+  --s-0:  0;
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  24px;
+  --s-6:  32px;
+  --s-7:  48px;
+  --s-8:  64px;
+  --s-9:  96px;
+  --s-10: 128px;
+
+  --pad-chrome-x: var(--s-4);
+  --pad-chrome-y: var(--s-2);
+  --pad-field-x:  var(--s-3);
+  --pad-field-y:  var(--s-2);
+  --pad-modal:    var(--s-5);
+  --gap-tight:    var(--s-1);
+  --gap-default:  var(--s-2);
+  --gap-loose:    var(--s-4);
+
+
+  /* ---- RADIUS (sharp by default) ---- */
+  --r-0:    0;
+  --r-1:    2px;     /* hairlines, fields */
+  --r-2:    4px;     /* buttons, chips */
+  --r-3:    6px;     /* modals, cards */
+  --r-4:    10px;    /* large surfaces (rare) */
+  --r-pill: 999px;
+
+
+  /* ---- ELEVATION & GLOW ---- */
+  --shadow-1: 0 1px 0 0 oklch(0.04 0.01 148 / 0.6);
+  --shadow-2: 0 2px 8px -2px oklch(0.04 0.01 148 / 0.7),
+              0 1px 0 0 oklch(0.32 0.030 148 / 0.5) inset;
+  --shadow-3: 0 12px 32px -8px oklch(0.04 0.01 148 / 0.8),
+              0 0 0 1px var(--line);
+  --glow-slime:  0 0 0 2px var(--accent-soft),
+                 0 0 24px -4px var(--accent-glow);
+  --glow-warn:   0 0 0 2px var(--state-warn-bg);
+  --glow-danger: 0 0 0 2px var(--state-danger-bg),
+                 0 0 24px -8px var(--state-danger);
+
+
+  /* ---- MOTION (NO fade-in primitive — DC-11) ---- */
+  --dur-instant: 80ms;
+  --dur-quick:   160ms;
+  --dur-glide:   280ms;
+  --dur-rip:     420ms;
+  --dur-alive:   1800ms;
+
+  /* curves intentionally pushed into distinct families so character is
+     visible at a glance — no two easings should look like the same shape */
+  --ease-snap:  cubic-bezier(0.05, 0.95, 0.15, 1);    /* ease-out HARD · arrives */
+  --ease-glide: cubic-bezier(0.50, 0.00, 0.50, 1);    /* symmetric S · the calm one */
+  --ease-rip:   cubic-bezier(0.85, 0.00, 0.30, 1.35); /* ease-in heavy · overshoots */
+  --ease-pulse: cubic-bezier(0.65, 0.05, 0.35, 0.95); /* organic asymm. · breathes */
+
+  /* ---- PROMOTED · propose-queued tokens (CD v5 B5 close bundle, signed) ---- */
+  --z-hotspot:      10;       /* B5 constellation hotspot stacking */
+  --dur-tap-expand: 700ms;    /* B5 tap-burst → expansion */
+  /* --ease-pulse-burst folded back to --ease-pulse (no new token — architect lean) */
+}
+
+/* respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-quick:   0ms;
+    --dur-glide:   0ms;
+    --dur-rip:     0ms;
+    --dur-alive:   0ms;
+  }
+}

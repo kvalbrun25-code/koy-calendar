@@ -1,0 +1,967 @@
+/* =============================================================
+   KOY CHROME — A2
+   Sprint 2.5 · Phase A · Deliverable A2
+   Depends on: koy-tokens.css (loaded first)
+   -------------------------------------------------------------
+   Scope:
+     · Editor toolbar  (.kc-toolbar)
+     · App shell + panels  (.kc-shell, .kc-panel)
+     · Modal/dialog pattern (destructive confirm only)
+     · Toast / state-comm anchors
+     · Navigation frame (account menu, page switcher)
+     · Mobile chrome (< 768px)
+   Conventions:
+     · Class prefix:  kc-  (koy chrome)
+     · Motion grammar at chrome scale: snap + glide + pulse only.
+       rip is reserved for landing (DC-11). NEVER used here.
+     · No JS animation libs. Pure CSS.
+   ============================================================= */
+
+
+/* ============================================================
+   RESET / BASELINE  (chrome-scoped, not aggressive)
+   ============================================================ */
+.kc, .kc * { box-sizing: border-box; }
+.kc {
+  font-family: var(--font-ui);
+  color: var(--fg);
+  background: var(--bg-page);
+  font-size: var(--t-base);
+  line-height: var(--lh-base);
+}
+
+
+/* ============================================================
+   SHELL — the frame the user canvas lives inside
+   ============================================================ */
+.kc-shell {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  min-height: 100vh;
+  background: var(--bg-page);
+}
+.kc-shell__body {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr) 320px;
+  min-height: 0;
+}
+.kc-shell__canvas {
+  background: var(--bg-deep);
+  position: relative;
+  overflow: auto;
+}
+.kc-shell__canvas-stub {
+  /* the dashed "not chrome's territory" reminder from A1 */
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  pointer-events: none;
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+.kc-shell__canvas-stub .frame {
+  border: 1px dashed var(--line-strong);
+  padding: var(--s-7) var(--s-8);
+  border-radius: var(--r-3);
+  text-align: center;
+  line-height: var(--lh-loose);
+}
+.kc-shell__canvas-stub strong { color: var(--fg-muted); display: block; margin-bottom: var(--s-1); }
+
+
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+.kc-toolbar {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: var(--s-4);
+  height: 48px;
+  padding: 0 var(--s-4);
+  background: var(--bg-chrome);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  z-index: 10;
+}
+.kc-toolbar__brand {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--t-lg);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  cursor: default;
+  user-select: none;
+}
+.kc-toolbar__brand .glyph {
+  color: var(--accent);
+  text-shadow: 0 0 16px var(--accent-glow);
+  font-size: 14px;
+  transform: translateY(-1px);
+}
+.kc-toolbar__divider {
+  width: 1px; height: 20px;
+  background: var(--line);
+  align-self: center;
+}
+
+/* mode tabs (EDIT / PREVIEW / SETTINGS) */
+.kc-tabs {
+  display: inline-flex; align-items: center;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: 2px;
+  gap: 2px;
+}
+.kc-tab {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  padding: 5px 10px;
+  border: 0;
+  background: transparent;
+  border-radius: var(--r-1);
+  cursor: pointer;
+  transition:
+    background var(--dur-instant) var(--ease-snap),
+    color var(--dur-instant) var(--ease-snap);
+}
+.kc-tab:hover { color: var(--fg); background: var(--bg-raised); }
+.kc-tab[aria-selected="true"] {
+  background: var(--bg-raised);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.kc-tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* page meta strip — the truth-line about the current page */
+.kc-meta {
+  display: flex; align-items: center; gap: var(--s-3);
+  min-width: 0;
+  padding: 0 var(--s-2);
+}
+.kc-meta__title {
+  font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+  color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 36ch;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  border-radius: var(--r-1);
+  cursor: text;
+}
+.kc-meta__title:hover { background: var(--bg-raised); }
+.kc-meta__title:focus { outline: 1px solid var(--focus); outline-offset: 0; background: var(--bg-deep); }
+.kc-meta__sep {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: var(--line-strong);
+  flex: 0 0 auto;
+}
+.kc-meta__sub {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+  white-space: nowrap;
+}
+.kc-meta__status {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 2px var(--s-2);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--r-1);
+  background: var(--accent-soft);
+}
+.kc-meta__status::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  animation: kc-pulse var(--dur-alive) var(--ease-pulse) infinite;
+}
+.kc-meta__status[data-status="draft"] {
+  color: var(--fg-muted);
+  border-color: var(--line);
+  background: transparent;
+}
+.kc-meta__status[data-status="draft"]::before {
+  background: var(--fg-faint); box-shadow: none; animation: none;
+}
+
+@keyframes kc-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+
+/* actions */
+.kc-toolbar__actions {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+}
+
+/* account affordance */
+.kc-account {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  background: transparent; border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 3px 10px 3px 3px;
+  cursor: pointer;
+  color: var(--fg);
+  transition:
+    border-color var(--dur-instant) var(--ease-snap),
+    background var(--dur-instant) var(--ease-snap);
+}
+.kc-account:hover { border-color: var(--line-strong); background: var(--bg-raised); }
+.kc-account__avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-low));
+  color: var(--fg-on-accent);
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-weight: var(--w-bold); font-size: 11px;
+}
+.kc-account__handle {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg-muted);
+  letter-spacing: var(--track-mono);
+}
+.kc-account[aria-expanded="true"] {
+  background: var(--bg-raised);
+  border-color: var(--line-strong);
+}
+
+
+/* ============================================================
+   BUTTONS (chrome scale)
+   ============================================================ */
+.kc-btn {
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  padding: 6px 12px;
+  border-radius: var(--r-2);
+  border: 1px solid var(--line);
+  background: var(--bg-raised);
+  color: var(--fg);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-instant) var(--ease-snap),
+    border-color var(--dur-instant) var(--ease-snap),
+    color var(--dur-instant) var(--ease-snap),
+    transform var(--dur-instant) var(--ease-snap);
+}
+.kc-btn:hover { background: var(--bg-pressed); border-color: var(--line-strong); }
+.kc-btn:active { transform: translateY(1px); }
+.kc-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.kc-btn[disabled], .kc-btn[aria-disabled="true"] {
+  opacity: 0.55; cursor: not-allowed; transform: none;
+}
+.kc-btn--primary {
+  background: var(--accent); color: var(--fg-on-accent); border-color: var(--accent);
+}
+.kc-btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.kc-btn--ghost { background: transparent; border-color: transparent; color: var(--fg-muted); }
+.kc-btn--ghost:hover { color: var(--fg); background: var(--bg-raised); border-color: var(--line); }
+.kc-btn--danger {
+  background: transparent;
+  color: var(--state-danger);
+  border-color: var(--state-danger-bg);
+}
+.kc-btn--danger:hover { background: var(--state-danger-bg); border-color: var(--state-danger); }
+
+
+/* ============================================================
+   SAVE BUTTON STATE MACHINE
+   The state-comm primitives live INSIDE the Save button — not a
+   floating toast. The button is the truth-surface for its action.
+   States: idle | saving | saved | failed
+   ============================================================ */
+.kc-save {
+  position: relative;
+  min-width: 84px;
+  justify-content: center;
+}
+.kc-save__label,
+.kc-save__icon { transition: color var(--dur-quick) var(--ease-snap); }
+
+/* the leading icon swaps per state; pulse animates only while saving */
+.kc-save__icon {
+  width: 12px; height: 12px;
+  display: inline-grid; place-items: center;
+  flex: 0 0 12px;
+}
+.kc-save__icon svg { width: 100%; height: 100%; }
+
+/* idle */
+.kc-save[data-state="idle"] { /* default kc-btn */ }
+.kc-save[data-state="idle"] .kc-save__icon { display: none; }
+
+/* saving — pulse on the spinner */
+.kc-save[data-state="saving"] {
+  cursor: progress;
+  color: var(--fg-muted);
+}
+.kc-save[data-state="saving"] .kc-save__icon { color: var(--fg-muted); }
+.kc-save[data-state="saving"] .kc-save__icon svg {
+  animation: kc-spin 700ms linear infinite;
+  transform-origin: center;
+}
+
+/* saved — slime-dim positive feedback, auto-collapses to idle after ~1.5s */
+.kc-save[data-state="saved"] {
+  color: var(--state-success);
+  border-color: var(--state-success-bg);
+  background: var(--state-success-bg);
+}
+.kc-save[data-state="saved"] .kc-save__icon { color: var(--state-success); }
+
+/* failed — recoverable error per state-comm primitive #3 */
+.kc-save[data-state="failed"] {
+  color: var(--state-warn);
+  border-color: var(--state-warn);
+  background: var(--state-warn-bg);
+}
+.kc-save[data-state="failed"] .kc-save__icon { color: var(--state-warn); }
+.kc-save[data-state="failed"]:hover { background: var(--state-warn-bg); }
+
+@keyframes kc-spin { to { transform: rotate(360deg); } }
+
+/* the "details" reveal sits beneath the button when failed */
+.kc-save-details {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  min-width: 260px; max-width: 320px;
+  background: var(--bg-raised);
+  border: 1px solid var(--state-warn);
+  border-radius: var(--r-2);
+  padding: var(--s-3);
+  font-size: var(--t-sm);
+  color: var(--fg);
+  box-shadow: var(--shadow-3);
+  z-index: 20;
+  /* snap entry, translate only — no fade. DC-11 grammar at chrome scale. */
+  animation: kc-save-details-in var(--dur-quick) var(--ease-snap) both;
+}
+.kc-save-details__tech {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg-faint);
+  margin-top: var(--s-2);
+  letter-spacing: var(--track-mono);
+}
+.kc-save-details__retry {
+  display: inline-block;
+  margin-top: var(--s-2);
+}
+@keyframes kc-save-details-in {
+  from { transform: translateY(-6px); }
+  to   { transform: translateY(0); }
+}
+
+
+/* ============================================================
+   PANELS — Blocks (left) / Inspector (right)
+   ============================================================ */
+.kc-panel {
+  background: var(--bg-chrome);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  position: relative;
+}
+.kc-panel--left  { border-right: 1px solid var(--line); }
+.kc-panel--right { border-left:  1px solid var(--line); }
+
+.kc-panel__header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  height: 40px;
+  background: var(--bg-chrome);
+  position: sticky; top: 0; z-index: 1;
+}
+.kc-panel__title {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.kc-panel__action {
+  font: inherit;
+  font-size: var(--t-xs);
+  font-family: var(--font-mono);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  background: transparent; border: 0; padding: 4px 6px;
+  cursor: pointer;
+  border-radius: var(--r-1);
+}
+.kc-panel__action:hover { color: var(--fg); background: var(--bg-raised); }
+
+.kc-panel__body {
+  overflow-y: auto;
+  padding: var(--s-3);
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+.kc-panel__body::-webkit-scrollbar { width: 8px; }
+.kc-panel__body::-webkit-scrollbar-thumb {
+  background: var(--line-strong); border-radius: var(--r-pill);
+  border: 2px solid var(--bg-chrome);
+}
+
+.kc-panel__section {
+  margin-bottom: var(--s-4);
+}
+.kc-panel__section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  padding: var(--s-2) var(--s-1);
+  margin-bottom: var(--s-1);
+  cursor: pointer;
+  user-select: none;
+}
+.kc-panel__section-head::after {
+  content: ""; width: 6px; height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--dur-quick) var(--ease-snap);
+}
+.kc-panel__section[data-collapsed="true"] .kc-panel__section-head::after { transform: rotate(-45deg); }
+.kc-panel__section[data-collapsed="true"] .kc-panel__section-body { display: none; }
+
+
+/* ----- Block list ----- */
+.kc-blocklist { display: grid; gap: 2px; }
+.kc-block {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-2);
+  cursor: grab;
+  color: var(--fg-muted);
+  border: 1px solid transparent;
+  transition:
+    background var(--dur-instant) var(--ease-snap),
+    color var(--dur-instant) var(--ease-snap),
+    border-color var(--dur-instant) var(--ease-snap);
+}
+.kc-block:hover {
+  background: var(--bg-raised);
+  color: var(--fg);
+  border-color: var(--line);
+}
+.kc-block[aria-selected="true"] {
+  background: var(--accent-soft);
+  color: var(--fg);
+  border-color: var(--line-strong);
+}
+.kc-block:active { cursor: grabbing; }
+.kc-block__glyph {
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+.kc-block[aria-selected="true"] .kc-block__glyph {
+  background: var(--accent);
+  color: var(--fg-on-accent);
+  border-color: var(--accent);
+}
+.kc-block__label {
+  font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+}
+.kc-block__hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-faint);
+  letter-spacing: var(--track-mono);
+}
+
+/* search */
+.kc-search {
+  position: relative;
+  margin-bottom: var(--s-3);
+}
+.kc-search input {
+  width: 100%;
+  background: var(--bg-deep);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: 6px var(--s-3) 6px 28px;
+  font: inherit; font-size: var(--t-sm);
+  outline: none;
+  transition:
+    border-color var(--dur-quick) var(--ease-snap),
+    box-shadow var(--dur-quick) var(--ease-snap);
+}
+.kc-search input:focus { border-color: var(--accent); box-shadow: var(--glow-slime); }
+.kc-search input::placeholder { color: var(--fg-faint); }
+.kc-search__icon {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--fg-faint);
+  width: 12px; height: 12px;
+  pointer-events: none;
+}
+
+
+/* ----- Inspector empty state ----- */
+.kc-empty {
+  text-align: center;
+  padding: var(--s-7) var(--s-4);
+  color: var(--fg-muted);
+}
+.kc-empty__glyph {
+  width: 56px; height: 56px;
+  margin: 0 auto var(--s-4);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-3);
+  display: grid; place-items: center;
+  color: var(--fg-faint);
+  font-family: var(--font-mono); font-size: 18px;
+}
+.kc-empty__title {
+  font-size: var(--t-sm);
+  font-weight: var(--w-medium);
+  color: var(--fg);
+  margin-bottom: var(--s-1);
+}
+.kc-empty__hint {
+  font-size: var(--t-xs);
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  letter-spacing: var(--track-mono);
+  line-height: var(--lh-loose);
+}
+
+/* inspector field (a2-scoped to the frame — content is per-block later) */
+.kc-field { display: grid; gap: 4px; margin-bottom: var(--s-3); }
+.kc-field__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+.kc-field__input {
+  background: var(--bg-deep);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-1);
+  padding: var(--pad-field-y) var(--pad-field-x);
+  font: inherit; font-size: var(--t-sm);
+  outline: none;
+  width: 100%;
+  transition:
+    border-color var(--dur-quick) var(--ease-snap),
+    box-shadow var(--dur-quick) var(--ease-snap);
+}
+.kc-field__input:focus { border-color: var(--accent); box-shadow: var(--glow-slime); }
+.kc-field__row { display: flex; gap: var(--s-2); }
+.kc-field__row .kc-field__input { flex: 1; }
+
+
+/* ============================================================
+   MODAL / DIALOG  (destructive confirm only)
+   ============================================================ */
+.kc-modal-root {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center;
+  padding: var(--s-6);
+  pointer-events: none;
+}
+.kc-modal-root[data-open="true"] { pointer-events: auto; }
+.kc-scrim {
+  position: absolute; inset: 0;
+  background: oklch(0.04 0.01 148 / 0.55);
+  backdrop-filter: blur(6px) saturate(1.2);
+  opacity: 0;
+  /* scrim is darkness, not content — opacity ramp allowed, but snap-fast,
+     so the world arrives hard, not blooming. */
+  transition: opacity var(--dur-quick) var(--ease-snap);
+}
+.kc-modal-root[data-open="true"] .kc-scrim { opacity: 1; }
+
+.kc-modal {
+  position: relative;
+  width: min(420px, 100%);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-3);
+  padding: var(--s-5) var(--s-5) var(--s-4);
+  /* snap entry — translate + scale only, NO opacity fade.
+     Content arrives, never dissolves. */
+  transform: translateY(8px) scale(0.96);
+  transition:
+    transform var(--dur-quick) var(--ease-snap);
+}
+.kc-modal-root[data-open="true"] .kc-modal {
+  transform: translateY(0) scale(1);
+}
+.kc-modal__head {
+  display: flex; align-items: center; gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.kc-modal__icon {
+  width: 28px; height: 28px;
+  background: var(--state-danger-bg);
+  color: var(--state-danger);
+  display: grid; place-items: center;
+  border-radius: var(--r-2);
+  flex: 0 0 28px;
+  font-family: var(--font-mono); font-weight: var(--w-bold);
+}
+.kc-modal__title {
+  font-size: var(--t-lg);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+}
+.kc-modal__body {
+  font-size: var(--t-sm);
+  color: var(--fg-muted);
+  line-height: var(--lh-loose);
+  margin-bottom: var(--s-5);
+}
+.kc-modal__body strong { color: var(--fg); font-weight: var(--w-medium); }
+.kc-modal__actions {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: var(--s-2);
+}
+.kc-modal__actions .kc-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.kc-modal__hint {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg-faint);
+  letter-spacing: var(--track-mono);
+  margin-right: auto;
+}
+
+
+/* ============================================================
+   TOAST  (non-recoverable error / background events)
+   Anchor: top-center, just below the toolbar.
+   Inline-at-action wins for foreground events; toasts are
+   reserved for background or session-class events.
+   ============================================================ */
+.kc-toast-stack {
+  position: fixed;
+  top: calc(48px + var(--s-3));  /* just below 48px toolbar */
+  left: 50%; transform: translateX(-50%);
+  z-index: 60;
+  display: grid;
+  gap: var(--s-2);
+  width: min(520px, calc(100% - var(--s-6) * 2));
+  pointer-events: none;
+}
+.kc-toast {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  box-shadow: var(--shadow-3);
+  pointer-events: auto;
+  font-size: var(--t-sm);
+  color: var(--fg);
+  /* snap entry, translate only — no fade. */
+  animation: kc-toast-in var(--dur-quick) var(--ease-snap) both;
+}
+.kc-toast__icon {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--state-danger);
+  box-shadow: 0 0 8px var(--state-danger);
+}
+.kc-toast[data-tone="warn"] .kc-toast__icon { background: var(--state-warn); box-shadow: 0 0 8px var(--state-warn); }
+.kc-toast[data-tone="success"] .kc-toast__icon { background: var(--state-success); box-shadow: 0 0 8px var(--state-success); }
+.kc-toast__title { font-weight: var(--w-medium); }
+.kc-toast__sub {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--fg-faint);
+  margin-top: 2px;
+  letter-spacing: var(--track-mono);
+}
+.kc-toast__cta {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent-soft);
+  padding: 4px var(--s-2);
+  border-radius: var(--r-1);
+  cursor: pointer;
+}
+.kc-toast__cta:hover { background: var(--accent-soft); }
+
+@keyframes kc-toast-in {
+  from { transform: translateY(-8px); }
+  to   { transform: translateY(0); }
+}
+
+
+/* ============================================================
+   NAVIGATION FRAME  (account menu + page switcher)
+   In-app nav only — landing is Phase B.
+   ============================================================ */
+.kc-menu {
+  position: absolute;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-3);
+  min-width: 260px;
+  padding: var(--s-2);
+  z-index: 50;
+  /* snap entry, translate only — no fade. */
+  transform: translateY(-6px);
+  visibility: hidden;
+  transition:
+    transform var(--dur-quick) var(--ease-snap),
+    visibility 0s linear var(--dur-quick);
+}
+.kc-menu[data-open="true"] {
+  transform: translateY(0);
+  visibility: visible;
+  transition:
+    transform var(--dur-quick) var(--ease-snap),
+    visibility 0s linear 0s;
+}
+.kc-menu__group {
+  padding: var(--s-1) 0;
+  border-bottom: 1px solid var(--line);
+}
+.kc-menu__group:last-child { border-bottom: none; }
+.kc-menu__heading {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  padding: var(--s-2) var(--s-3) var(--s-1);
+}
+.kc-menu__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-2);
+  font-size: var(--t-sm);
+  color: var(--fg);
+  cursor: pointer;
+  border: 0; background: transparent; width: 100%; text-align: left;
+  font-family: inherit;
+}
+.kc-menu__item:hover { background: var(--bg-pressed); }
+.kc-menu__item .kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-faint);
+  letter-spacing: var(--track-mono);
+}
+.kc-menu__item--danger { color: var(--state-danger); }
+.kc-menu__item--danger:hover { background: var(--state-danger-bg); }
+
+/* a small inline page switcher — clickable on the page title */
+.kc-pagepicker {
+  position: absolute;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-3);
+  min-width: 320px; max-height: 360px; overflow: auto;
+  padding: var(--s-2);
+  z-index: 50;
+}
+.kc-pagepicker__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-2);
+  cursor: pointer;
+}
+.kc-pagepicker__item:hover { background: var(--bg-pressed); }
+.kc-pagepicker__name { font-size: var(--t-sm); color: var(--fg); }
+.kc-pagepicker__sub  {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--fg-faint); letter-spacing: var(--track-mono); margin-top: 2px;
+}
+.kc-pagepicker__badge {
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  padding: 2px 5px; border-radius: var(--r-1);
+  color: var(--accent); background: var(--accent-soft);
+  align-self: center;
+}
+
+
+/* ============================================================
+   MOBILE CHROME  (< 768px)
+   - top: compact toolbar (brand · title · overflow)
+   - bottom: mode bar (EDIT/PREVIEW)
+   - blocks/inspector promote to bottom action sheet
+   - drag DISABLED per bible (single-column vertical stack)
+   ============================================================ */
+@media (max-width: 767px) {
+  .kc-shell { grid-template-rows: 44px 1fr 56px; }
+  .kc-shell__body {
+    grid-template-columns: 1fr;
+  }
+  .kc-shell__body .kc-panel { display: none; }    /* panels become sheets */
+  .kc-toolbar {
+    height: 44px;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--s-3);
+  }
+  .kc-toolbar__tabs,           /* mode tabs move to bottom bar */
+  .kc-toolbar__divider,
+  .kc-meta__sub,               /* meta condenses */
+  .kc-meta__status,
+  .kc-toolbar__actions .kc-btn:not(.kc-save):not(.kc-btn--primary),
+  .kc-account__handle { display: none; }
+
+  .kc-meta { padding: 0; min-width: 0; }
+  .kc-meta__title { max-width: none; font-size: var(--t-sm); }
+
+  .kc-toolbar__actions { gap: var(--s-1); }
+}
+
+/* the mobile bottom mode bar — only rendered <768px */
+.kc-mobilebar {
+  display: none;
+  background: var(--bg-chrome);
+  border-top: 1px solid var(--line);
+  height: 56px;
+  align-items: stretch;
+  justify-content: space-around;
+  position: relative;
+}
+.kc-mobilebar__tab {
+  flex: 1;
+  display: grid; place-items: center; gap: 2px;
+  background: transparent; border: 0;
+  color: var(--fg-muted);
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  cursor: pointer;
+}
+.kc-mobilebar__tab[aria-selected="true"] { color: var(--accent); }
+.kc-mobilebar__tab .kc-mobilebar__glyph {
+  width: 18px; height: 18px;
+  border-radius: var(--r-1);
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  margin-bottom: 2px;
+}
+.kc-mobilebar__tab[aria-selected="true"] .kc-mobilebar__glyph {
+  background: var(--accent); border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+@media (max-width: 767px) {
+  .kc-mobilebar { display: flex; }
+}
+
+/* action sheet — promotes panels on mobile */
+.kc-sheet-root {
+  position: fixed; inset: 0; z-index: 80;
+  pointer-events: none;
+}
+.kc-sheet-root[data-open="true"] { pointer-events: auto; }
+.kc-sheet-root .kc-scrim {
+  position: absolute; inset: 0;
+  background: oklch(0.04 0.01 148 / 0.55);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity var(--dur-glide) var(--ease-glide);
+}
+.kc-sheet-root[data-open="true"] .kc-scrim { opacity: 1; }
+.kc-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: var(--bg-raised);
+  border-top: 1px solid var(--line-strong);
+  border-radius: var(--r-4) var(--r-4) 0 0;
+  max-height: 80vh;
+  transform: translateY(100%);
+  transition: transform var(--dur-glide) var(--ease-glide);
+  display: grid; grid-template-rows: auto 1fr;
+}
+.kc-sheet-root[data-open="true"] .kc-sheet { transform: translateY(0); }
+.kc-sheet__grip {
+  width: 36px; height: 4px; border-radius: var(--r-pill);
+  background: var(--line-strong);
+  margin: 8px auto;
+}
+.kc-sheet__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--s-4) var(--s-3);
+  border-bottom: 1px solid var(--line);
+}
+.kc-sheet__title {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.kc-sheet__body { overflow-y: auto; padding: var(--s-4); }
+
+
+/* ============================================================
+   STATE-COMM ANCHORS (canonical positions)
+   ----------------------------------------------------------------
+   These are documentation classes — they don't restyle anything,
+   they exist so production code references the *named* anchor
+   instead of redeciding placement per feature.
+
+   .kc-anchor--inline-at-action  : foreground events (save, delete,
+                                   upload) live next to or inside
+                                   the action element.
+   .kc-anchor--toast-top         : background events + session
+                                   class (offline, signed-out)
+                                   stack under the toolbar.
+   .kc-anchor--modal-center      : destructive confirm ONLY. Esc /
+                                   click-outside / explicit cancel
+                                   dismiss. Focus traps inside the
+                                   dialog, returns to invoker on
+                                   close.
+   ============================================================ */
+.kc-anchor--inline-at-action { /* documentation only */ }
+.kc-anchor--toast-top { /* documentation only */ }
+.kc-anchor--modal-center { /* documentation only */ }

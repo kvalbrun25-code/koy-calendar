@@ -1,0 +1,583 @@
+/* =============================================================
+   KOY LANDING — B1
+   Sprint 2.5 · Phase B · Deliverable B1
+   Depends on: koy-tokens.css (loaded first)
+   -------------------------------------------------------------
+   Scope (layout shell only — motion/asset deliverables follow):
+     · Full-bleed hero region            — reserves B2 copy, B3 rip-mark
+     · Scroll-transition system          — CSS scroll-driven, no JS
+     · Slime band slot                   — B4 takeover fills this
+     · Hotspot region (6-slot grid)      — B5 fills interactions
+     · Navigation footprint              — minimal, identity-first
+     · Bridge to template gallery        — Phase C handoff slot
+     · Mobile reshape (<768px / <420px)  — first-class, not trimmed
+   Conventions:
+     · Class prefix:  kl-  (koy landing)
+     · Motion grammar at landing scale: snap + glide + pulse.
+       --ease-rip RESERVED for B3 (rip-from-void) and B4 (slime).
+       NOT used in layout shell; landing is just the room here.
+     · NO FADE. Translate-only entries. Static opacity allowed
+       only as constant low-intensity (e.g. hairline gradient
+       endcaps); never a transition target on content.
+     · CSS scroll-driven animation wrapped in @supports so older
+       UAs degrade to static layout. No JS scroll listeners.
+   ============================================================= */
+
+
+/* ============================================================
+   ROOT — landing is its own surface, not the editor.
+   No toolbar. No panels. The body is the canvas.
+   ============================================================ */
+.kl, .kl * { box-sizing: border-box; }
+.kl {
+  font-family: var(--font-ui);
+  color: var(--fg);
+  background: var(--bg-deep);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* The void substrate — two soft radial halos at top + bottom,
+   green-undertoned so the void reads as alien-dark, not generic
+   dark mode. Pure CSS; sandbox-safe; ships native. */
+.kl::before {
+  content: "";
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60vmax 55vmax at 50% -10%,
+      oklch(0.16 0.055 148 / 0.55), transparent 60%),
+    radial-gradient(80vmax 60vmax at 50% 115%,
+      oklch(0.13 0.060 148 / 0.45), transparent 65%),
+    var(--bg-deep);
+}
+
+.kl > * { position: relative; z-index: 1; }
+
+
+/* ============================================================
+   SCROLL PROGRESS — a single slime-tinted hairline pinned to
+   the top, filling left-to-right as the user scrolls. CSS
+   scroll-driven; no JS. Doubles as a wayfinding signal that
+   landing is a "scrollable program," not a single fold.
+   ============================================================ */
+.kl-scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 60;
+  pointer-events: none;
+  background: oklch(0.04 0.01 148 / 0.4);
+}
+.kl-scroll-progress::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+@supports (animation-timeline: scroll()) {
+  .kl-scroll-progress::before {
+    animation: kl-scroll-fill linear both;
+    animation-timeline: scroll(root);
+  }
+  @keyframes kl-scroll-fill {
+    to { transform: scaleX(1); }
+  }
+}
+
+
+/* ============================================================
+   NAV — minimal. Brand-mark slot (B3 fills with the rendered
+   rip-mark asset). One route in on the right. Nothing else.
+   Landing is identity-first, not a marketing site nav.
+   ============================================================ */
+.kl-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: var(--s-4) var(--s-6);
+  pointer-events: none;
+}
+.kl-nav > * { pointer-events: auto; }
+
+.kl-nav__brand-slot {
+  /* B3 fills with the rip-mark. B1 sizes the box. */
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+}
+
+.kl-nav__route {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  font-weight: var(--w-medium);
+  color: var(--fg);
+  text-decoration: none;
+  padding: 8px 14px;
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--r-pill);
+  background: oklch(0.08 0.015 148 / 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    border-color var(--dur-quick) var(--ease-snap),
+    background var(--dur-quick) var(--ease-snap),
+    box-shadow var(--dur-quick) var(--ease-snap),
+    color var(--dur-quick) var(--ease-snap);
+}
+.kl-nav__route:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: var(--glow-slime);
+}
+.kl-nav__route:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+
+/* ============================================================
+   HERO — full-bleed, 100svh on mobile (accounts for browser
+   chrome). Three-row grid: top breathing room, rip-mark band,
+   copy stack. B1 reserves slots only; B2 and B3 fill content.
+   ============================================================ */
+.kl-hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto auto 1fr;
+  justify-items: center;
+  align-items: center;
+  padding: var(--s-9) var(--s-6) var(--s-7);
+  position: relative;
+}
+
+.kl-hero__rip-slot {
+  grid-row: 2;
+  width: min(320px, 60vmin);
+  aspect-ratio: 1;
+  display: grid; place-items: center;
+  /* B3 owns the rip motion. B1 reserves the canvas only. */
+}
+
+.kl-hero__copy-slot {
+  grid-row: 3;
+  margin-top: var(--s-7);
+  width: min(720px, 100%);
+  text-align: center;
+  display: grid;
+  gap: var(--s-3);
+}
+
+.kl-hero__tag {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 var(--s-3);
+}
+
+.kl-hero__phrase {
+  font-family: var(--font-display);
+  font-size: var(--t-4xl);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+  color: var(--fg);
+  margin: 0;
+  text-wrap: balance;
+  /* B2 owns the actual string. B1 stresses layout with stand-in. */
+}
+
+.kl-hero__cue {
+  /* the "scroll down" wayfinding cue at the foot of the hero —
+     a 1px hairline and mono caption. NO bouncing-chevron trope. */
+  grid-row: 4;
+  align-self: end;
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  padding-bottom: var(--s-3);
+}
+.kl-hero__cue-line {
+  width: 1px; height: 32px;
+  background: linear-gradient(to bottom, transparent, var(--accent));
+}
+.kl-hero__cue-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+
+/* ============================================================
+   SLIME BAND — the inter-section void between hero and
+   hotspots. B4 fills with the slime takeover asset (rendered
+   video / GIF / SVG-animated). B1 reserves the band so the
+   page rhythm reads correctly without B4 shipped yet.
+   ============================================================ */
+.kl-slime-band {
+  height: 42vh;
+  min-height: 280px;
+  display: grid;
+  place-items: stretch;
+  position: relative;
+}
+.kl-slime-band__slot {
+  border-top: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--line);
+  display: grid; place-items: center;
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 14px,
+      oklch(0.16 0.04 148 / 0.4) 14px 15px
+    );
+}
+.kl-slime-band__slot-label {
+  padding: 6px var(--s-3);
+  border: 1px solid var(--line);
+  background: var(--bg-deep);
+  border-radius: var(--r-1);
+}
+
+
+/* ============================================================
+   HOTSPOTS — 6 slots placed as an irregular CONSTELLATION on a
+   12-col × auto-row scaffold. Each card has its own (col, row,
+   span); no two share a baseline. Star map, not bento — the
+   asymmetry is the point (Rule #4 anti-productivity-tool). B5
+   layers breathing / preview / slime-acknowledgement on top.
+   Entry: per-card translate-only reveal via view()-timeline.
+   ============================================================ */
+.kl-hotspots {
+  padding: var(--s-9) var(--s-6) var(--s-9);
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 64px;
+  gap: var(--s-3);
+}
+
+.kl-hotspots__head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--s-5);
+}
+
+/* ----- desktop constellation placements -----
+   Each card explicitly positioned. Variance in size + offset
+   in vertical position is intentional. Coordinates chosen so
+   the eye composes left→right, descending in waves — not by
+   row-major scan. */
+.kl-hotspot:nth-of-type(1) { grid-column: 1  / span 5; grid-row: 1 / span 4; }
+.kl-hotspot:nth-of-type(2) { grid-column: 7  / span 4; grid-row: 3 / span 4; }
+.kl-hotspot:nth-of-type(3) { grid-column: 11 / span 2; grid-row: 1 / span 3; }
+.kl-hotspot:nth-of-type(4) { grid-column: 2  / span 4; grid-row: 6 / span 4; }
+.kl-hotspot:nth-of-type(5) { grid-column: 7  / span 5; grid-row: 7 / span 5; }
+.kl-hotspot:nth-of-type(6) { grid-column: 11 / span 2; grid-row: 4 / span 3; }
+.kl-hotspots__title {
+  font-family: var(--font-display);
+  font-size: var(--t-2xl);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  margin: 0;
+  line-height: var(--lh-tight);
+}
+.kl-hotspots__count {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.kl-hotspot {
+  position: relative;
+  /* size comes from grid placement on desktop; aspect-ratio
+     only kicks in at mobile reshape where placement collapses. */
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: oklch(0.10 0.020 148 / 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  padding: var(--s-5);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--s-4);
+  text-decoration: none;
+  color: var(--fg);
+  overflow: hidden;
+  cursor: pointer;
+  isolation: isolate;
+  /* default state — reveal-on-enter override is opt-in via
+     @supports below, so non-supporting UAs ship a static grid. */
+  transition:
+    border-color var(--dur-quick) var(--ease-snap),
+    background var(--dur-quick) var(--ease-snap),
+    transform var(--dur-quick) var(--ease-snap);
+}
+
+@supports (animation-timeline: view()) {
+  .kl-hotspot {
+    animation: kl-hotspot-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  @keyframes kl-hotspot-rise {
+    /* TRANSLATE-ONLY. No opacity. The card enters in its final
+       opacity, rising into place as scroll pulls it up. */
+    from { transform: translateY(48px); }
+    to   { transform: translateY(0); }
+  }
+}
+
+.kl-hotspot:hover {
+  border-color: var(--accent);
+  background: oklch(0.13 0.030 148 / 0.7);
+  /* B5 adds: slime-acknowledgement, mini-preview reveal,
+     subtle hover-pulse. B1 just confirms the border picks
+     up accent on focus/hover. */
+}
+.kl-hotspot:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.kl-hotspot__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.kl-hotspot__num {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  color: var(--fg-faint);
+}
+.kl-hotspot__tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 2px 6px;
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--r-1);
+  background: var(--accent-soft);
+}
+
+.kl-hotspot__preview {
+  /* B5 fills with the template mini-preview. B1 ships a
+     subtly-striped placeholder so the slot is visible. */
+  align-self: stretch;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-2);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      oklch(0.20 0.030 148 / 0.5) 8px 9px
+    ),
+    oklch(0.10 0.020 148 / 0.5);
+  display: grid; place-items: center;
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  min-height: 0;
+}
+
+.kl-hotspot__foot {
+  display: grid;
+  gap: var(--s-1);
+}
+.kl-hotspot__label {
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  line-height: var(--lh-tight);
+}
+.kl-hotspot__sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-mono);
+  color: var(--fg-faint);
+}
+
+
+/* ============================================================
+   BRIDGE — doorway from landing into the template gallery.
+   B5 wires the routing (hotspot click → gallery, this CTA →
+   gallery index). Phase C builds the destination. B1 reserves
+   the position and the visual.
+   ============================================================ */
+.kl-bridge {
+  padding: var(--s-9) var(--s-6) var(--s-10);
+  display: grid;
+  place-items: center;
+  gap: var(--s-3);
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.kl-bridge__seam {
+  width: 1px; height: var(--s-9);
+  background: linear-gradient(to bottom,
+    transparent, var(--accent), transparent);
+  margin-bottom: var(--s-4);
+}
+.kl-bridge__cue {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+.kl-bridge__cta {
+  font-family: var(--font-display);
+  font-size: var(--t-xl);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  text-decoration: none;
+  padding: var(--s-3) var(--s-1);
+  border-bottom: 1px solid var(--accent);
+  transition:
+    color var(--dur-quick) var(--ease-snap),
+    border-color var(--dur-quick) var(--ease-snap);
+}
+.kl-bridge__cta:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent-hover);
+}
+.kl-bridge__cta:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+
+
+/* ============================================================
+   MOBILE RESHAPE
+   - <768px : phone reshape; hotspots 2 columns; hero scales
+   - <420px : ultra-narrow; hotspots single column, wider aspect
+   Landing is NOT a trimmed desktop view — it reshapes.
+   ============================================================ */
+@media (max-width: 767px) {
+  .kl-nav {
+    padding: var(--s-3) var(--s-4);
+  }
+  .kl-nav__route {
+    padding: 7px 12px;
+  }
+
+  .kl-hero {
+    padding: var(--s-8) var(--s-4) var(--s-6);
+    grid-template-rows: 1fr auto auto auto;
+  }
+  .kl-hero__rip-slot {
+    width: min(220px, 56vmin);
+  }
+  .kl-hero__phrase {
+    font-size: var(--t-3xl); /* 48px from 72px */
+  }
+  .kl-hero__copy-slot {
+    margin-top: var(--s-6);
+  }
+
+  .kl-slime-band {
+    height: 32vh;
+    min-height: 220px;
+  }
+
+  /* MOBILE: constellation can't survive narrow viewport.
+     Collapse to single-column vertical scroll-reveal of cards,
+     ordered top-down by feature priority. (Architect call:
+     symmetric stack is the right collapse here; constellation
+     stays desktop-only.) */
+  .kl-hotspots {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    padding: var(--s-7) var(--s-4) var(--s-7);
+    gap: var(--s-3);
+  }
+  .kl-hotspot:nth-of-type(1),
+  .kl-hotspot:nth-of-type(2),
+  .kl-hotspot:nth-of-type(3),
+  .kl-hotspot:nth-of-type(4),
+  .kl-hotspot:nth-of-type(5),
+  .kl-hotspot:nth-of-type(6) {
+    grid-column: auto;
+    grid-row: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .kl-hotspots__title {
+    font-size: var(--t-xl);
+  }
+  .kl-hotspot {
+    padding: var(--s-4);
+    gap: var(--s-3);
+  }
+  .kl-hotspot__preview {
+    min-height: 64px;
+  }
+  .kl-hotspot__label {
+    font-size: var(--t-base);
+  }
+
+  .kl-bridge {
+    padding: var(--s-7) var(--s-4) var(--s-8);
+  }
+  .kl-bridge__cta {
+    font-size: var(--t-lg);
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   - All transitions zeroed at the root via --dur-* (tokens).
+   - Scroll-driven animations are NOT time-based, so the token
+     zeroing doesn't reach them. Explicit override here.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  @supports (animation-timeline: scroll()) {
+    .kl-scroll-progress::before {
+      animation: none;
+      transform: scaleX(0);
+    }
+    .kl-hotspot {
+      animation: none;
+      transform: none;
+    }
+  }
+}
