@@ -11,6 +11,15 @@ import "./styles/koy-landing.css";
 
 var FONTS = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap";
 var STATIC_MARK = "/koy-rip-static-final-frame-v2.jpg";
+var RIP_MOTION = "/koy-rip-motion-v2-CANON.mp4";
+
+/* B3 storage contract: single boolean, sessionStorage backend (rip is a
+   per-session event — plays once, recovers to the static steady state).
+   Set on rip-completion, user-skip, or reduced-motion. NOT set on
+   asset-load failure, so a later visit under better conditions can retry. */
+function ripSeen() { try { return sessionStorage.getItem("koy.landing.rip.seen") === "1"; } catch (e) { return false; } }
+function markRipSeen() { try { sessionStorage.setItem("koy.landing.rip.seen", "1"); } catch (e) {} }
+function reducedMotion() { try { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) { return false; } }
 
 /* B1 hotspot grid · stand-in labels (Phase C names per spec). B5 fills
    interaction/wake behavior once its CSS layer lands. */
@@ -24,6 +33,19 @@ var HOTSPOTS = [
 ];
 
 function Landing() {
+  // B3 rip: first visit plays the motion, then settles to the static mark
+  // (which breathes via .kl-mark-rest). Seen / reduced-motion open settled.
+  var [settled, setSettled] = useState(function () { return ripSeen() || reducedMotion(); });
+
+  function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
+
+  useEffect(function () {
+    if (ripSeen() || reducedMotion()) { markRipSeen(); return; }
+    function onKey(e) { if (e.key === "Escape") settle(true); }
+    window.addEventListener("keydown", onKey);
+    return function () { window.removeEventListener("keydown", onKey); };
+  }, []);
+
   return (
     <div className="kl">
       <link href={FONTS} rel="stylesheet" />
@@ -39,7 +61,20 @@ function Landing() {
 
       <section className="kl-hero">
         <div className="kl-hero__rip-slot">
-          <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          {settled ? (
+            <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          ) : (
+            <video
+              src={RIP_MOTION}
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              onEnded={function () { settle(true); }}
+              onError={function () { settle(false); }}
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          )}
         </div>
 
         <div className="kl-hero__copy-slot">
@@ -50,6 +85,18 @@ function Landing() {
           <span className="kl-hero__cue-line"></span>
           <span className="kl-hero__cue-label">Scroll</span>
         </div>
+
+        {/* Skip — present from t=0 (no fade, Rule #9); jumps straight to settled */}
+        {settled ? null : (
+          <button
+            type="button"
+            onClick={function () { settle(true); }}
+            aria-label="Skip intro"
+            style={{ position: "absolute", right: "var(--s-5)", bottom: "var(--s-5)", background: "transparent", border: "1px solid var(--line)", color: "var(--fg-faint)", font: "var(--t-xs)/1 var(--font-mono)", letterSpacing: "var(--track-caps)", textTransform: "uppercase", padding: "6px 10px", borderRadius: "var(--r-2)", cursor: "pointer" }}
+          >
+            Skip
+          </button>
+        )}
       </section>
 
       {/* B4 slime band — B1 reserves the rhythm. Spread video + settled
