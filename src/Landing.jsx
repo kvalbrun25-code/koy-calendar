@@ -13,6 +13,7 @@ import "./styles/koy-landing.css";
 var FONTS = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap";
 var STATIC_MARK = "/koy-rip-static-final-frame-v2.jpg";
 var RIP_MOTION = "/koy-rip-motion-v2-CANON.mp4";
+var SPREAD_LANDSCAPE = "/koy-spread-motion-landscape-v1.mp4";
 
 /* B3 storage contract: single boolean, sessionStorage backend (rip is a
    per-session event — plays once, recovers to the static steady state).
@@ -36,9 +37,15 @@ function Landing() {
   // B3 rip: first visit plays the motion, then settles to the static mark
   // (which breathes via .kl-mark-rest). Seen / reduced-motion open settled.
   var [settled, setSettled] = useState(function () { return ripSeen() || reducedMotion(); });
+  // B4 spread (v4.4 cascade): data-state="settled" on .kl root once the
+  // spread video ends or errors (Path C deferred-asset: onError fires
+  // immediately when the MP4 is absent — silent slot reservation, ambient
+  // field reveals via CSS, hotspot wake becomes eligible).
+  var [bridgeSettled, setBridgeSettled] = useState(false);
   var hotspotsRef = useRef(null);
 
   function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
+  function settleBridge() { setBridgeSettled(true); }
 
   useEffect(function () {
     if (ripSeen() || reducedMotion()) { markRipSeen(); return; }
@@ -149,7 +156,7 @@ function Landing() {
   }, []);
 
   return (
-    <div className="kl">
+    <div className="kl" data-state={bridgeSettled ? "settled" : undefined}>
       <link href={FONTS} rel="stylesheet" />
       <div className="kl-scroll-progress" aria-hidden="true"></div>
 
@@ -201,9 +208,24 @@ function Landing() {
         )}
       </section>
 
-      {/* B4 slime band — B1 reserves the rhythm. Spread video + settled
-          behavior held (Beat 5): that layer arrives in CD's next delta. */}
-      <div className="kl-slime-band" aria-hidden="true"></div>
+      {/* B4 spread (Path C deferred-asset). Unconditional <video>: on
+          successful play it ends and fires onEnded; in deferred-asset
+          (MP4 absent) onError fires immediately. Either path settles the
+          .kl root, revealing the ambient field + becoming wake-eligible.
+          When the spread MP4 lands, no code change — drop the file into
+          public/ at the specced filename and the slot resolves. */}
+      <div className="kl-slime-band" aria-hidden="true">
+        <video
+          className="kl-spread"
+          src={SPREAD_LANDSCAPE}
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onEnded={settleBridge}
+          onError={settleBridge}
+        />
+      </div>
 
       {/* B5 — 3-tile portal constellation. Orchestrator (above) binds to this
           section via hotspotsRef; wake/tap/long-press classes land here. */}
