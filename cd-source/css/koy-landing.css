@@ -266,13 +266,9 @@
      · reverse transition (900ms back into grid position)
    ============================================================ */
 
-/* ----- file-scope propose-queue tokens -----
-   Promote to koy-tokens.css at Phase B close consolidated
-   integration (queued-coordination case #3, B5 close v4.4). */
-.kl {
-  --z-hotspot: 10;
-  --dur-tap-expand: 700ms;
-}
+/* ----- propose-queue tokens (--z-hotspot, --dur-tap-expand) live in
+   koy-tokens.css as SSOT (Contract 3 promotion). The pre-promotion
+   file-scoped .kl{} block was dropped per v4.4 delta in-place edit 1. */
 
 /* ----- @property registrations for L/C oklch glow modulation -----
    Required for the no-alpha-ramping glow breath grammar (Q1 patch
@@ -688,8 +684,8 @@
 
 /* ============================================================
    BRIDGE — doorway from landing into the template gallery.
-   B4.BRIDGE rename (.kl-bridge__line → __seam) remains queued
-   under separate coordination case #1; not applied here.
+   B4.BRIDGE rename APPLIED: .kl-bridge__line → .kl-bridge__seam
+   (v4.4 delta in-place edit 2 · Q7 (b) preserve · case #1 CLOSED).
    ============================================================ */
 .kl-bridge {
   padding: var(--s-9) var(--s-6) var(--s-10);
@@ -700,7 +696,7 @@
   max-width: 720px;
   margin: 0 auto;
 }
-.kl-bridge__line {
+.kl-bridge__seam {
   width: 1px; height: var(--s-9);
   background: linear-gradient(to bottom,
     transparent, var(--accent), transparent);

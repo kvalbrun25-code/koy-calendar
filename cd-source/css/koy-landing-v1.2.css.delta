@@ -1,0 +1,168 @@
+/* =============================================================
+   KOY LANDING — v1.2 DELTA  ·  B4 spread state-vocabulary layer
+   Apply to: koy-landing.css  (currently v1.1 — B1 v1.1 merge)
+   Companion: B4-patch-v4.4-state-vocabulary-canonization.md
+   Authored:  Claudesign v5 · 2026-05-28
+   -------------------------------------------------------------
+   THIS IS A DELTA, NOT A FULL REPLACEMENT.
+   Two marked in-place edits + one appended behavior layer.
+   Dev A applies the in-place edits surgically, then appends
+   the behavior layer to the end of koy-landing.css.
+   ============================================================= */
+
+
+/* =============================================================
+   ── IN-PLACE EDIT 1 of 2 ──  DROP file-scope token block
+   -------------------------------------------------------------
+   Contract 3 promoted --z-hotspot and --dur-tap-expand into
+   koy-tokens.css (SSOT) in Beat 1. The file-scope placeholder
+   block in koy-landing.css v1.1 is now redundant; the hotspot
+   rules' var() references resolve from koy-tokens.css.
+
+   FIND (in the HOTSPOTS section, just above the @property block):
+
+       .kl {
+         --z-hotspot: 10;
+         --dur-tap-expand: 700ms;
+       }
+
+   DELETE the entire block (including the preceding
+   "file-scope propose-queue tokens" comment).
+
+   No other change — var(--z-hotspot) / var(--dur-tap-expand)
+   references stay; they resolve from koy-tokens.css.
+   ============================================================= */
+
+
+/* =============================================================
+   ── IN-PLACE EDIT 2 of 2 ──  RENAME .kl-bridge__line → __seam
+   -------------------------------------------------------------
+   Q7 (b) PRESERVE. Dev A's src/styles + Landing.jsx already
+   carry .kl-bridge__seam (Contract 2). cd-source realigns.
+
+   FIND (in the BRIDGE section):
+
+       .kl-bridge__line {
+         width: 1px; height: var(--s-9);
+         ...
+       }
+
+   RENAME the selector to:
+
+       .kl-bridge__seam {
+
+   Body of the rule unchanged. Update any other .kl-bridge__line
+   occurrence in koy-landing.css to .kl-bridge__seam (there is
+   exactly one selector; no other references in the CSS).
+   Markup in Landing.jsx already uses __seam — no markup change.
+   ============================================================= */
+
+
+/* =============================================================
+   ── APPENDED BEHAVIOR LAYER ──  paste at END of koy-landing.css
+   B4 spread state-vocabulary cascade. data-state="settled" on
+   .kl root drives: ambient field reveal + hotspot wake (parallel
+   to B5's IntersectionObserver path).
+   ============================================================= */
+
+
+/* ============================================================
+   B4 SPREAD · state vocabulary
+   Single value: data-state="settled" on .kl root. Set by JS on
+   video.onended / video.onerror / any fallback path. Absence =
+   pre-settled. See B4-patch-v4.4 for the full contract.
+   ============================================================ */
+
+/* ----- @property registrations for ambient-field chroma reveal -----
+   Chroma-saturation reveal (NOT opacity, Rule #9). Registered so
+   the data-state transition interpolates L/C smoothly. */
+@property --ambient-l {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.13;
+}
+@property --ambient-c {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.010;
+}
+
+/* ----- spread video positioning -----
+   The spread MP4 (when present) covers the slime band. Harmless
+   when absent (B4.08 deferred-asset): no element renders, the
+   ambient field + settled cascade still fire via onerror. */
+.kl-spread {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ----- ambient field overlay · void default ----- */
+.kl-slime-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  --ambient-l: 0.13;
+  --ambient-c: 0.010;
+  background:
+    radial-gradient(120% 90% at 50% 120%,
+      oklch(var(--ambient-l) var(--ambient-c) 148 / 0.55) 0%,
+      oklch(var(--ambient-l) var(--ambient-c) 148 / 0.20) 45%,
+      transparent 72%);
+  transition:
+    --ambient-l 1200ms var(--ease-pulse),
+    --ambient-c 1200ms var(--ease-pulse);
+}
+/* the slime-band slot needs a stacking context so ::after sits
+   behind the dashed placeholder, not over it */
+.kl-slime-band__slot { position: relative; z-index: 2; }
+
+/* ----- ambient field reveal · on settled ----- */
+.kl[data-state="settled"] .kl-slime-band::after {
+  --ambient-l: 0.34;
+  --ambient-c: 0.130;
+}
+
+/* ============================================================
+   WAKE · second parallel cascade (Q5 sign (a))
+   .kl[data-state="settled"] fires the SAME b5-wake → b5-rest-breath
+   chain as .kl-hotspots.is-woken. Either trigger initiates; forwards
+   fill-mode is idempotent regardless of fire order. No JS bridge.
+
+   Specificity: .kl[data-state="settled"] .kl-hotspots .kl-hotspot
+   (0,4,0) outranks pre-wake void .kl-hotspots:not(.is-woken)
+   .kl-hotspot (0,3,0), so the wake overrides the void hold when
+   data-state settles even if .is-woken was never added.
+   ============================================================ */
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot {
+  animation: b5-wake 600ms var(--ease-pulse) forwards,
+             b5-rest-breath 4.8s linear infinite 600ms;
+}
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot:nth-child(1 of .kl-hotspot) { animation-delay: 0ms, 600ms; }
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot:nth-child(2 of .kl-hotspot) { animation-delay: 180ms, 780ms; }
+.kl[data-state="settled"] .kl-hotspots .kl-hotspot:nth-child(3 of .kl-hotspot) { animation-delay: 360ms, 960ms; }
+
+/* ============================================================
+   REDUCED MOTION · ambient reveal collapses to settled value,
+   no transition. (Wake reduced-motion handling already lives in
+   v1.1's @media block and covers the .kl-hotspot animations.)
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .kl-slime-band::after {
+    transition: none !important;
+  }
+  .kl[data-state="settled"] .kl-slime-band::after {
+    --ambient-l: 0.34;
+    --ambient-c: 0.130;
+  }
+}
+
+/* =============================================================
+   ── END v1.2 DELTA ──
+   ============================================================= */
