@@ -266,13 +266,10 @@
      · reverse transition (900ms back into grid position)
    ============================================================ */
 
-/* ----- file-scope propose-queue tokens -----
-   Promote to koy-tokens.css at Phase B close consolidated
-   integration (queued-coordination case #3, B5 close v4.4). */
-.kl {
-  --z-hotspot: 10;
-  --dur-tap-expand: 700ms;
-}
+/* ----- propose-queue tokens (--z-hotspot, --dur-tap-expand) live in
+   koy-tokens.css as of Beat 1 (Contract 3 promotion). The pre-promotion
+   file-scoped .kl{} block CD's v1.1 shipped was deduped per architect
+   sign 2026-05-27 — koy-tokens.css is the SSOT. */
 
 /* ----- @property registrations for L/C oklch glow modulation -----
    Required for the no-alpha-ramping glow breath grammar (Q1 patch
