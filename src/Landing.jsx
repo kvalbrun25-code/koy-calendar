@@ -187,7 +187,7 @@ function Landing() {
         </div>
 
         <div className="kl-hero__copy-slot">
-          <h1 className="kl-hero__phrase">this is mine.</h1>
+          <h1 className="kl-hero__phrase"></h1>
         </div>
 
         <div className="kl-hero__cue" aria-hidden="true">
