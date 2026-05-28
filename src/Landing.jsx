@@ -6,8 +6,9 @@ import "./styles/koy-landing.css";
    auth/state refactor. Lives on its own route; the auth/Editor front door
    ("/") is untouched. CSS is class-namespaced (.kl-*) so it cannot bleed
    into the inline-styled Editor.
-   Beat 3: B1 layout + B2 copy. Beat 4: B3 rip (video -> static + breath).
-   B4 spread + B5 constellation behavior held pending CD's CSS resolution. */
+   Beat 3: B1 layout + B2 copy.  Beat 4: B3 rip (video -> static + breath).
+   B5: 3-tile portal constellation (wake / hover / tap / long-press) per
+       B1 v1.1 reconciliation.  Beat 5 (B4 spread) still held. */
 
 var FONTS = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap";
 var STATIC_MARK = "/koy-rip-static-final-frame-v2.jpg";
@@ -21,21 +22,21 @@ function ripSeen() { try { return sessionStorage.getItem("koy.landing.rip.seen")
 function markRipSeen() { try { sessionStorage.setItem("koy.landing.rip.seen", "1"); } catch (e) {} }
 function reducedMotion() { try { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) { return false; } }
 
-/* B1 hotspot grid · stand-in labels (Phase C names per spec). B5 fills
-   interaction/wake behavior once its CSS layer lands. */
-var HOTSPOTS = [
-  { num: "01", tag: "Purpose",  label: "the page" },
-  { num: "02", tag: "Vibe",     label: "the zine" },
-  { num: "03", tag: "Commerce", label: "the shop" },
-  { num: "04", tag: "Purpose",  label: "the link" },
-  { num: "05", tag: "Vibe",     label: "the manifesto" },
-  { num: "06", tag: "Commerce", label: "the pre-order" }
+/* B5 decorative ticker rows for the Bloomberg portal fragment (aria-hidden). */
+var BLOOMBERG_ROWS = [
+  ["AAPL", "+1.24", false],
+  ["TSLA", "-0.88", true],
+  ["NVDA", "+3.10", false],
+  ["MSFT", "+0.42", false],
+  ["GME", "-2.15", true],
+  ["DOGE", "+0.07", false]
 ];
 
 function Landing() {
   // B3 rip: first visit plays the motion, then settles to the static mark
   // (which breathes via .kl-mark-rest). Seen / reduced-motion open settled.
   var [settled, setSettled] = useState(function () { return ripSeen() || reducedMotion(); });
+  var hotspotsRef = useRef(null);
 
   function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
 
@@ -44,6 +45,107 @@ function Landing() {
     function onKey(e) { if (e.key === "Escape") settle(true); }
     window.addEventListener("keydown", onKey);
     return function () { window.removeEventListener("keydown", onKey); };
+  }, []);
+
+  /* B5 orchestrator — lifted from B5 preview script-0, .kl-constellation
+     reconciled to .kl-hotspots per B1 v1.1 patch Q2. Runs once on mount;
+     state classes (is-woken / is-tap-in-flight / has-tap) live on the
+     .kl-hotspots wrapper. Cleans up its IO + listeners + timers on unmount. */
+  useEffect(function () {
+    var root = hotspotsRef.current;
+    if (!root) return;
+    var tiles = root.querySelectorAll(".kl-hotspot");
+    var ac = new AbortController();
+    var sig = ac.signal;
+    var timers = [];
+    function later(fn, ms) { var id = setTimeout(fn, ms); timers.push(id); return id; }
+
+    var io = new IntersectionObserver(function (entries, obs) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          root.classList.add("is-woken");
+          obs.disconnect();
+          break;
+        }
+      }
+    }, { threshold: 0.4 });
+    io.observe(root);
+
+    function fireTap(tile) {
+      if (tile.dataset.template === "pending") return fireGraceful(tile);
+      if (root.classList.contains("is-tap-in-flight")) return;
+      root.classList.add("is-tap-in-flight", "has-tap");
+
+      var r = tile.getBoundingClientRect();
+      tile.style.setProperty("--tx", ((window.innerWidth / 2) - (r.left + r.width / 2)) + "px");
+      tile.style.setProperty("--ty", ((window.innerHeight / 2) - (r.top + r.height / 2)) + "px");
+      tile.style.setProperty("--scale", Math.max(window.innerWidth / r.width, window.innerHeight / r.height) * 1.05);
+
+      tile.classList.add("is-tapping");
+      later(function () { tile.classList.add("is-expanding"); }, 120);
+      later(function () { tile.classList.add("is-dissolving"); }, 600);
+      later(function () {
+        tile.dispatchEvent(new CustomEvent("koy:template:enter", {
+          bubbles: true,
+          detail: { template: tile.dataset.template }
+        }));
+      }, 700);
+    }
+
+    function fireGraceful(tile) {
+      if (root.classList.contains("is-tap-in-flight")) return;
+      root.classList.add("is-tap-in-flight", "has-tap");
+      tile.classList.add("is-graceful");
+      later(function () {
+        tile.classList.remove("is-graceful");
+        root.classList.remove("is-tap-in-flight", "has-tap");
+      }, 1400);
+    }
+
+    function bindLongPress(tile) {
+      var timer, x0 = 0, y0 = 0;
+      tile.addEventListener("touchstart", function (e) {
+        if (tile.dataset.template === "pending") return;
+        x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+        timer = setTimeout(function () {
+          tile.classList.add("is-previewing");
+          if (navigator.vibrate) navigator.vibrate(15);
+        }, 400);
+        timers.push(timer);
+      }, { passive: true, signal: sig });
+      tile.addEventListener("touchmove", function (e) {
+        var t = e.touches[0];
+        if (Math.hypot(t.clientX - x0, t.clientY - y0) > 12) {
+          clearTimeout(timer);
+          tile.classList.remove("is-previewing");
+        }
+      }, { passive: true, signal: sig });
+      tile.addEventListener("touchend", function () {
+        clearTimeout(timer);
+        var was = tile.classList.contains("is-previewing");
+        tile.classList.remove("is-previewing");
+        if (was) fireTap(tile);
+      }, { signal: sig });
+      tile.addEventListener("touchcancel", function () {
+        clearTimeout(timer);
+        tile.classList.remove("is-previewing");
+      }, { signal: sig });
+      tile.addEventListener("contextmenu", function (e) { e.preventDefault(); }, { signal: sig });
+    }
+
+    tiles.forEach(function (tile) {
+      tile.addEventListener("click", function () { fireTap(tile); }, { signal: sig });
+      tile.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fireTap(tile); }
+      }, { signal: sig });
+      bindLongPress(tile);
+    });
+
+    return function () {
+      ac.abort();
+      io.disconnect();
+      timers.forEach(clearTimeout);
+    };
   }, []);
 
   return (
@@ -100,30 +202,54 @@ function Landing() {
       </section>
 
       {/* B4 slime band — B1 reserves the rhythm. Spread video + settled
-          behavior held: that CSS layer is not in production koy-landing.css. */}
+          behavior held (Beat 5): that layer arrives in CD's next delta. */}
       <div className="kl-slime-band" aria-hidden="true"></div>
 
-      <section className="kl-hotspots" aria-label="Templates">
+      {/* B5 — 3-tile portal constellation. Orchestrator (above) binds to this
+          section via hotspotsRef; wake/tap/long-press classes land here. */}
+      <section className="kl-hotspots" aria-label="Templates" ref={hotspotsRef}>
         <header className="kl-hotspots__head">
           <h2 className="kl-hotspots__title">A page for every you.</h2>
-          <span className="kl-hotspots__count">6 templates</span>
+          <span className="kl-hotspots__count">3 · vibes at launch</span>
         </header>
 
-        {HOTSPOTS.map(function (h) {
-          return (
-            <a className="kl-hotspot" key={h.num}>
-              <div className="kl-hotspot__head">
-                <span className="kl-hotspot__num">{h.num}</span>
-                <span className="kl-hotspot__tag">{h.tag}</span>
-              </div>
-              <div className="kl-hotspot__preview"></div>
-              <div className="kl-hotspot__foot">
-                <span className="kl-hotspot__label">{h.label}</span>
-                <span className="kl-hotspot__sub">Phase C names</span>
-              </div>
-            </a>
-          );
-        })}
+        <button className="kl-hotspot" type="button" data-template="bloomberg"
+          aria-label="Enter Bloomberg template — terminal-style page for traders and creators">
+          <span className="kl-frag kl-frag--bloomberg" aria-hidden="true">
+            <span className="kl-frag__rows">
+              {BLOOMBERG_ROWS.map(function (row) {
+                return (
+                  <span className="kl-frag__row" key={row[0]}>
+                    <span>{row[0]}</span>
+                    <span className={row[2] ? "neg" : undefined}>{row[1]}</span>
+                  </span>
+                );
+              })}
+              <span className="kl-frag__row">
+                <span>&gt;_</span>
+                <span className="kl-frag__cursor"></span>
+              </span>
+            </span>
+          </span>
+        </button>
+
+        <button className="kl-hotspot" type="button" data-template="glam"
+          aria-label="Enter Glam Girl template — Y2K maximalist page for self-expression">
+          <span className="kl-frag kl-frag--glam" aria-hidden="true">
+            <span className="kl-frag__orb"></span>
+            <span className="kl-frag__sparkle kl-frag__sparkle--a"></span>
+            <span className="kl-frag__sparkle kl-frag__sparkle--b"></span>
+            <span className="kl-frag__sparkle kl-frag__sparkle--c"></span>
+          </span>
+        </button>
+
+        <button className="kl-hotspot" type="button" data-template="pending"
+          data-coming-soon="Coming soon · vibe TBD"
+          aria-label="Third template slot — coming soon, vibe to be announced">
+          <span className="kl-frag kl-frag--pending" aria-hidden="true">
+            <span className="kl-frag__label">slot 3<br /><b>TBD</b></span>
+          </span>
+        </button>
       </section>
 
       <section className="kl-bridge" aria-label="Browse all templates">
