@@ -581,3 +581,48 @@
     }
   }
 }
+
+
+/* ============================================================
+   B4.PULSE — Phase B, integrated independently of Sprint 3 refactor
+   At-rest breath on the B3 v2 settled mark. Lifted from
+   "Koy Landing - B4.PULSE Preview.html" (CD v5 signed).
+   SEAM RESOLUTION (per CD integration note, preview line 893): the
+   preview keyframe carried transform: translate(-50%,-50%) scale()
+   to center its absolutely-positioned demo mark. The production mark
+   is centered by .kl-hero__rip-slot (grid place-items:center), so the
+   keyframe here is scale-only — CD's note describes the keyframe as
+   "transform: scale(...)" and anchoring via transform-origin.
+   Brightness/blur ranges and per-segment timing functions verbatim.
+   ============================================================ */
+.kl-mark-rest {
+  animation: b4-pulse 5.2s linear infinite;
+  transform-origin: center 80%;
+  will-change: transform, filter;
+}
+
+@keyframes b4-pulse {
+  0% {
+    animation-timing-function: var(--ease-pulse);          /* inhale segment */
+    transform: scale(1.000);
+    filter: brightness(0.94) blur(0px);
+  }
+  45% {
+    animation-timing-function: linear;                     /* peak hold */
+    transform: scale(1.012);
+    filter: brightness(1.06) blur(0.4px);
+  }
+  55% {
+    animation-timing-function: cubic-bezier(0.25, 0.65, 0.45, 1);  /* exhale */
+    transform: scale(1.012);
+    filter: brightness(1.06) blur(0.4px);
+  }
+  100% {
+    transform: scale(1.000);
+    filter: brightness(0.94) blur(0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-mark-rest { animation: none; filter: none; }
+}
