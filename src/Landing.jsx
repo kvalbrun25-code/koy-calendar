@@ -43,6 +43,7 @@ function Landing() {
   // field reveals via CSS, hotspot wake becomes eligible).
   var [bridgeSettled, setBridgeSettled] = useState(false);
   var hotspotsRef = useRef(null);
+  var ripVideoRef = useRef(null);
 
   function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
   function settleBridge() { setBridgeSettled(true); }
@@ -53,6 +54,31 @@ function Landing() {
     window.addEventListener("keydown", onKey);
     return function () { window.removeEventListener("keydown", onKey); };
   }, []);
+
+  /* iOS autoplay-kick. Safari (esp. low-power mode + in-app browsers)
+     blocks autoplay even with autoplay+muted+playsinline set. Explicit
+     play() returns a promise; on rejection, wait for the first user
+     gesture on the landing root and kick play() then. Skip affordance
+     still works as a backup. */
+  useEffect(function () {
+    if (settled) return;
+    var v = ripVideoRef.current;
+    if (!v) return;
+    function kickPlay() {
+      var p = v.play();
+      if (p && typeof p.catch === "function") p.catch(function () {});
+    }
+    kickPlay();
+    var root = v.closest(".kl");
+    if (!root) return;
+    function gestureKick() { kickPlay(); }
+    root.addEventListener("touchstart", gestureKick, { once: true, passive: true });
+    root.addEventListener("click", gestureKick, { once: true });
+    return function () {
+      root.removeEventListener("touchstart", gestureKick);
+      root.removeEventListener("click", gestureKick);
+    };
+  }, [settled]);
 
   /* B5 orchestrator — lifted from B5 preview script-0, .kl-constellation
      reconciled to .kl-hotspots per B1 v1.1 patch Q2. Runs once on mount;
@@ -174,6 +200,7 @@ function Landing() {
             <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <video
+              ref={ripVideoRef}
               src={RIP_MOTION}
               autoPlay
               muted
