@@ -961,3 +961,15 @@
 @media (prefers-reduced-motion: reduce) {
   .kl-mark-rest { animation: none; filter: none; }
 }
+
+
+/* ============================================================
+   iOS PRODUCTION SMOKE PATCH (item 2) — spread <video> stays hidden
+   until source loads, avoiding iOS Safari's gray play-button chrome
+   on the deferred-asset 404 (Path C). visibility (NOT display) keeps
+   layout stable so the slime-band rhythm doesn't shift when the MP4
+   later lands. onError still fires the settled cascade from the
+   hidden element; the cascade is asset-independent.
+   ============================================================ */
+.kl-spread { visibility: hidden; }
+.kl-spread.is-loaded { visibility: visible; }

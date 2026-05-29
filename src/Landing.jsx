@@ -42,6 +42,11 @@ function Landing() {
   // immediately when the MP4 is absent — silent slot reservation, ambient
   // field reveals via CSS, hotspot wake becomes eligible).
   var [bridgeSettled, setBridgeSettled] = useState(false);
+  // iOS prod-smoke item 2: hide the spread <video> until source loads so
+  // iOS Safari doesn't render the gray play-button chrome on the deferred-
+  // asset 404. onError still fires the settled cascade from the hidden
+  // element; visibility (not display:none) keeps layout stable.
+  var [spreadLoaded, setSpreadLoaded] = useState(false);
   var hotspotsRef = useRef(null);
   var ripVideoRef = useRef(null);
 
@@ -243,12 +248,13 @@ function Landing() {
           public/ at the specced filename and the slot resolves. */}
       <div className="kl-slime-band" aria-hidden="true">
         <video
-          className="kl-spread"
+          className={"kl-spread" + (spreadLoaded ? " is-loaded" : "")}
           src={SPREAD_LANDSCAPE}
           autoPlay
           muted
           playsInline
           preload="auto"
+          onLoadedData={function () { setSpreadLoaded(true); }}
           onEnded={settleBridge}
           onError={settleBridge}
         />
