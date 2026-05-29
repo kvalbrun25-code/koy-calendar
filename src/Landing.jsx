@@ -42,7 +42,14 @@ function Landing() {
   // immediately when the MP4 is absent — silent slot reservation, ambient
   // field reveals via CSS, hotspot wake becomes eligible).
   var [bridgeSettled, setBridgeSettled] = useState(false);
+  // iOS prod-smoke item 2: hide the spread <video> until source loads so
+  // iOS Safari doesn't render the gray play-button chrome on the deferred-
+  // asset 404. onError still fires the settled cascade from the hidden
+  // element; visibility (not display:none) keeps layout stable.
+  var [spreadLoaded, setSpreadLoaded] = useState(false);
   var hotspotsRef = useRef(null);
+  var ripVideoRef = useRef(null);
+  var cueRef = useRef(null);
 
   function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
   function settleBridge() { setBridgeSettled(true); }
@@ -52,6 +59,61 @@ function Landing() {
     function onKey(e) { if (e.key === "Escape") settle(true); }
     window.addEventListener("keydown", onKey);
     return function () { window.removeEventListener("keydown", onKey); };
+  }, []);
+
+  /* iOS autoplay-kick. Safari (esp. low-power mode + in-app browsers)
+     blocks autoplay even with autoplay+muted+playsinline set. Explicit
+     play() returns a promise; on rejection, wait for the first user
+     gesture on the landing root and kick play() then. Skip affordance
+     still works as a backup. */
+  useEffect(function () {
+    if (settled) return;
+    var v = ripVideoRef.current;
+    if (!v) return;
+    function kickPlay() {
+      var p = v.play();
+      if (p && typeof p.catch === "function") p.catch(function () {});
+    }
+    kickPlay();
+    var root = v.closest(".kl");
+    if (!root) return;
+    function gestureKick() { kickPlay(); }
+    root.addEventListener("touchstart", gestureKick, { once: true, passive: true });
+    root.addEventListener("click", gestureKick, { once: true });
+    return function () {
+      root.removeEventListener("touchstart", gestureKick);
+      root.removeEventListener("click", gestureKick);
+    };
+  }, [settled]);
+
+  /* Hero SCROLL cue: brighten the label via chroma-L (not opacity, Rule
+     #9) as the page scrolls. JS sets --cue-l on the cue element via rAF
+     throttle (~1 update/frame). Reduced-motion: clamp to the brightened
+     value on mount and skip the scroll listener — no dynamic. Was
+     specced but never wired in Phase B; prod-smoke item 3. */
+  useEffect(function () {
+    var el = cueRef.current;
+    if (!el) return;
+    if (reducedMotion()) {
+      el.style.setProperty("--cue-l", "0.85");
+      return;
+    }
+    var rafId = 0;
+    function onScroll() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(function () {
+        rafId = 0;
+        var vh = window.innerHeight || 1;
+        var progress = Math.min(1, Math.max(0, window.scrollY / vh));
+        var L = 0.58 + progress * 0.37; // 0.58 → 0.95
+        el.style.setProperty("--cue-l", L.toFixed(3));
+      });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return function () {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   /* B5 orchestrator — lifted from B5 preview script-0, .kl-constellation
@@ -83,10 +145,15 @@ function Landing() {
       if (root.classList.contains("is-tap-in-flight")) return;
       root.classList.add("is-tap-in-flight", "has-tap");
 
-      var r = tile.getBoundingClientRect();
-      tile.style.setProperty("--tx", ((window.innerWidth / 2) - (r.left + r.width / 2)) + "px");
-      tile.style.setProperty("--ty", ((window.innerHeight / 2) - (r.top + r.height / 2)) + "px");
-      tile.style.setProperty("--scale", Math.max(window.innerWidth / r.width, window.innerHeight / r.height) * 1.05);
+      // Founder taste (Phase B prod-smoke item 4): expansion reduced from
+      // viewport-fill (~8.6x via getBoundingClientRect) to ~1.45x in-place
+      // — a bit bigger than the pending tile arrest at 1.3x. Tile grows in
+      // place; no fly-to-center. Z-index 100 from .is-expanding still lifts
+      // above the constellation. CD will issue CLAUDESIGN v5.1 noting the
+      // new value.
+      tile.style.setProperty("--tx", "0px");
+      tile.style.setProperty("--ty", "0px");
+      tile.style.setProperty("--scale", "1.45");
 
       tile.classList.add("is-tapping");
       later(function () { tile.classList.add("is-expanding"); }, 120);
@@ -174,6 +241,7 @@ function Landing() {
             <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <video
+              ref={ripVideoRef}
               src={RIP_MOTION}
               autoPlay
               muted
@@ -190,7 +258,7 @@ function Landing() {
           <h1 className="kl-hero__phrase"></h1>
         </div>
 
-        <div className="kl-hero__cue" aria-hidden="true">
+        <div className="kl-hero__cue" aria-hidden="true" ref={cueRef}>
           <span className="kl-hero__cue-line"></span>
           <span className="kl-hero__cue-label">Scroll</span>
         </div>
@@ -216,12 +284,13 @@ function Landing() {
           public/ at the specced filename and the slot resolves. */}
       <div className="kl-slime-band" aria-hidden="true">
         <video
-          className="kl-spread"
+          className={"kl-spread" + (spreadLoaded ? " is-loaded" : "")}
           src={SPREAD_LANDSCAPE}
           autoPlay
           muted
           playsInline
           preload="auto"
+          onLoadedData={function () { setSpreadLoaded(true); }}
           onEnded={settleBridge}
           onError={settleBridge}
         />
