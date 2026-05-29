@@ -145,10 +145,15 @@ function Landing() {
       if (root.classList.contains("is-tap-in-flight")) return;
       root.classList.add("is-tap-in-flight", "has-tap");
 
-      var r = tile.getBoundingClientRect();
-      tile.style.setProperty("--tx", ((window.innerWidth / 2) - (r.left + r.width / 2)) + "px");
-      tile.style.setProperty("--ty", ((window.innerHeight / 2) - (r.top + r.height / 2)) + "px");
-      tile.style.setProperty("--scale", Math.max(window.innerWidth / r.width, window.innerHeight / r.height) * 1.05);
+      // Founder taste (Phase B prod-smoke item 4): expansion reduced from
+      // viewport-fill (~8.6x via getBoundingClientRect) to ~1.45x in-place
+      // — a bit bigger than the pending tile arrest at 1.3x. Tile grows in
+      // place; no fly-to-center. Z-index 100 from .is-expanding still lifts
+      // above the constellation. CD will issue CLAUDESIGN v5.1 noting the
+      // new value.
+      tile.style.setProperty("--tx", "0px");
+      tile.style.setProperty("--ty", "0px");
+      tile.style.setProperty("--scale", "1.45");
 
       tile.classList.add("is-tapping");
       later(function () { tile.classList.add("is-expanding"); }, 120);
