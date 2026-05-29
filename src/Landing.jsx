@@ -49,6 +49,7 @@ function Landing() {
   var [spreadLoaded, setSpreadLoaded] = useState(false);
   var hotspotsRef = useRef(null);
   var ripVideoRef = useRef(null);
+  var cueRef = useRef(null);
 
   function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
   function settleBridge() { setBridgeSettled(true); }
@@ -84,6 +85,36 @@ function Landing() {
       root.removeEventListener("click", gestureKick);
     };
   }, [settled]);
+
+  /* Hero SCROLL cue: brighten the label via chroma-L (not opacity, Rule
+     #9) as the page scrolls. JS sets --cue-l on the cue element via rAF
+     throttle (~1 update/frame). Reduced-motion: clamp to the brightened
+     value on mount and skip the scroll listener — no dynamic. Was
+     specced but never wired in Phase B; prod-smoke item 3. */
+  useEffect(function () {
+    var el = cueRef.current;
+    if (!el) return;
+    if (reducedMotion()) {
+      el.style.setProperty("--cue-l", "0.85");
+      return;
+    }
+    var rafId = 0;
+    function onScroll() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(function () {
+        rafId = 0;
+        var vh = window.innerHeight || 1;
+        var progress = Math.min(1, Math.max(0, window.scrollY / vh));
+        var L = 0.58 + progress * 0.37; // 0.58 → 0.95
+        el.style.setProperty("--cue-l", L.toFixed(3));
+      });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return function () {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   /* B5 orchestrator — lifted from B5 preview script-0, .kl-constellation
      reconciled to .kl-hotspots per B1 v1.1 patch Q2. Runs once on mount;
@@ -222,7 +253,7 @@ function Landing() {
           <h1 className="kl-hero__phrase"></h1>
         </div>
 
-        <div className="kl-hero__cue" aria-hidden="true">
+        <div className="kl-hero__cue" aria-hidden="true" ref={cueRef}>
           <span className="kl-hero__cue-line"></span>
           <span className="kl-hero__cue-label">Scroll</span>
         </div>

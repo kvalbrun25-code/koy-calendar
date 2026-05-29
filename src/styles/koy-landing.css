@@ -973,3 +973,20 @@
    ============================================================ */
 .kl-spread { visibility: hidden; }
 .kl-spread.is-loaded { visibility: visible; }
+
+
+/* ============================================================
+   iOS PRODUCTION SMOKE PATCH (item 3) — hero SCROLL cue brightens
+   via chroma-L on scroll (Rule #9: chroma not opacity). JS in
+   Landing.jsx sets --cue-l (range 0.58 → 0.95) on .kl-hero__cue
+   via rAF throttle. Default 0.58 matches --t-fg-3 exactly so the
+   initial rendered state is identical to v1.1; the scroll handler
+   only ever brightens upward. Reduced-motion: --cue-l is pinned
+   to 0.85 at mount (no scroll-bound dynamic). Was specced but
+   never integrated.
+   ============================================================ */
+.kl-hero__cue { --cue-l: 0.58; }
+.kl-hero__cue .kl-hero__cue-label {
+  color: oklch(var(--cue-l, 0.58) 0.022 148);
+  transition: color 200ms var(--ease-pulse);
+}
