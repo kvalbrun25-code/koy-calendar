@@ -249,25 +249,13 @@ function Landing() {
         <div className="kl-hero__rip-slot" ref={ripSlotRef}>
           {settled ? (
             <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-          ) : autoplayBlocked ? (
-            /* iOS patch: autoplay was rejected (Low Power Mode hard-blocks
-               muted autoplay) — fall back to the animated GIF. A GIF is an
-               <img>, so it animates on its own; no kl-mark-rest class here
-               (that class drives the static-mark breathing loop and would
-               double-animate against the GIF's own motion). */
-            <img src={RIP_FALLBACK_GIF} alt="Koy" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
-            <video
-              ref={ripVideoRef}
-              src={RIP_MOTION}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onEnded={function () { settle(true); }}
-              onError={function () { settle(false); }}
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
-            />
+            /* GIF is the default hero motion on ALL devices (founder call).
+               A GIF is an <img>, so it animates everywhere (desktop + iOS,
+               incl. Low Power Mode) with no autoplay policy and no native
+               play-button. The static breathing mark is only the settled
+               state (Skip / Esc / reduced-motion). */
+            <img src={RIP_FALLBACK_GIF} alt="Koy" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           )}
         </div>
 
