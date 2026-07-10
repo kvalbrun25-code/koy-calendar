@@ -42,7 +42,14 @@ function Landing() {
   // immediately when the MP4 is absent — silent slot reservation, ambient
   // field reveals via CSS, hotspot wake becomes eligible).
   var [bridgeSettled, setBridgeSettled] = useState(false);
+  // B4 spread cosmetic (iOS): stay hidden until real decoded frames exist
+  // (onLoadedData). Absent-asset path untouched — onError still settles.
+  var [spreadLoaded, setSpreadLoaded] = useState(false);
   var hotspotsRef = useRef(null);
+  var ripVideoRef = useRef(null);
+  var ripSlotRef = useRef(null);
+  var cueRef = useRef(null);
+  var scrollProgressRef = useRef(null);
 
   function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
   function settleBridge() { setBridgeSettled(true); }
@@ -52,6 +59,58 @@ function Landing() {
     function onKey(e) { if (e.key === "Escape") settle(true); }
     window.addEventListener("keydown", onKey);
     return function () { window.removeEventListener("keydown", onKey); };
+  }, []);
+
+  /* iOS patch: autoplay is frequently blocked on iOS (esp. Low Power
+     Mode), leaving the rip video stalled on its first frame with the
+     intro never playing. Try play() on mount; if the returned promise
+     rejects, retry once on the first user gesture over the rip slot.
+     onError->settle(false) below is untouched — this only adds a play
+     retry path, it never bypasses the error fallback. */
+  useEffect(function () {
+    if (settled) return;
+    var video = ripVideoRef.current;
+    var slot = ripSlotRef.current;
+    if (!video) return;
+    var ac = new AbortController();
+
+    function retryPlay() { video.play().catch(function () {}); }
+
+    var p = video.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(function () {
+        if (!slot) return;
+        slot.addEventListener("pointerdown", retryPlay, { once: true, signal: ac.signal });
+        slot.addEventListener("touchstart", retryPlay, { once: true, passive: true, signal: ac.signal });
+      });
+    }
+
+    return function () { ac.abort(); };
+  }, [settled]);
+
+  /* iOS patch: scroll cue illumination + JS fallback fill for the
+     scroll-progress hairline on UAs without scroll-driven animation
+     support (older iOS Safari). Single passive listener drives both;
+     cleaned up on unmount. */
+  useEffect(function () {
+    var cue = cueRef.current;
+    var bar = scrollProgressRef.current;
+    var needsJsFill = !!(bar && !(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()")));
+
+    function onScroll() {
+      var y = window.scrollY || window.pageYOffset || 0;
+      if (cue) cue.classList.toggle("is-lit", y > 8);
+      if (needsJsFill) {
+        var doc = document.documentElement;
+        var max = doc.scrollHeight - doc.clientHeight;
+        var pct = max > 0 ? Math.min(1, y / max) : 0;
+        bar.style.setProperty("--scroll-fill", pct);
+      }
+    }
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return function () { window.removeEventListener("scroll", onScroll); };
   }, []);
 
   /* B5 orchestrator — lifted from B5 preview script-0, .kl-constellation
@@ -86,7 +145,7 @@ function Landing() {
       var r = tile.getBoundingClientRect();
       tile.style.setProperty("--tx", ((window.innerWidth / 2) - (r.left + r.width / 2)) + "px");
       tile.style.setProperty("--ty", ((window.innerHeight / 2) - (r.top + r.height / 2)) + "px");
-      tile.style.setProperty("--scale", Math.max(window.innerWidth / r.width, window.innerHeight / r.height) * 1.05);
+      tile.style.setProperty("--scale", 1.45);
 
       tile.classList.add("is-tapping");
       later(function () { tile.classList.add("is-expanding"); }, 120);
@@ -158,7 +217,7 @@ function Landing() {
   return (
     <div className="kl" data-state={bridgeSettled ? "settled" : undefined}>
       <link href={FONTS} rel="stylesheet" />
-      <div className="kl-scroll-progress" aria-hidden="true"></div>
+      <div className="kl-scroll-progress" aria-hidden="true" ref={scrollProgressRef}></div>
 
       <nav className="kl-nav" aria-label="Landing">
         <div className="kl-nav__brand-slot" aria-label="Koy">
@@ -169,11 +228,12 @@ function Landing() {
       </nav>
 
       <section className="kl-hero">
-        <div className="kl-hero__rip-slot">
+        <div className="kl-hero__rip-slot" ref={ripSlotRef}>
           {settled ? (
             <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <video
+              ref={ripVideoRef}
               src={RIP_MOTION}
               autoPlay
               muted
@@ -190,7 +250,7 @@ function Landing() {
           <h1 className="kl-hero__phrase"></h1>
         </div>
 
-        <div className="kl-hero__cue" aria-hidden="true">
+        <div className="kl-hero__cue" aria-hidden="true" ref={cueRef}>
           <span className="kl-hero__cue-line"></span>
           <span className="kl-hero__cue-label">Scroll</span>
         </div>
@@ -216,12 +276,13 @@ function Landing() {
           public/ at the specced filename and the slot resolves. */}
       <div className="kl-slime-band" aria-hidden="true">
         <video
-          className="kl-spread"
+          className={"kl-spread" + (spreadLoaded ? " is-loaded" : "")}
           src={SPREAD_LANDSCAPE}
           autoPlay
           muted
           playsInline
           preload="auto"
+          onLoadedData={function () { setSpreadLoaded(true); }}
           onEnded={settleBridge}
           onError={settleBridge}
         />

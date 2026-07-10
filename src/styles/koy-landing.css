@@ -80,7 +80,10 @@
   height: 100%;
   width: 100%;
   transform-origin: 0 50%;
-  transform: scaleX(0);
+  /* iOS patch: falls back to a JS-set --scroll-fill custom property
+     (inherited from .kl-scroll-progress) on UAs without scroll-driven
+     animation support; unset defaults to 0, matching prior behavior. */
+  transform: scaleX(var(--scroll-fill, 0));
   background: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow);
 }
@@ -208,6 +211,7 @@
 .kl-hero__cue-line {
   width: 1px; height: 32px;
   background: linear-gradient(to bottom, transparent, var(--accent));
+  transition: background 320ms var(--ease-pulse), box-shadow 320ms var(--ease-pulse);
 }
 .kl-hero__cue-label {
   font-family: var(--font-mono);
@@ -215,6 +219,17 @@
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--fg-faint);
+  transition: color 320ms var(--ease-pulse);
+}
+
+/* iOS patch: illuminated state once JS detects scroll past ~8px
+   (see Landing.jsx scroll handler). Chroma lift only, no hard flip. */
+.kl-hero__cue.is-lit .kl-hero__cue-line {
+  background: linear-gradient(to bottom, transparent, var(--accent-hover, var(--accent)));
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.kl-hero__cue.is-lit .kl-hero__cue-label {
+  color: var(--accent);
 }
 
 
@@ -852,7 +867,13 @@
   object-fit: cover;
   z-index: 1;
   pointer-events: none;
+  /* iOS broken-chrome fix: hidden until real frames decode (.is-loaded set
+     on onLoadedData). Absent Path-C asset never loads -> stays hidden,
+     nothing paints; onError still settles the bridge. visibility (not
+     opacity) = binary render gate, no fade competing with the ambient reveal. */
+  visibility: hidden;
 }
+.kl-spread.is-loaded { visibility: visible; }
 
 /* ----- ambient field overlay · void default ----- */
 .kl-slime-band::after {
