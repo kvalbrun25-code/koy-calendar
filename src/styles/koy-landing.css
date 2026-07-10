@@ -462,8 +462,27 @@
     --glow-c 240ms var(--ease-pulse),
     --glow-blur 240ms var(--ease-pulse);
 }
+
+/* ----- ZOOM · reversible tap-to-zoom (iOS patch) -----
+   Phase C (koy:template:enter catcher) doesn't exist yet, so a tap
+   holds the tile at 1.45x IN PLACE (no fly-to-center translate) with
+   its frame still visible — NOT the dissolve treatment above. The
+   base .kl-hotspot transition (220ms, transform included) drives both
+   the expand-in and the collapse-back-to-grid animation, so removing
+   this class alone is enough to reverse it cleanly; no separate
+   is-reversing step required. */
+.kl-hotspot.is-zoomed {
+  z-index: 100;
+  transform: scale(1.45);
+  border-color: oklch(0.65 0.18 148);
+  --glow-l: 0.70;
+  --glow-c: 0.20;
+  --glow-blur: 18px;
+  animation-play-state: paused;
+}
+
 /* unchosen tiles collapse — transform+filter, NOT opacity (Rule #9) */
-.kl-hotspots.has-tap .kl-hotspot:not(.is-tapping):not(.is-expanding):not(.is-graceful) {
+.kl-hotspots.has-tap .kl-hotspot:not(.is-tapping):not(.is-expanding):not(.is-graceful):not(.is-zoomed) {
   transform: scale(0.92);
   filter: brightness(0.7);
   animation-play-state: paused;
@@ -826,6 +845,11 @@
   .kl-hotspot.is-dissolving {
     transition: border-color 60ms linear !important;
     transform: none !important;
+  }
+  /* iOS patch: reversible zoom still functions under reduced-motion, it
+     just snaps instead of animating (Rule: animations off, hard req). */
+  .kl-hotspot.is-zoomed {
+    transition: border-color 60ms linear !important;
   }
   .kl-hotspots:not(.is-woken) .kl-hotspot {
     border-color: oklch(0.45 0.08 148);

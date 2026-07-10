@@ -13,6 +13,7 @@ import "./styles/koy-landing.css";
 var FONTS = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap";
 var STATIC_MARK = "/koy-rip-static-final-frame-v2.jpg";
 var RIP_MOTION = "/koy-rip-motion-v2-CANON.mp4";
+var RIP_FALLBACK_GIF = "/koy-rip-motion-v2-fallback.gif";
 var SPREAD_LANDSCAPE = "/koy-spread-motion-landscape-v1.mp4";
 
 /* B3 storage contract: single boolean, sessionStorage backend (rip is a
@@ -37,6 +38,10 @@ function Landing() {
   // B3 rip: first visit plays the motion, then settles to the static mark
   // (which breathes via .kl-mark-rest). Seen / reduced-motion open settled.
   var [settled, setSettled] = useState(function () { return ripSeen() || reducedMotion(); });
+  // iOS patch: when autoplay is blocked (Low Power Mode hard-blocks
+  // muted autoplay), fall back to the animated GIF (an <img>, so it
+  // animates even under Low Power Mode — no native play button).
+  var [autoplayBlocked, setAutoplayBlocked] = useState(false);
   // B4 spread (v4.4 cascade): data-state="settled" on .kl root once the
   // spread video ends or errors (Path C deferred-asset: onError fires
   // immediately when the MP4 is absent — silent slot reservation, ambient
@@ -64,28 +69,19 @@ function Landing() {
   /* iOS patch: autoplay is frequently blocked on iOS (esp. Low Power
      Mode), leaving the rip video stalled on its first frame with the
      intro never playing. Try play() on mount; if the returned promise
-     rejects, retry once on the first user gesture over the rip slot.
-     onError->settle(false) below is untouched — this only adds a play
-     retry path, it never bypasses the error fallback. */
+     rejects, Low Power Mode is hard-blocking autoplay — fall back to the
+     animated GIF (rendered as an <img>, so it animates regardless).
+     onError->settle(false) below is untouched — this only adds the GIF
+     fallback path, it never bypasses the error fallback. */
   useEffect(function () {
     if (settled) return;
     var video = ripVideoRef.current;
-    var slot = ripSlotRef.current;
     if (!video) return;
-    var ac = new AbortController();
-
-    function retryPlay() { video.play().catch(function () {}); }
 
     var p = video.play();
     if (p && typeof p.catch === "function") {
-      p.catch(function () {
-        if (!slot) return;
-        slot.addEventListener("pointerdown", retryPlay, { once: true, signal: ac.signal });
-        slot.addEventListener("touchstart", retryPlay, { once: true, passive: true, signal: ac.signal });
-      });
+      p.catch(function () { setAutoplayBlocked(true); });
     }
-
-    return function () { ac.abort(); };
   }, [settled]);
 
   /* iOS patch: scroll cue illumination + JS fallback fill for the
@@ -115,8 +111,12 @@ function Landing() {
 
   /* B5 orchestrator — lifted from B5 preview script-0, .kl-constellation
      reconciled to .kl-hotspots per B1 v1.1 patch Q2. Runs once on mount;
-     state classes (is-woken / is-tap-in-flight / has-tap) live on the
-     .kl-hotspots wrapper. Cleans up its IO + listeners + timers on unmount. */
+     state classes (is-woken / is-zoomed / has-tap) live on the
+     .kl-hotspots wrapper. Cleans up its IO + listeners + timers on unmount.
+     iOS patch: Phase C (koy:template:enter catcher) doesn't exist yet, so
+     tap-to-zoom is REVERSIBLE, not a one-way commit — a tile holds at
+     1.45x with its frame visible, and dismisses back to its grid position
+     on re-tap, outside tap/click, or Escape. No dissolve, no dispatch. */
   useEffect(function () {
     var root = hotspotsRef.current;
     if (!root) return;
@@ -137,28 +137,30 @@ function Landing() {
     }, { threshold: 0.4 });
     io.observe(root);
 
+    var zoomedTile = null;
+
+    function dismissZoom() {
+      if (!zoomedTile) return;
+      zoomedTile.classList.remove("is-zoomed");
+      zoomedTile = null;
+      root.classList.remove("has-tap");
+    }
+
+    function expandTile(tile) {
+      zoomedTile = tile;
+      tile.classList.add("is-zoomed");
+      root.classList.add("has-tap");
+    }
+
     function fireTap(tile) {
       if (tile.dataset.template === "pending") return fireGraceful(tile);
-      if (root.classList.contains("is-tap-in-flight")) return;
-      root.classList.add("is-tap-in-flight", "has-tap");
-
-      var r = tile.getBoundingClientRect();
-      tile.style.setProperty("--tx", ((window.innerWidth / 2) - (r.left + r.width / 2)) + "px");
-      tile.style.setProperty("--ty", ((window.innerHeight / 2) - (r.top + r.height / 2)) + "px");
-      tile.style.setProperty("--scale", 1.45);
-
-      tile.classList.add("is-tapping");
-      later(function () { tile.classList.add("is-expanding"); }, 120);
-      later(function () { tile.classList.add("is-dissolving"); }, 600);
-      later(function () {
-        tile.dispatchEvent(new CustomEvent("koy:template:enter", {
-          bubbles: true,
-          detail: { template: tile.dataset.template }
-        }));
-      }, 700);
+      if (zoomedTile === tile) { dismissZoom(); return; }
+      if (zoomedTile) return;
+      expandTile(tile);
     }
 
     function fireGraceful(tile) {
+      if (zoomedTile) return;
       if (root.classList.contains("is-tap-in-flight")) return;
       root.classList.add("is-tap-in-flight", "has-tap");
       tile.classList.add("is-graceful");
@@ -168,10 +170,26 @@ function Landing() {
       }, 1400);
     }
 
+    /* Dismiss on outside tap/click. pointerdown fires ahead of click for
+       both mouse and touch, so a tap on the zoomed tile itself is a no-op
+       here (target is inside zoomedTile) and falls through to the tile's
+       own click handler below, which toggles it off via fireTap. */
+    function onOutsidePointerDown(e) {
+      if (!zoomedTile) return;
+      if (zoomedTile.contains(e.target)) return;
+      dismissZoom();
+    }
+    function onKeyDown(e) {
+      if (e.key === "Escape") dismissZoom();
+    }
+    document.addEventListener("pointerdown", onOutsidePointerDown, { signal: sig });
+    document.addEventListener("keydown", onKeyDown, { signal: sig });
+
     function bindLongPress(tile) {
       var timer, x0 = 0, y0 = 0;
       tile.addEventListener("touchstart", function (e) {
         if (tile.dataset.template === "pending") return;
+        if (zoomedTile) return;
         x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
         timer = setTimeout(function () {
           tile.classList.add("is-previewing");
@@ -231,6 +249,13 @@ function Landing() {
         <div className="kl-hero__rip-slot" ref={ripSlotRef}>
           {settled ? (
             <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          ) : autoplayBlocked ? (
+            /* iOS patch: autoplay was rejected (Low Power Mode hard-blocks
+               muted autoplay) — fall back to the animated GIF. A GIF is an
+               <img>, so it animates on its own; no kl-mark-rest class here
+               (that class drives the static-mark breathing loop and would
+               double-animate against the GIF's own motion). */
+            <img src={RIP_FALLBACK_GIF} alt="Koy" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <video
               ref={ripVideoRef}
