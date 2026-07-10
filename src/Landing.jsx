@@ -13,6 +13,7 @@ import "./styles/koy-landing.css";
 var FONTS = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap";
 var STATIC_MARK = "/koy-rip-static-final-frame-v2.jpg";
 var RIP_MOTION = "/koy-rip-motion-v2-CANON.mp4";
+var RIP_FALLBACK_GIF = "/koy-rip-motion-v2-fallback.gif";
 var SPREAD_LANDSCAPE = "/koy-spread-motion-landscape-v1.mp4";
 
 /* B3 storage contract: single boolean, sessionStorage backend (rip is a
@@ -37,12 +38,23 @@ function Landing() {
   // B3 rip: first visit plays the motion, then settles to the static mark
   // (which breathes via .kl-mark-rest). Seen / reduced-motion open settled.
   var [settled, setSettled] = useState(function () { return ripSeen() || reducedMotion(); });
+  // iOS patch: when autoplay is blocked (Low Power Mode hard-blocks
+  // muted autoplay), fall back to the animated GIF (an <img>, so it
+  // animates even under Low Power Mode — no native play button).
+  var [autoplayBlocked, setAutoplayBlocked] = useState(false);
   // B4 spread (v4.4 cascade): data-state="settled" on .kl root once the
   // spread video ends or errors (Path C deferred-asset: onError fires
   // immediately when the MP4 is absent — silent slot reservation, ambient
   // field reveals via CSS, hotspot wake becomes eligible).
   var [bridgeSettled, setBridgeSettled] = useState(false);
+  // B4 spread cosmetic (iOS): stay hidden until real decoded frames exist
+  // (onLoadedData). Absent-asset path untouched — onError still settles.
+  var [spreadLoaded, setSpreadLoaded] = useState(false);
   var hotspotsRef = useRef(null);
+  var ripVideoRef = useRef(null);
+  var ripSlotRef = useRef(null);
+  var cueRef = useRef(null);
+  var scrollProgressRef = useRef(null);
 
   function settle(setFlag) { if (setFlag) markRipSeen(); setSettled(true); }
   function settleBridge() { setBridgeSettled(true); }
@@ -54,10 +66,57 @@ function Landing() {
     return function () { window.removeEventListener("keydown", onKey); };
   }, []);
 
+  /* iOS patch: autoplay is frequently blocked on iOS (esp. Low Power
+     Mode), leaving the rip video stalled on its first frame with the
+     intro never playing. Try play() on mount; if the returned promise
+     rejects, Low Power Mode is hard-blocking autoplay — fall back to the
+     animated GIF (rendered as an <img>, so it animates regardless).
+     onError->settle(false) below is untouched — this only adds the GIF
+     fallback path, it never bypasses the error fallback. */
+  useEffect(function () {
+    if (settled) return;
+    var video = ripVideoRef.current;
+    if (!video) return;
+
+    var p = video.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(function () { setAutoplayBlocked(true); });
+    }
+  }, [settled]);
+
+  /* iOS patch: scroll cue illumination + JS fallback fill for the
+     scroll-progress hairline on UAs without scroll-driven animation
+     support (older iOS Safari). Single passive listener drives both;
+     cleaned up on unmount. */
+  useEffect(function () {
+    var cue = cueRef.current;
+    var bar = scrollProgressRef.current;
+    var needsJsFill = !!(bar && !(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()")));
+
+    function onScroll() {
+      var y = window.scrollY || window.pageYOffset || 0;
+      if (cue) cue.classList.toggle("is-lit", y > 8);
+      if (needsJsFill) {
+        var doc = document.documentElement;
+        var max = doc.scrollHeight - doc.clientHeight;
+        var pct = max > 0 ? Math.min(1, y / max) : 0;
+        bar.style.setProperty("--scroll-fill", pct);
+      }
+    }
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return function () { window.removeEventListener("scroll", onScroll); };
+  }, []);
+
   /* B5 orchestrator — lifted from B5 preview script-0, .kl-constellation
      reconciled to .kl-hotspots per B1 v1.1 patch Q2. Runs once on mount;
-     state classes (is-woken / is-tap-in-flight / has-tap) live on the
-     .kl-hotspots wrapper. Cleans up its IO + listeners + timers on unmount. */
+     state classes (is-woken / is-zoomed / has-tap) live on the
+     .kl-hotspots wrapper. Cleans up its IO + listeners + timers on unmount.
+     iOS patch: Phase C (koy:template:enter catcher) doesn't exist yet, so
+     tap-to-zoom is REVERSIBLE, not a one-way commit — a tile holds at
+     1.45x with its frame visible, and dismisses back to its grid position
+     on re-tap, outside tap/click, or Escape. No dissolve, no dispatch. */
   useEffect(function () {
     var root = hotspotsRef.current;
     if (!root) return;
@@ -78,28 +137,30 @@ function Landing() {
     }, { threshold: 0.4 });
     io.observe(root);
 
+    var zoomedTile = null;
+
+    function dismissZoom() {
+      if (!zoomedTile) return;
+      zoomedTile.classList.remove("is-zoomed");
+      zoomedTile = null;
+      root.classList.remove("has-tap");
+    }
+
+    function expandTile(tile) {
+      zoomedTile = tile;
+      tile.classList.add("is-zoomed");
+      root.classList.add("has-tap");
+    }
+
     function fireTap(tile) {
       if (tile.dataset.template === "pending") return fireGraceful(tile);
-      if (root.classList.contains("is-tap-in-flight")) return;
-      root.classList.add("is-tap-in-flight", "has-tap");
-
-      var r = tile.getBoundingClientRect();
-      tile.style.setProperty("--tx", ((window.innerWidth / 2) - (r.left + r.width / 2)) + "px");
-      tile.style.setProperty("--ty", ((window.innerHeight / 2) - (r.top + r.height / 2)) + "px");
-      tile.style.setProperty("--scale", Math.max(window.innerWidth / r.width, window.innerHeight / r.height) * 1.05);
-
-      tile.classList.add("is-tapping");
-      later(function () { tile.classList.add("is-expanding"); }, 120);
-      later(function () { tile.classList.add("is-dissolving"); }, 600);
-      later(function () {
-        tile.dispatchEvent(new CustomEvent("koy:template:enter", {
-          bubbles: true,
-          detail: { template: tile.dataset.template }
-        }));
-      }, 700);
+      if (zoomedTile === tile) { dismissZoom(); return; }
+      if (zoomedTile) return;
+      expandTile(tile);
     }
 
     function fireGraceful(tile) {
+      if (zoomedTile) return;
       if (root.classList.contains("is-tap-in-flight")) return;
       root.classList.add("is-tap-in-flight", "has-tap");
       tile.classList.add("is-graceful");
@@ -109,10 +170,26 @@ function Landing() {
       }, 1400);
     }
 
+    /* Dismiss on outside tap/click. pointerdown fires ahead of click for
+       both mouse and touch, so a tap on the zoomed tile itself is a no-op
+       here (target is inside zoomedTile) and falls through to the tile's
+       own click handler below, which toggles it off via fireTap. */
+    function onOutsidePointerDown(e) {
+      if (!zoomedTile) return;
+      if (zoomedTile.contains(e.target)) return;
+      dismissZoom();
+    }
+    function onKeyDown(e) {
+      if (e.key === "Escape") dismissZoom();
+    }
+    document.addEventListener("pointerdown", onOutsidePointerDown, { signal: sig });
+    document.addEventListener("keydown", onKeyDown, { signal: sig });
+
     function bindLongPress(tile) {
       var timer, x0 = 0, y0 = 0;
       tile.addEventListener("touchstart", function (e) {
         if (tile.dataset.template === "pending") return;
+        if (zoomedTile) return;
         x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
         timer = setTimeout(function () {
           tile.classList.add("is-previewing");
@@ -158,7 +235,7 @@ function Landing() {
   return (
     <div className="kl" data-state={bridgeSettled ? "settled" : undefined}>
       <link href={FONTS} rel="stylesheet" />
-      <div className="kl-scroll-progress" aria-hidden="true"></div>
+      <div className="kl-scroll-progress" aria-hidden="true" ref={scrollProgressRef}></div>
 
       <nav className="kl-nav" aria-label="Landing">
         <div className="kl-nav__brand-slot" aria-label="Koy">
@@ -169,20 +246,16 @@ function Landing() {
       </nav>
 
       <section className="kl-hero">
-        <div className="kl-hero__rip-slot">
+        <div className="kl-hero__rip-slot" ref={ripSlotRef}>
           {settled ? (
             <img src={STATIC_MARK} alt="Koy" className="kl-mark-rest" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
-            <video
-              src={RIP_MOTION}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onEnded={function () { settle(true); }}
-              onError={function () { settle(false); }}
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
-            />
+            /* GIF is the default hero motion on ALL devices (founder call).
+               A GIF is an <img>, so it animates everywhere (desktop + iOS,
+               incl. Low Power Mode) with no autoplay policy and no native
+               play-button. The static breathing mark is only the settled
+               state (Skip / Esc / reduced-motion). */
+            <img src={RIP_FALLBACK_GIF} alt="Koy" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           )}
         </div>
 
@@ -190,7 +263,7 @@ function Landing() {
           <h1 className="kl-hero__phrase"></h1>
         </div>
 
-        <div className="kl-hero__cue" aria-hidden="true">
+        <div className="kl-hero__cue" aria-hidden="true" ref={cueRef}>
           <span className="kl-hero__cue-line"></span>
           <span className="kl-hero__cue-label">Scroll</span>
         </div>
@@ -216,12 +289,13 @@ function Landing() {
           public/ at the specced filename and the slot resolves. */}
       <div className="kl-slime-band" aria-hidden="true">
         <video
-          className="kl-spread"
+          className={"kl-spread" + (spreadLoaded ? " is-loaded" : "")}
           src={SPREAD_LANDSCAPE}
           autoPlay
           muted
           playsInline
           preload="auto"
+          onLoadedData={function () { setSpreadLoaded(true); }}
           onEnded={settleBridge}
           onError={settleBridge}
         />

@@ -80,7 +80,10 @@
   height: 100%;
   width: 100%;
   transform-origin: 0 50%;
-  transform: scaleX(0);
+  /* iOS patch: falls back to a JS-set --scroll-fill custom property
+     (inherited from .kl-scroll-progress) on UAs without scroll-driven
+     animation support; unset defaults to 0, matching prior behavior. */
+  transform: scaleX(var(--scroll-fill, 0));
   background: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow);
 }
@@ -208,6 +211,7 @@
 .kl-hero__cue-line {
   width: 1px; height: 32px;
   background: linear-gradient(to bottom, transparent, var(--accent));
+  transition: background 320ms var(--ease-pulse), box-shadow 320ms var(--ease-pulse);
 }
 .kl-hero__cue-label {
   font-family: var(--font-mono);
@@ -215,6 +219,17 @@
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--fg-faint);
+  transition: color 320ms var(--ease-pulse);
+}
+
+/* iOS patch: illuminated state once JS detects scroll past ~8px
+   (see Landing.jsx scroll handler). Chroma lift only, no hard flip. */
+.kl-hero__cue.is-lit .kl-hero__cue-line {
+  background: linear-gradient(to bottom, transparent, var(--accent-hover, var(--accent)));
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.kl-hero__cue.is-lit .kl-hero__cue-label {
+  color: var(--accent);
 }
 
 
@@ -447,8 +462,27 @@
     --glow-c 240ms var(--ease-pulse),
     --glow-blur 240ms var(--ease-pulse);
 }
+
+/* ----- ZOOM · reversible tap-to-zoom (iOS patch) -----
+   Phase C (koy:template:enter catcher) doesn't exist yet, so a tap
+   holds the tile at 1.45x IN PLACE (no fly-to-center translate) with
+   its frame still visible — NOT the dissolve treatment above. The
+   base .kl-hotspot transition (220ms, transform included) drives both
+   the expand-in and the collapse-back-to-grid animation, so removing
+   this class alone is enough to reverse it cleanly; no separate
+   is-reversing step required. */
+.kl-hotspot.is-zoomed {
+  z-index: 100;
+  transform: scale(1.45);
+  border-color: oklch(0.65 0.18 148);
+  --glow-l: 0.70;
+  --glow-c: 0.20;
+  --glow-blur: 18px;
+  animation-play-state: paused;
+}
+
 /* unchosen tiles collapse — transform+filter, NOT opacity (Rule #9) */
-.kl-hotspots.has-tap .kl-hotspot:not(.is-tapping):not(.is-expanding):not(.is-graceful) {
+.kl-hotspots.has-tap .kl-hotspot:not(.is-tapping):not(.is-expanding):not(.is-graceful):not(.is-zoomed) {
   transform: scale(0.92);
   filter: brightness(0.7);
   animation-play-state: paused;
@@ -812,6 +846,11 @@
     transition: border-color 60ms linear !important;
     transform: none !important;
   }
+  /* iOS patch: reversible zoom still functions under reduced-motion, it
+     just snaps instead of animating (Rule: animations off, hard req). */
+  .kl-hotspot.is-zoomed {
+    transition: border-color 60ms linear !important;
+  }
   .kl-hotspots:not(.is-woken) .kl-hotspot {
     border-color: oklch(0.45 0.08 148);
     --glow-l: 0.50; --glow-c: 0.08; --glow-blur: 12px;
@@ -852,7 +891,13 @@
   object-fit: cover;
   z-index: 1;
   pointer-events: none;
+  /* iOS broken-chrome fix: hidden until real frames decode (.is-loaded set
+     on onLoadedData). Absent Path-C asset never loads -> stays hidden,
+     nothing paints; onError still settles the bridge. visibility (not
+     opacity) = binary render gate, no fade competing with the ambient reveal. */
+  visibility: hidden;
 }
+.kl-spread.is-loaded { visibility: visible; }
 
 /* ----- ambient field overlay · void default ----- */
 .kl-slime-band::after {
