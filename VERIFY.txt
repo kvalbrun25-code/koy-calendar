@@ -1,0 +1,77 @@
+lib/auth.js extraction — verification results
+================================================
+
+1) wc -l src/App.jsx
+--------------------
+92 src/App.jsx
+
+(Was 104 lines before this extraction. -12 lines is expected: the moved
+functions — __session/__sessExpired, loadAuth, saveAuth, clearAuth,
+getToken, getRefreshToken, getSessionUser, sessionMarkExpired,
+sessionMarkActive, refreshSession, dispatchAuthEvt — accounted for 12
+lines in the original single-line-per-function style.)
+
+2) grep -qP '\x00' src/App.jsx && echo CORRUPT || echo clean
+--------------------------------------------------------------
+clean
+
+3) tail -1 src/App.jsx
+-----------------------
+export default App;
+
+4) npm run build
+-----------------
+> koy-calendar@0.1.0 build
+> vite build
+
+vite v6.4.2 building for production...
+transforming...
+✓ 36 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.75 kB │ gzip:  0.68 kB
+dist/assets/index-6n60usQn.css   20.42 kB │ gzip:  4.79 kB
+dist/assets/index-BDg_7-0N.js   250.77 kB │ gzip: 76.20 kB
+✓ built in 2.44s
+
+All four checks pass.
+
+
+Flags raised during this extraction
+====================================
+
+Two judgment calls were made that go beyond a pure mechanical move, both
+because __session/__sessExpired are private to lib/auth.js and cannot be
+exported per the task instructions. These touch auth and should be
+covered by the founder Invariant gate + auth smoke test before merging.
+
+1. sbF and uploadToStorage (both remain in App.jsx) read __sessExpired
+   directly (`if(__sessExpired){...}`). Since the flag is no longer
+   accessible, this was replaced with `if(!getToken())`. This is provably
+   equivalent: __sessExpired can only become true inside
+   sessionMarkExpired(), which synchronously calls clearAuth() in the same
+   statement — so __sessExpired===true always implies getToken()===null,
+   with no window where that's not the case (fully synchronous, no await
+   between the two).
+
+2. clearUserState() previously wrote `__sessExpired=true` directly as part
+   of logout. This was NOT replaced with a call to sessionMarkExpired(),
+   because sessionMarkExpired() dispatches the "koyAuthExpired" window
+   event, and Editor has a useEffect (line ~62, unchanged) that listens
+   for that exact event and calls clearUserState() itself. Routing logout
+   through sessionMarkExpired() would make logout re-enter itself via that
+   listener. The original code never dispatched that event from
+   clearUserState — this looks like the same reason. So clearUserState now
+   calls clearAuth() directly (still last, still after React state is
+   nulled, still never calls sessionMarkActive()) and no longer touches
+   the expiry flag. Net effect: after a manual logout, __sessExpired stays
+   false instead of becoming true — but per point 1, nothing downstream
+   keys off that flag anymore (it's all getToken()-based), so this is
+   functionally inert.
+
+Preserved unchanged: I1 (token off React state), the clearAuth-last
+ordering in clearUserState, the rule that logout never calls
+sessionMarkActive(), and enterGuestMode()'s use of sessionMarkActive().
+
+This has NOT been through the founder-approved auth smoke test. Required
+before merge per CLAUDE.md.
