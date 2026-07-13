@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Glam Girl — Phase C Editable-Zone Mockup</title>
+<style>
+  :root{
+    --pink-1:#ffd6e8;
+    --pink-2:#ff9ecb;
+    --pink-3:#e85fa0;
+    --pink-deep:#c23b82;
+    --edit-border:#d6006e;
+    --edit-fill:rgba(214,0,110,0.10);
+    --fixed-border:#7a7a7a;
+    --fixed-fill:rgba(120,120,120,0.08);
+    --cool-border:#ffffff;
+    --cool-glow:#ff2fb0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:#1a1420;
+    color:#fff;
+    padding:32px 16px 64px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:20px;
+  }
+  h1{font-size:20px;margin:0 0 2px;letter-spacing:.02em;}
+  .sub{font-size:13px;color:#c9b8d6;margin:0 0 8px;text-align:center;max-width:560px;}
+  .stage{
+    position:relative;
+    width:460px;
+    height:700px;
+    border-radius:18px;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 20% 15%, #ffd9ec 0%, transparent 45%),
+      radial-gradient(circle at 80% 10%, #ffc2e0 0%, transparent 40%),
+      radial-gradient(circle at 50% 60%, #ff8fc4 0%, transparent 55%),
+      linear-gradient(160deg, #f6b8d9 0%, #e874b3 45%, #c23b82 100%);
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+    border:2px solid #fff5;
+  }
+  .zone{
+    position:absolute;
+    border-radius:8px;
+    display:flex;
+    align-items:flex-end;
+    padding:6px 8px;
+    font-size:10.5px;
+    line-height:1.25;
+    font-weight:600;
+    color:#3a0a24;
+  }
+  .zone.editable{
+    border:2px dashed var(--edit-border);
+    background:var(--edit-fill);
+    color:#6e0040;
+  }
+  .zone.fixed{
+    border:2px dotted var(--fixed-border);
+    background:var(--fixed-fill);
+    color:#eee;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:500;
+  }
+  .zone.cool{
+    border:2px solid var(--cool-border);
+    background:rgba(255,47,176,0.18);
+    box-shadow:0 0 14px 2px var(--cool-glow), inset 0 0 10px rgba(255,255,255,.4);
+    color:#fff;
+    animation:pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 8px 1px var(--cool-glow), inset 0 0 6px rgba(255,255,255,.3);}
+    50%{box-shadow:0 0 22px 5px var(--cool-glow), inset 0 0 14px rgba(255,255,255,.6);}
+  }
+  .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:#fff;
+    color:#c23b82;
+    font-size:9px;
+    font-weight:800;
+    margin-right:5px;
+    flex:none;
+  }
+  .zone.cool .num{background:#fff;color:#c2007a;}
+
+  /* --- zone placements (approx, structural not pixel-accurate) --- */
+  #z1{ left:14px; top:40px; width:230px; height:280px; }
+  #z2{ left:26px; top:280px; width:150px; height:30px; }
+  #z3{ left:150px; top:44px; width:110px; height:34px; }
+  #z4{ left:270px; top:14px; width:180px; height:90px; }
+  #z5{ left:280px; top:200px; width:160px; height:110px; }
+  #z6{ left:270px; top:250px; width:150px; height:150px; }
+  #z7{ left:120px; top:330px; width:150px; height:230px; }
+  #z8{ left:280px; top:420px; width:150px; height:80px; }
+  #z9{ left:14px; top:480px; width:120px; height:130px; }
+  #z10{ left:60px; top:600px; width:340px; height:70px; }
+  #z11{ left:130px; top:668px; width:200px; height:24px; }
+  #z12a{ left:14px; top:330px; width:100px; height:150px; }
+  #zbg{ left:270px; top:100px; width:180px; height:100px; }
+  #zprops{ left:14px; top:320px; width:0; height:0; }
+
+  .legend{
+    width:460px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px 18px;
+    font-size:12px;
+    color:#e7d9ee;
+  }
+  .legend .row{display:flex;align-items:center;gap:8px;}
+  .swatch{width:16px;height:16px;border-radius:4px;flex:none;}
+  .sw-edit{border:2px dashed var(--edit-border);background:var(--edit-fill);}
+  .sw-fixed{border:2px dotted var(--fixed-border);background:var(--fixed-fill);}
+  .sw-cool{border:2px solid #fff;background:rgba(255,47,176,0.25);box-shadow:0 0 8px 1px var(--cool-glow);}
+  footer{font-size:11px;color:#a894b8;max-width:460px;text-align:center;margin-top:4px;}
+</style>
+</head>
+<body>
+
+  <h1>Glam Girl — Phase C Template</h1>
+  <p class="sub">Structural mockup of editable slots over the collage composition. Not final art — positions/labels only, pending founder Taste-gate sign. Solid glow = the interactive cool element.</p>
+
+  <div class="stage">
+    <div class="zone fixed" id="zbg"><span>vanity backdrop scene<br>(fixed atmosphere)</span></div>
+
+    <div class="zone editable" id="z1"><span><span class="num">1</span>mirror-selfie polaroid — main photo slot</span></div>
+    <div class="zone editable" id="z2"><span><span class="num">2</span>polaroid caption text</span></div>
+    <div class="zone editable" id="z3"><span><span class="num">3</span>"glow up" tag / badge text</span></div>
+
+    <div class="zone cool" id="z4"><span><span class="num">4</span>NEON SIGN — cool element, editable phrase, flicker-on animation</span></div>
+
+    <div class="zone editable" id="z5"><span><span class="num">5</span>reminder note — affirmation list</span></div>
+    <div class="zone editable" id="z6"><span><span class="num">6</span>second polaroid — secondary photo slot</span></div>
+
+    <div class="zone editable" id="z7"><span><span class="num">7</span>phone widget — day + checklist</span></div>
+    <div class="zone editable" id="z8"><span><span class="num">8</span>mood/status card — label + % bar</span></div>
+    <div class="zone editable" id="z9"><span><span class="num">9</span>note paper — word list</span></div>
+    <div class="zone editable" id="z12a"><span><span class="num">12</span>perfume label (optional flavor text)</span></div>
+
+    <div class="zone editable" id="z10"><span><span class="num">10</span>TITLE — neon script wordmark (page title)</span></div>
+    <div class="zone editable" id="z11"><span><span class="num">11</span>subtitle text</span></div>
+  </div>
+
+  <div class="legend">
+    <div class="row"><span class="swatch sw-edit"></span> Editable content slot</div>
+    <div class="row"><span class="swatch sw-fixed"></span> Fixed chrome (template identity)</div>
+    <div class="row"><span class="swatch sw-cool"></span> The ONE interactive cool element</div>
+  </div>
+
+  <footer>
+    Sparkles, stars, hearts, kiss-mark, tape, sunglasses, and pink lighting wash are fixed chrome throughout and are not zoned individually above — they render at fixed position/scale around every slot. See GLAM-PHASEC-TEMPLATE-SPEC.md for the full slot table and B5 tile crop notes.
+  </footer>
+
+</body>
+</html>
