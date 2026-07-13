@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Routes, Route, useParams, Navigate, useNavigate } from "react-router-dom";
 import Landing from "./Landing";
-var SB="https://iydmygawfvpotxmxddju.supabase.co",SK="sb_publishable_uQa2QST27VBXNgJxWY8S7Q_wcQiqd4r";
+import { SB, SK } from "./lib/config";
 function dispatchAuthEvt(name){if(typeof window!=="undefined"&&typeof window.dispatchEvent==="function"&&typeof CustomEvent!=="undefined")window.dispatchEvent(new CustomEvent(name))}
 var __sessExpired=false;
 function sessionMarkExpired(){if(__sessExpired)return;__sessExpired=true;clearAuth();dispatchAuthEvt("koyAuthExpired")}
