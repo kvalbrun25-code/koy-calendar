@@ -1,10 +1,10 @@
 -- KOY Sprint 4, slice 1 — atomic save path (save_active_page RPC)
 -- Source: claude/KOY-SAVE-FIX-DRAFT.sql (project knowledge), founder-gated.
 --
--- ⚠ INVARIANT GATE: apply this to Supabase (founder sign-off + smoke) BEFORE
--- merging the client change in this branch — the client now calls this RPC.
--- DB check 2026-07-20: function does NOT exist yet; pages_one_active_per_user
--- unique index EXISTS, so the assumptions below hold.
+-- ⚠ INVARIANT GATE: passed. Founder approved and this was APPLIED to Supabase
+-- on 2026-07-20 (migrations: save_active_page_atomic_save,
+-- save_active_page_revoke_anon). The client change in this branch depends on it.
+-- Pre-apply DB check confirmed pages_one_active_per_user unique index exists.
 --
 -- Bug: saving a new page fires PATCH (deactivate old active) then POST (insert new active)
 -- as two separate calls. If the PATCH fails (observed 503) but the POST succeeds, you get
@@ -77,6 +77,9 @@ $$;
 
 revoke all on function public.save_active_page(text, jsonb, jsonb, uuid) from public;
 grant execute on function public.save_active_page(text, jsonb, jsonb, uuid) to authenticated;
+-- Supabase default privileges also grant EXECUTE to anon; revoke it explicitly.
+-- (The function already rejects null auth.uid() — this is defense in depth.)
+revoke execute on function public.save_active_page(text, jsonb, jsonb, uuid) from anon;
 
 -- Client change (src/App.jsx savePg), shipped in the same branch:
 --   The two-step PATCH-then-POST is replaced with ONE call through sbF:
