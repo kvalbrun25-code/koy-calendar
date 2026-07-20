@@ -1,8 +1,10 @@
 -- ============================================================
 -- KOY Sprint 4 — package plumbing: packages + user_packages
 --
--- ⚠ STATUS: DRAFT — NOT APPLIED. Invariant gate: PENDING founder sign-off.
--- Do not run against Supabase until the founder approves this file.
+-- ✅ STATUS: APPLIED 2026-07-21. Invariant gate: PASSED — founder approved
+-- ("lets apply that package design") and it was applied to Supabase as
+-- migrations packages_and_user_packages + packages_revoke_remaining_write_privs.
+-- Post-apply verify: 3 policies, all SELECT; anon/authenticated hold SELECT only.
 --
 -- Founder decisions baked in (2026-07-20):
 --   * Sprint 4 scope = schema + client-side feature gating ONLY.
@@ -127,6 +129,10 @@ create policy "Users read own packages"
 -- future accidental "allow all" policy could not open writes to clients.
 revoke insert, update, delete on public.packages from anon, authenticated;
 revoke insert, update, delete on public.user_packages from anon, authenticated;
+-- ...and the remaining non-SELECT default grants too. TRUNCATE in particular is
+-- NOT subject to RLS (unreachable via PostgREST, but strip it anyway).
+revoke truncate, references, trigger on public.packages from anon, authenticated;
+revoke truncate, references, trigger on public.user_packages from anon, authenticated;
 
 -- ------------------------------------------------------------
 -- D. updated_at trigger (reuse the Sprint 1 function)
