@@ -72,7 +72,7 @@ These are documented project rules, not stylistic suggestions — violating them
 
 ## ⚠️ App.jsx write hazard — READ BEFORE ANY EDIT TO App.jsx
 
-`src/App.jsx` is a single ~89-line file of extremely dense minified-style JS (~79KB). Editing it has repeatedly corrupted the file.
+`src/App.jsx` is a single ~91-line file of extremely dense minified-style JS (~81KB). Editing it has repeatedly corrupted the file.
 
 **Observed failure modes:** string-replace/patch tooling has silently truncated the file mid-write and injected null bytes. This has happened with multiple editors, including agentic ones. The file appeared to save successfully and only failed at build time — or worse, built and failed at runtime.
 
@@ -80,7 +80,7 @@ These are documented project rules, not stylistic suggestions — violating them
 1. Prefer **surgical, single-function replacements** over rewriting regions. Anchor on the full function signature and replace the whole function body in one operation.
 2. **After every write to App.jsx, verify all four:**
    ```
-   wc -l src/App.jsx                       # expect ~89 lines
+   wc -l src/App.jsx                       # expect ~91 lines
    grep -qP '\x00' src/App.jsx && echo CORRUPT || echo clean
    tail -1 src/App.jsx                     # must be exactly: export default App;
    npm run build                           # must succeed
@@ -148,7 +148,7 @@ Work on a branch. Push the branch. Vercel auto-builds a preview. Smoke on the pr
 - ✅ **App.jsx split / staged refactor** — done. `lib/config.js` (`c7cb762`), `lib/auth.js` (`014428f`), `lib/supabase.js` (`a0ce1db`), `lib/upload.js` (`f7c4811`). App.jsx 103 → 89 lines. `__session`/`__sessExpired` are not exported from `lib/auth` — I1 is enforced by the module boundary. `refreshSession` lives in `auth`, not `supabase` (moving it creates an auth↔supabase cycle).
 - ✅ **Save-path PATCH swallow** — fixed. `savePg` now makes one atomic call to the `save_active_page` RPC (deactivate + insert in a single transaction; `sprint-4-migration.sql`, applied 2026-07-20). Failed saves flash red (I5); double-active rows impossible (I6). The RPC accepts optional `p_page_id` for overwrite-vs-save-as-new; client currently always passes `null`. Merged (PR #9, `7938224`).
 
-**Sprint 4 (open):** package plumbing (`packages`/`user_packages`, feature-gating, pricing) + saved-pages UX ("Overwrite / Save as new" prompt — backend already done via `p_page_id` — and per-row delete). See `claude/KOY-ROADMAP-AND-PRIORITIES.md` in project knowledge for the full sprint order.
+**Sprint 4 (open, nearly closed):** shipped so far — saved-pages UX (PR #10), `packages`+`user_packages` schema APPLIED to Supabase (RLS: clients read-only, users can never write their own grants), package feature gate (`lPkgs` loads owned feature keys at login; non-free templates unlock via `template:<id>` keys on top of `is_premium`), save-failure toast, theme system bones (`pg.th` per-template tokens; `addB` themes new blocks), state hardening (`applyPage()` is the ONLY page/template-swap path — do not set pg/bks/hist directly when swapping pages). Pricing: catalog row is a founder dashboard task; Stripe deferred to Sprint 8+. See `claude/KOY-ROADMAP-AND-PRIORITIES.md` in project knowledge for the full sprint order.
 
 ---
 
