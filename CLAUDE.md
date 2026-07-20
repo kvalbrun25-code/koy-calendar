@@ -72,7 +72,7 @@ These are documented project rules, not stylistic suggestions — violating them
 
 ## ⚠️ App.jsx write hazard — READ BEFORE ANY EDIT TO App.jsx
 
-`src/App.jsx` is a single ~103-line file of extremely dense minified-style JS (~83KB). Editing it has repeatedly corrupted the file.
+`src/App.jsx` is a single ~89-line file of extremely dense minified-style JS (~79KB). Editing it has repeatedly corrupted the file.
 
 **Observed failure modes:** string-replace/patch tooling has silently truncated the file mid-write and injected null bytes. This has happened with multiple editors, including agentic ones. The file appeared to save successfully and only failed at build time — or worse, built and failed at runtime.
 
@@ -80,7 +80,7 @@ These are documented project rules, not stylistic suggestions — violating them
 1. Prefer **surgical, single-function replacements** over rewriting regions. Anchor on the full function signature and replace the whole function body in one operation.
 2. **After every write to App.jsx, verify all four:**
    ```
-   wc -l src/App.jsx                       # expect ~103 lines
+   wc -l src/App.jsx                       # expect ~89 lines
    grep -qP '\x00' src/App.jsx && echo CORRUPT || echo clean
    tail -1 src/App.jsx                     # must be exactly: export default App;
    npm run build                           # must succeed
@@ -140,14 +140,15 @@ Work on a branch. Push the branch. Vercel auto-builds a preview. Smoke on the pr
 
 ---
 
-## Sprint 3 status (current)
+## Sprint 3 status (CLOSED) + Sprint 4 (current)
 
 - ✅ **B15** — token off React state (I1), doAuth error handling (I5). Merged.
 - ✅ **B16** — logout no longer re-arms `__sessExpired`. Merged (`edf1a78`).
 - ✅ **B11** — no half-authed tokenless shell; clearAuth ordered last. Merged (`edf1a78`).
-- ⏳ **App.jsx split / staged refactor** — the back half of Sprint 3. Next up.
+- ✅ **App.jsx split / staged refactor** — done. `lib/config.js` (`c7cb762`), `lib/auth.js` (`014428f`), `lib/supabase.js` (`a0ce1db`), `lib/upload.js` (`f7c4811`). App.jsx 103 → 89 lines. `__session`/`__sessExpired` are not exported from `lib/auth` — I1 is enforced by the module boundary. `refreshSession` lives in `auth`, not `supabase` (moving it creates an auth↔supabase cycle).
+- ✅ **Save-path PATCH swallow** — fixed. `savePg` now makes one atomic call to the `save_active_page` RPC (deactivate + insert in a single transaction; `sprint-4-migration.sql`, applied 2026-07-20). Failed saves flash red (I5); double-active rows impossible (I6). The RPC accepts optional `p_page_id` for overwrite-vs-save-as-new; client currently always passes `null`. Merged (PR #9, `7938224`).
 
-**Refactor target shape:** `lib/auth` (owns `__session`, honors I1), `lib/supabase` (owns `sbF`, the single I2 gate), `lib/upload`, `components/*`. The auth invariants must survive the split — that is the primary risk of this refactor, not build breakage.
+**Sprint 4 (open):** package plumbing (`packages`/`user_packages`, feature-gating, pricing) + saved-pages UX ("Overwrite / Save as new" prompt — backend already done via `p_page_id` — and per-row delete). See `claude/KOY-ROADMAP-AND-PRIORITIES.md` in project knowledge for the full sprint order.
 
 ---
 
