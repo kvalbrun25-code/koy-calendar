@@ -24,6 +24,7 @@ const SYSTEM = [
   "- Keep it under 4KB total. Self-contained: style only elements you created, using classes prefixed koy-.",
   "- The block renders in a small frame the user sizes themselves; use width:100%/height:100% roots.",
   "- Match the user's requested vibe exactly. Maximalism is allowed. This is MySpace energy, not corporate.",
+  "- If the user asks for JavaScript, interactivity with logic, clickable behavior, forms that submit, counters, API calls, or anything that needs a <script> — DO NOT attempt it and DO NOT fake it. Instead return exactly {\"decline\": \"<one friendly sentence: KOY AI writes HTML + CSS for now; moving parts (JavaScript) are coming later; offer to make the LOOK of it in CSS instead>\"}. Pure-CSS motion (hover, glow, float, marquee, spin) is NOT JavaScript and is always fine.",
   "- Output the JSON object and NOTHING else. No markdown fences, no commentary.",
 ].join("\n");
 
@@ -81,6 +82,11 @@ Deno.serve(async (req: Request) => {
     const m = text.match(/\{[\s\S]*\}/);
     if (!m) return json({ error: "no json" }, 502, cors);
     const out = JSON.parse(m[0]);
+    // Graceful JS decline: the model returns {decline:"..."} for JS/interactivity
+    // requests. Pass it through as a friendly message, no block created.
+    if (typeof out.decline === "string" && out.decline.trim()) {
+      return json({ decline: out.decline.slice(0, 300) }, 200, cors);
+    }
     const html = typeof out.html === "string" ? out.html.slice(0, 8000) : "";
     const css = typeof out.css === "string" ? out.css.slice(0, 8000) : "";
     if (!html && !css) return json({ error: "empty" }, 502, cors);
