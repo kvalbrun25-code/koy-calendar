@@ -42,6 +42,13 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "method" }, 405, cors);
 
+  // Defense in depth: even though Supabase's verify_jwt gate should reject
+  // anon calls, refuse anything without a bearer token — so a deploy that
+  // accidentally ships --no-verify-jwt is not a full anonymous bypass.
+  // (Reviewer finding: a misdeploy shouldn't open an anon credit-burn hole.)
+  const authz = req.headers.get("authorization") || "";
+  if (!/^Bearer\s+.+/i.test(authz)) return json({ error: "unauthorized" }, 401, cors);
+
   let prompt = "";
   try {
     const body = await req.json();

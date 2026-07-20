@@ -50,8 +50,19 @@ export function sanitizeHtml(html) {
 // so they are neutralized here.
 export function sanitizeCss(css) {
   if (typeof css !== "string" || !css) return "";
-  return css.slice(0, MAX_CSS)
+  // Normalize FIRST so obfuscated keywords can't dodge the filters below:
+  //  - strip CSS comments (can split a keyword, e.g. @im/**/port)
+  //  - decode hex escapes (e.g. @\69mport -> @import) so the text filter sees
+  //    the real keyword the browser would resolve. (Reviewer finding: HIGH.)
+  var t = css.slice(0, MAX_CSS)
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\\([0-9a-fA-F]{1,6})\s?/g, function (_m, h) {
+      var cp = parseInt(h, 16);
+      return (cp > 0 && cp <= 0x10ffff) ? String.fromCodePoint(cp) : "";
+    });
+  return t
     .replace(/@import[^;]*;?/gi, "")
+    .replace(/@charset[^;]*;?/gi, "")
     .replace(/expression\s*\(/gi, "blocked(")
     .replace(/javascript\s*:/gi, "blocked:")
     .replace(/url\s*\(\s*(['"]?)(?!data:image\/|https:\/\/)/gi, "url($1about:invalid#");
