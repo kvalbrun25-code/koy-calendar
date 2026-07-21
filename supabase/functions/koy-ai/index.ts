@@ -28,6 +28,29 @@ const SYSTEM = [
   "- Output the JSON object and NOTHING else. No markdown fences, no commentary.",
 ].join("\n");
 
+// PAID full-page design (KOY AI Page Architect). Outputs a whole page spec that
+// the client applies through its normal template path (validated + sanitized
+// client-side — html blocks go through the same I7 sanitizer as everything).
+const PAGE_SYSTEM = [
+  "You are the KOY AI Page Architect. The user describes a whole personal page; you design the entire layout.",
+  'Return ONLY a JSON object: {"pg": {...}, "blocks": [ ... ]}.',
+  "pg (page background): { bt: \"solid\"|\"pattern\", bv: hex color for solid (e.g. \"#0a0a0a\") or a pattern name for pattern }.",
+  "Each block: { type, x, y, w, h, rot, content?, css?, style{} }",
+  "  type: one of \"text\",\"calendar\",\"stats\",\"comments\",\"image\",\"html\".",
+  "  x,y: top-left on an 800px-wide canvas; y grows downward (0..2000). w,h in px. Do NOT let blocks overlap.",
+  "  rot: degrees (usually 0; a small tilt is ok for playful vibes).",
+  "  content: for \"text\", the text; for \"html\", the HTML markup; otherwise omit.",
+  "  css: ONLY for type \"html\" — that block's CSS.",
+  "  style: { bg, color, font, fontSize, border, borderRadius, shadow, padding, textAlign }.",
+  "    font is one of: jetbrains, caveat, bebas, monoton, fraunces, rubik-glitch.",
+  "Rules:",
+  "- 3 to 7 blocks. Compose a REAL layout: a header text block near the top, usually a calendar, then supporting blocks (bio text, stats, a decorative html accent).",
+  "- Match the requested vibe precisely in colors, fonts and spacing.",
+  "- For custom decorative elements use type \"html\" with content+css: HTML + CSS ONLY. NEVER JavaScript, <script>, event handlers, iframes, forms, or external resources. Pure-CSS motion (glow, float, sparkle) is fine.",
+  "- Only https: or data:image URLs, if any.",
+  "- Output the JSON object and NOTHING else. No markdown fences, no commentary.",
+].join("\n");
+
 function json(body: unknown, status: number, extra: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
@@ -51,11 +74,14 @@ Deno.serve(async (req: Request) => {
   if (!/^Bearer\s+.+/i.test(authz)) return json({ error: "unauthorized" }, 401, cors);
 
   let prompt = "";
+  let mode: "block" | "page" = "block";
   try {
     const body = await req.json();
     prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
+    if (body?.mode === "page") mode = "page";
   } catch (_) { /* fall through */ }
   if (!prompt || prompt.length > 500) return json({ error: "bad prompt" }, 400, cors);
+  const isPage = mode === "page";
 
   const key = Deno.env.get("ANTHROPIC_API_KEY");
   if (!key) return json({ error: "KOY AI not configured" }, 503, cors);
@@ -67,10 +93,10 @@ Deno.serve(async (req: Request) => {
   const sbAnon = Deno.env.get("SUPABASE_ANON_KEY");
   const sbSvc = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-  async function spend(): Promise<number | null> {
+  async function spend(fn: string): Promise<number | null> {
     if (!sbUrl || !sbAnon) return null;
     try {
-      const rr = await fetch(sbUrl + "/rest/v1/rpc/spend_ai_credit", {
+      const rr = await fetch(sbUrl + "/rest/v1/rpc/" + fn, {
         method: "POST",
         headers: { apikey: sbAnon, Authorization: authz, "Content-Type": "application/json" },
         body: "{}",
@@ -98,7 +124,7 @@ Deno.serve(async (req: Request) => {
   async function refund(): Promise<void> {
     if (!sbUrl || !sbSvc || !uid) return;
     try {
-      await fetch(sbUrl + "/rest/v1/rpc/refund_ai_credit", {
+      await fetch(sbUrl + "/rest/v1/rpc/" + (isPage ? "refund_page_design" : "refund_ai_credit"), {
         method: "POST",
         headers: { apikey: sbSvc, Authorization: "Bearer " + sbSvc, "Content-Type": "application/json" },
         body: JSON.stringify({ p_uid: uid }),
@@ -106,9 +132,17 @@ Deno.serve(async (req: Request) => {
     } catch (_) { /* best effort */ }
   }
 
-  const remaining = await spend();
+  // Page mode is gated on the Pro package (spend_page_design returns -2 = not
+  // Pro, -1 = monthly allowance used up). Block mode uses the free/paid credit
+  // balance (spend_ai_credit returns -1 = out of credits).
+  const remaining = await spend(isPage ? "spend_page_design" : "spend_ai_credit");
   if (remaining === null) return json({ error: "credit check failed" }, 502, cors);
-  if (remaining < 0) return json({ error: "out_of_credits" }, 402, cors);
+  if (isPage) {
+    if (remaining === -2) return json({ error: "not_pro" }, 402, cors);
+    if (remaining === -1) return json({ error: "page_limit" }, 402, cors);
+  } else if (remaining < 0) {
+    return json({ error: "out_of_credits" }, 402, cors);
+  }
 
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -120,8 +154,8 @@ Deno.serve(async (req: Request) => {
       },
       body: JSON.stringify({
         model: Deno.env.get("KOY_AI_MODEL") || "claude-haiku-4-5",
-        max_tokens: 2000,
-        system: SYSTEM,
+        max_tokens: isPage ? 4000 : 2000,
+        system: isPage ? PAGE_SYSTEM : SYSTEM,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -134,8 +168,20 @@ Deno.serve(async (req: Request) => {
     const text: string = data?.content?.[0]?.text ?? "";
     // tolerate stray fences/prose: grab the outermost JSON object
     const m = text.match(/\{[\s\S]*\}/);
-    if (!m) return json({ error: "no_result", credits: remaining }, 200, cors);
+    if (!m) return json({ error: "no_result", credits: remaining, pageLeft: remaining }, 200, cors);
     const out = JSON.parse(m[0]);
+
+    // Page mode: hand back the whole spec. Structural validation + sanitizing
+    // of any html blocks happens CLIENT-side (same I7 filter), same as always.
+    if (isPage) {
+      const pg = out.pg && typeof out.pg === "object" ? out.pg : null;
+      const blocks = Array.isArray(out.blocks) ? out.blocks.slice(0, 12) : null;
+      if (!pg || !blocks || blocks.length === 0) {
+        return json({ error: "no_result", pageLeft: remaining }, 200, cors);
+      }
+      return json({ page: { pg, blocks }, pageLeft: remaining }, 200, cors);
+    }
+
     // Graceful JS decline: the model returns {decline:"..."} for JS/interactivity.
     // It's a real (billed) response, so it is charged — report current balance.
     if (typeof out.decline === "string" && out.decline.trim()) {
