@@ -60,6 +60,27 @@ Deno.serve(async (req: Request) => {
   const key = Deno.env.get("ANTHROPIC_API_KEY");
   if (!key) return json({ error: "KOY AI not configured" }, 503, cors);
 
+  // Credits = rate limiter. Spend one BEFORE calling Anthropic (atomic, keyed
+  // off the caller's JWT via the spend_ai_credit RPC). No credit -> 402, no
+  // model call, no spend. This is what bounds the Anthropic bill per user.
+  const sbUrl = Deno.env.get("SUPABASE_URL");
+  const sbAnon = Deno.env.get("SUPABASE_ANON_KEY");
+  async function rpc(fn: string): Promise<number | null> {
+    if (!sbUrl || !sbAnon) return null;
+    try {
+      const rr = await fetch(sbUrl + "/rest/v1/rpc/" + fn, {
+        method: "POST",
+        headers: { apikey: sbAnon, Authorization: authz, "Content-Type": "application/json" },
+        body: "{}",
+      });
+      if (!rr.ok) return null;
+      return await rr.json();
+    } catch (_) { return null; }
+  }
+  const remaining = await rpc("spend_ai_credit");
+  if (remaining === null) return json({ error: "credit check failed" }, 502, cors);
+  if (remaining < 0) return json({ error: "out_of_credits" }, 402, cors);
+
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -75,26 +96,30 @@ Deno.serve(async (req: Request) => {
         messages: [{ role: "user", content: prompt }],
       }),
     });
-    if (!r.ok) return json({ error: "upstream " + r.status }, 502, cors);
+    // A failed/unproductive generation should be FREE — refund the credit
+    // spent above on every path that doesn't hand back a usable block.
+    if (!r.ok) { await rpc("refund_ai_credit"); return json({ error: "upstream " + r.status }, 502, cors); }
     const data = await r.json();
     const text: string = data?.content?.[0]?.text ?? "";
     // tolerate stray fences/prose: grab the outermost JSON object
     const m = text.match(/\{[\s\S]*\}/);
-    if (!m) return json({ error: "no json" }, 502, cors);
+    if (!m) { await rpc("refund_ai_credit"); return json({ error: "no json" }, 502, cors); }
     const out = JSON.parse(m[0]);
     // Graceful JS decline: the model returns {decline:"..."} for JS/interactivity
-    // requests. Pass it through as a friendly message, no block created.
+    // requests. No block produced -> refund, and report the restored balance.
     if (typeof out.decline === "string" && out.decline.trim()) {
-      return json({ decline: out.decline.slice(0, 300) }, 200, cors);
+      const b = await rpc("refund_ai_credit");
+      return json({ decline: out.decline.slice(0, 300), credits: b }, 200, cors);
     }
     const html = typeof out.html === "string" ? out.html.slice(0, 8000) : "";
     const css = typeof out.css === "string" ? out.css.slice(0, 8000) : "";
-    if (!html && !css) return json({ error: "empty" }, 502, cors);
+    if (!html && !css) { await rpc("refund_ai_credit"); return json({ error: "empty" }, 502, cors); }
     // NOTE: no sanitizing here on purpose — the CLIENT sanitizer (I7) is the
     // single source of truth. Server-side pre-cleaning would tempt someone to
     // trust it and skip the client layer. One filter, one owner.
-    return json({ html, css }, 200, cors);
+    return json({ html, css, credits: remaining }, 200, cors);
   } catch (_e) {
+    await rpc("refund_ai_credit");
     return json({ error: "koy ai error" }, 500, cors);
   }
 });
