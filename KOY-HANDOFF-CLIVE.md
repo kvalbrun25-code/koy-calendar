@@ -1,13 +1,13 @@
 # KOY — HANDOFF TO CLIVE (finish the roadmap: launch prep → Sprints 7–8+)
 
-**From:** CLAUDIUS · **Written:** 2026-07-21 · **main HEAD:** `7e02cb4` · **Branches: just `main` (clean).**
+**From:** CLAUDIUS · **Written:** 2026-07-21 · **main HEAD:** (see git log — page generation AND editing both merged) · **Branches: just `main` (clean).**
 **Read first:** `CLAUDE.md` in the repo, then the project description (soul briefing), then this doc. Roadmap: `claude/KOY-ROADMAP-AND-PRIORITIES.md`. KOY AI: `claude/KOY-AI-BRIEF.md` + `claude/KOY-AI-CREDITS-AND-GOLIVE.md`.
 
 ---
 
 ## IN PLAIN WORDS
 
-Bones are built AND all merged to main: packages/feature-gating, theme system, the HTML/CSS sandbox (with the I7 sanitizer), embed block, marketplace teaser, and **KOY AI** — both single-block generation (free tier) and **full-page design** (paid, Pro-gated). **KOY AI is OFF and undeployed → $0 spend** until the founder flips it on. Everything that was floating at the start of this session has been landed (see history below). Your job: go-live when the founder's ready, then finish the remaining roadmap (launch-blockers → Collect → Sprint 7 presets → Sprint 8 Stripe/Marketplace).
+Bones are built AND all merged to main: packages/feature-gating, theme system, the HTML/CSS sandbox (with the I7 sanitizer), embed block, marketplace teaser, and **KOY AI** — single-block generation (free tier), **full-page design AND full-page editing** (paid, Pro-gated). **KOY AI is OFF and undeployed → $0 spend** until the founder flips it on. Everything that was floating at the start of this session has been landed (see history below). Your job: go-live when the founder's ready, then finish the remaining roadmap (launch-blockers → Collect → Sprint 7 presets → Sprint 8 Stripe/Marketplace).
 
 **Founder context:** Khalid is **user ZERO** and owner. He's foundation-first now — obsesses over taste himself. He plans to **dogfood KOY AI with his own credits** to edit/fix up templates *from inside KOY* once it's on (a real test of the product). The **UI/UX overhaul is the final sprint and is 100% TASTE** — he does it at human speed with "Claude Design," NOT you. You build structure and protect the gates; do not run ahead on visual design.
 
@@ -56,7 +56,7 @@ Model `claude-haiku-4-5`; ~1¢/block, ~2–3¢/page; margins positive. 5 free bl
 - **Third "wow template" slot** — pocketed; needs a vibe from founder (Bloomberg + Glam Girl done, each with a toy).
 - **External `https` images** in image blocks (tracking-pixel/IP-leak class) — leave open or lock to own storage; founder never finalized. (AI page-design already strips external `url()` from styles; image `src` still allows https.)
 - **"Cheaper iteration"** for AI (regenerate a block for a fraction of a credit) — future UX task if usage shows credit burn on iteration.
-- **Full-page EDITING** (AI edits an existing page/blocks) is NOT built — only full-page *generation* (fresh page from a prompt). This is what the founder means by "editing templates from within KOY" — a real future feature, distinct and bigger than generation.
+- **Full-page EDITING is BUILT** (merged 2026-07-21): the Add modal's "Edit this whole page" box (Pro-gated) sends the current page as context; KOY AI returns the full updated page; applied history-preservingly (undo restores pre-edit). Same gate/sanitizer/monthly allowance as generation. NOTE: editing sends the user's current page content to the leased AI (Anthropic) as context — inherent to the feature, consistent with the data model.
 
 ---
 
