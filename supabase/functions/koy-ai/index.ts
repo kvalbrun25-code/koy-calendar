@@ -75,13 +75,18 @@ Deno.serve(async (req: Request) => {
 
   let prompt = "";
   let mode: "block" | "page" = "block";
+  let current: unknown = null;
   try {
     const body = await req.json();
     prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
     if (body?.mode === "page") mode = "page";
+    // Optional current-page context: turns page mode into an EDIT of the
+    // existing page instead of a fresh design. Capped to bound token cost.
+    if (body?.current && typeof body.current === "object") current = body.current;
   } catch (_) { /* fall through */ }
   if (!prompt || prompt.length > 500) return json({ error: "bad prompt" }, 400, cors);
   const isPage = mode === "page";
+  const isEdit = isPage && current !== null;
 
   const key = Deno.env.get("ANTHROPIC_API_KEY");
   if (!key) return json({ error: "KOY AI not configured" }, 503, cors);
@@ -156,7 +161,15 @@ Deno.serve(async (req: Request) => {
         model: Deno.env.get("KOY_AI_MODEL") || "claude-haiku-4-5",
         max_tokens: isPage ? 4000 : 2000,
         system: isPage ? PAGE_SYSTEM : SYSTEM,
-        messages: [{ role: "user", content: prompt }],
+        messages: [{
+          role: "user",
+          content: isEdit
+            ? ("Here is the user's CURRENT page as JSON:\n" +
+               JSON.stringify(current).slice(0, 6000) +
+               "\n\nThe user wants this change: " + prompt +
+               "\n\nReturn the FULL updated page as {\"pg\":...,\"blocks\":[...]}. Keep existing block text content and layout EXCEPT where the requested change requires altering it. Same rules as before (allowed block types, HTML+CSS only in html blocks, no JavaScript).")
+            : prompt,
+        }],
       }),
     });
     // Refund ONLY genuine infra failures (Anthropic 5xx / overload / network) —
