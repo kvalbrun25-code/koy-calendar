@@ -79,31 +79,29 @@ grant execute on function public.spend_ai_credit() to authenticated;
 -- refund_ai_credit() — give back 1 credit (called if the AI request
 -- fails AFTER a credit was spent, so a failed generation is free).
 -- ------------------------------------------------------------
-create or replace function public.refund_ai_credit()
+-- SERVICE-ROLE ONLY (adversarial-review fix). A client-callable refund is an
+-- infinite-credit printer, so refund is NOT granted to authenticated. The edge
+-- function calls it with the service key + explicit uid, and only for genuine
+-- infra failures (Anthropic 5xx / network) — never for model-produced outputs.
+create or replace function public.refund_ai_credit(p_uid uuid)
 returns integer
 language plpgsql
 security definer
 set search_path = public, pg_temp
 as $$
-declare
-  v_uid uuid := auth.uid();
-  v_bal integer;
+declare v_bal integer;
 begin
-  if v_uid is null then
-    raise exception 'NOT_AUTHENTICATED';
-  end if;
   update public.ai_credits
      set balance = balance + 1,
          lifetime_used = greatest(lifetime_used - 1, 0),
          updated_at = now()
-   where user_id = v_uid
+   where user_id = p_uid
   returning balance into v_bal;
   return coalesce(v_bal, 0);
 end;
 $$;
 
-revoke all on function public.refund_ai_credit() from public, anon;
-grant execute on function public.refund_ai_credit() to authenticated;
+revoke all on function public.refund_ai_credit(uuid) from public, anon, authenticated;
 
 -- ------------------------------------------------------------
 -- grant_ai_credits(p_uid, p_n) — top up a user's balance. For the
